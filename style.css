@@ -32,6 +32,7 @@ header {
 
 .card {
     background-color: #ffffff;
+    /* Uses the dynamic color from JS for border */
     border: 3px solid; 
     border-radius: 8px;
     padding: 15px;
