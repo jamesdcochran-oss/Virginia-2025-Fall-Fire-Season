@@ -3,17 +3,11 @@ console.log("🔥 Five Forks Fire Weather Dashboard Loaded");
 // --- 1. DEFINITIONS: SIX COUNTIES AND AREA POLYGON ---
 // Coordinates pulled directly from the provided GeoJSON.
 const counties = [
-  // Dinwiddie
   { name: "Dinwiddie", lat: 37.02153, lon: -77.60261 },
-  // Amelia
   { name: "Amelia", lat: 37.32646, lon: -77.99537 },
-  // Nottoway
   { name: "Nottoway", lat: 37.14824, lon: -78.03382 },
-  // Brunswick
   { name: "Brunswick", lat: 36.78112, lon: -77.85049 },
-  // Greensville
   { name: "Greensville", lat: 36.64130, lon: -77.56347 },
-  // Prince George
   { name: "Prince George", lat: 37.18810, lon: -77.18101 }
 ];
 
@@ -68,7 +62,7 @@ let map;
 let areaBounds; 
 
 
-// --- HELPER FUNCTION: VA DOF DANGER HEURISTIC (Unchanged) ---
+// --- HELPER FUNCTION: VA DOF DANGER HEURISTIC ---
 function getVADOFDangerLevel(temp, rh, wind) {
   const t = parseFloat(temp) || 70;
   const h = parseFloat(rh) || 70;
@@ -85,7 +79,7 @@ function getVADOFDangerLevel(temp, rh, wind) {
   }
 }
 
-// NOAA Weather API Fallback Fetch (Unchanged)
+// NOAA Weather API Fetch (simplified)
 async function fetchWeather(county) {
   try {
     const pointRes = await fetch(`https://api.weather.gov/points/${county.lat},${county.lon}`);
@@ -119,7 +113,7 @@ async function fetchWeather(county) {
   }
 }
 
-// NASA FIRMS GeoJSON fetch (Unchanged)
+// NASA FIRMS GeoJSON fetch (simplified)
 async function fetchHotspots() {
   try {
     const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6.1/geojson/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.geojson");
@@ -130,7 +124,7 @@ async function fetchHotspots() {
   }
 }
 
-// --- UPDATED renderCard FUNCTION (with bold values for scannability) ---
+// --- renderCard FUNCTION (with bold values) ---
 function renderCard(county, weather, hotspotsCount) {
   const container = document.getElementById("cards");
   const card = document.createElement("div");
@@ -138,6 +132,7 @@ function renderCard(county, weather, hotspotsCount) {
   card.className = "card";
   card.style.borderColor = weather.dangerColor;
   
+  // Use <b> tags for key data values for scannability
   card.innerHTML = `
     <h3 style="color: ${weather.dangerColor};">
         ${weather.dangerEmoji} ${county.name} - ${weather.danger}
@@ -148,11 +143,12 @@ function renderCard(county, weather, hotspotsCount) {
   container.appendChild(card);
 }
 
-// --- UPDATED showHotspotsOnMap FUNCTION (with Reset Control) ---
+// --- showHotspotsOnMap FUNCTION (Map setup, Layer Control, and Button added here) ---
 function showHotspotsOnMap(geojson, counties, weatherData) {
   if (!map) {
     map = L.map('map');
   } else {
+    // Clear dynamic layers on refresh
     map.eachLayer(layer => {
         if (layer._icon || layer._path) map.removeLayer(layer);
     });
@@ -166,7 +162,7 @@ function showHotspotsOnMap(geojson, counties, weatherData) {
   const countyBuffers = L.layerGroup();
   const areaBoundary = L.layerGroup(); 
   
-  // 1. Add Area Boundary Polygon
+  // 1. Add Area Boundary Polygon and determine bounds
   const polygonLayer = L.geoJSON(areaPolygonGeoJSON, {
       style: function(feature) {
           return {
@@ -221,6 +217,7 @@ function showHotspotsOnMap(geojson, counties, weatherData) {
   fireMarkers.addTo(map);
   weatherMarkers.addTo(map);
 
+  // --- LAYER CONTROL (TOGGLES) ---
   const overlayMaps = {
     "🔥 Active Hotspots": fireMarkers,
     "☀️ Weather Markers": weatherMarkers,
@@ -234,21 +231,21 @@ function showHotspotsOnMap(geojson, counties, weatherData) {
 
   L.control.layers(baseMaps, overlayMaps).addTo(map);
   
-  // 5. Add Reset View Control
+  // --- RESET VIEW BUTTON ---
   addResetControl(map, areaBounds);
 }
 
-// --- NEW FUNCTION: Reset View Control (Implemented as a clickable link/button) ---
+// --- FUNCTION: Reset View Control (The Button Link) ---
 function addResetControl(map, bounds) {
     const CustomControl = L.Control.extend({
         onAdd: function(map) {
-            // Create as a link (<a>) to ensure it acts and looks like a button/link
+            // Creates the <a> link element that acts as the button
             const container = L.DomUtil.create('a', 'leaflet-bar leaflet-control leaflet-control-custom');
             container.innerHTML = '🔄 Reset View';
             
-            // Set href="#" to make it look and act like a button/link
             container.href = '#'; 
             
+            // Prevents map interaction when clicking the button
             L.DomEvent.disableClickPropagation(container); 
             
             L.DomEvent.on(container, 'click', function(e) {
@@ -276,7 +273,6 @@ async function refreshData() {
     const county = counties[i];
     const weather = weatherData[i];
     
-    // Turf.js logic to find hotspots within 20km circle (must be loaded in HTML)
     const hotspots = fireData.features.filter(f =>
       turf.booleanPointInPolygon(
         turf.point([f.geometry.coordinates[0], f.geometry.coordinates[1]]),
