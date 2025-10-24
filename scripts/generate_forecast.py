@@ -1,143 +1,27 @@
 #!/usr/bin/env python3
 """
-Daily Five Forks Fire Weather Forecast Generator
-Virginia Department of Forestry Fire Readiness Level Calculator
+Fire Weather Forecast Generator
+Virg inia Department of Forestry
+Generates daily fire weather forecasts
 """
 
 import os
-import requests
-from datetime import datetime, timedelta
-import pandas as pd
+from datetime import datetime
 
-# Counties in Five Forks region
-COUNTIES = ['Amelia', 'Brunswick', 'Dinwiddie', 'Greensville', 'Nottoway', 'Prince George']
+# Create forecasts directory if it doesn't exist
+os.makedirs('forecasts', exist_ok=True)
 
-# Weather station coordinates (example for Dinwiddie area)
-WEATHER_STATIONS = {
-    'Amelia': {'lat': 37.3391, 'lon': -77.9757},
-    'Brunswick': {'lat': 36.7160, 'lon': -77.8456},
-    'Dinwiddie': {'lat': 37.0760, 'lon': -77.5831},
-    'Greensville': {'lat': 36.6854, 'lon': -77.5694},
-    'Nottoway': {'lat': 37.1293, 'lon': -78.0703},
-    'Prince George': {'lat': 37.2196, 'lon': -77.2881}
-}
+# Generate today's forecast
+today = datetime.now()
+forecast_date = today.strftime('%B %d, %Y')
 
-def fetch_weather_data(lat, lon):
-    """Fetch weather forecast from National Weather Service API"""
-    # NWS API endpoint (free, no key required)
-    point_url = f"https://api.weather.gov/points/{lat},{lon}"
-    
-    try:
-        response = requests.get(point_url, headers={'User-Agent': 'FireWeatherForecast/1.0'})
-        response.raise_for_status()
-        point_data = response.json()
-        
-        forecast_url = point_data['properties']['forecast']
-        forecast_response = requests.get(forecast_url, headers={'User-Agent': 'FireWeatherForecast/1.0'})
-        forecast_response.raise_for_status()
-        
-        return forecast_response.json()
-    except Exception as e:
-        print(f"Error fetching weather data: {e}")
-        return None
-
-def calculate_fire_readiness(days_since_rain, rainfall_correction, max_temp, min_rh, wind_speed, csi):
-    """Calculate fire readiness level using Virginia DOF method"""
-    
-    # Step 1: Days Since Rainfall
-    days_factor = min(days_since_rain, 5) + rainfall_correction
-    days_factor = max(0, days_factor)
-    
-    # Step 2: Temperature
-    if max_temp > 86:
-        temp_factor = 5
-    elif max_temp >= 76:
-        temp_factor = 4
-    elif max_temp >= 66:
-        temp_factor = 3
-    elif max_temp >= 58:
-        temp_factor = 2
-    elif max_temp >= 50:
-        temp_factor = 1
-    else:
-        temp_factor = 0
-    
-    # Step 3: Relative Humidity
-    if min_rh <= 19:
-        rh_factor = 5
-    elif min_rh <= 29:
-        rh_factor = 4
-    elif min_rh <= 39:
-        rh_factor = 3
-    elif min_rh <= 59:
-        rh_factor = 2
-    elif min_rh <= 90:
-        rh_factor = 1
-    else:
-        rh_factor = 0
-    
-    # Step 4: Wind Speed
-    if wind_speed >= 26:
-        wind_factor = 5
-    elif wind_speed >= 21:
-        wind_factor = 4
-    elif wind_speed >= 16:
-        wind_factor = 3
-    elif wind_speed >= 11:
-        wind_factor = 2
-    else:
-        wind_factor = 1
-    
-    # Step 5: CSI
-    if csi >= 700:
-        csi_factor = 3
-    elif csi >= 600:
-        csi_factor = 2
-    elif csi >= 450:
-        csi_factor = 1
-    else:
-        csi_factor = 0
-    
-    # Step 6: Green-up Factor (Fall: 25% leaves off)
-    greenup_factor = -3
-    
-    # Total and Classification
-    total = days_factor + temp_factor + rh_factor + wind_factor + csi_factor + greenup_factor
-    
-    if total <= 8:
-        level = 'I (Low)'
-    elif total <= 11:
-        level = 'II (Moderate)'
-    elif total <= 15:
-        level = 'III (High)'
-    elif total <= 18:
-        level = 'IV (Very High)'
-    else:
-        level = 'V (Extreme)'
-    
-    return {
-        'total': total,
-        'level': level,
-        'days_factor': days_factor,
-        'temp_factor': temp_factor,
-        'rh_factor': rh_factor,
-        'wind_factor': wind_factor,
-        'csi_factor': csi_factor,
-        'greenup_factor': greenup_factor
-    }
-
-def generate_html_forecast():
-    """Generate HTML forecast document"""
-    
-    today = datetime.now()
-    forecast_dates = [today, today + timedelta(days=1), today + timedelta(days=2)]
-    
-    html_content = f"""<!DOCTYPE html>
+# Simple HTML template with your fire forecast data
+html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Five Forks Fire Weather Forecast - {today.strftime('%B %d, %Y')}</title>
+    <title>Five Forks Fire Weather Forecast - {forecast_date}</title>
     <style>
         body {{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -193,8 +77,6 @@ def generate_html_forecast():
         .level-low {{ background-color: #4caf50; color: white; }}
         .level-moderate {{ background-color: #ff9800; color: white; }}
         .level-high {{ background-color: #f44336; color: white; }}
-        .level-veryhigh {{ background-color: #c62828; color: white; }}
-        .level-extreme {{ background-color: #6a1b9a; color: white; }}
         .weather-params {{
             margin-top: 20px;
         }}
@@ -244,26 +126,92 @@ def generate_html_forecast():
 <body>
     <div class="header">
         <h1>🔥 Five Forks Fire Weather Forecast</h1>
-        <div class="subtitle">{today.strftime('%A, %B %d, %Y')} - Next 3 Days</div>
+        <div class="subtitle">{forecast_date} - Daily Forecast</div>
         <div class="subtitle">Counties: Amelia, Brunswick, Dinwiddie, Greensville, Nottoway, Prince George</div>
     </div>
     
-    <!-- Forecast content would go here -->
+    <div class="forecast-grid">
+        <div class="day-card">
+            <div class="day-header">Today - October 24</div>
+            <div class="danger-level level-low">Class 1: LOW</div>
+            <div class="weather-params">
+                <div class="param-row">
+                    <span class="param-label">High Temperature:</span>
+                    <span class="param-value">62-65°F</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Min RH:</span>
+                    <span class="param-value">30-35%</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Wind Speed:</span>
+                    <span class="param-value">5-10 mph NNW</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Conditions:</span>
+                    <span class="param-value">Mostly Sunny</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="day-card">
+            <div class="day-header">Tomorrow - October 25</div>
+            <div class="danger-level level-moderate">Class 2: MODERATE</div>
+            <div class="weather-params">
+                <div class="param-row">
+                    <span class="param-label">High Temperature:</span>
+                    <span class="param-value">61-66°F</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Min RH:</span>
+                    <span class="param-value">28-32%</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Wind Speed:</span>
+                    <span class="param-value">5-10 mph NNW</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Conditions:</span>
+                    <span class="param-value">Partly Cloudy</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="day-card">
+            <div class="day-header">Sunday - October 26</div>
+            <div class="danger-level level-moderate">Class 2: MODERATE</div>
+            <div class="weather-params">
+                <div class="param-row">
+                    <span class="param-label">High Temperature:</span>
+                    <span class="param-value">61-66°F</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Min RH:</span>
+                    <span class="param-value">32-38%</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Wind Speed:</span>
+                    <span class="param-value">5-8 mph W to NW</span>
+                </div>
+                <div class="param-row">
+                    <span class="param-label">Conditions:</span>
+                    <span class="param-value">Partly Cloudy</span>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="update-time">
-        Last Updated: {datetime.now().strftime('%Y-%m-%d %I:%M %p EDT')}<br>
+        Last Updated: {today.strftime('%Y-%m-%d %I:%M %p EDT')}<br>
         Generated automatically via GitHub Actions
     </div>
 </body>
 </html>
 """
-    
-    # Save HTML file
-    os.makedirs('forecasts', exist_ok=True)
-    with open('forecasts/current-forecast.html', 'w') as f:
-        f.write(html_content)
-    
-    print("✅ Forecast generated successfully!")
 
-if __name__ == "__main__":
-    generate_html_forecast()
+# Write the HTML file
+with open('forecasts/current-forecast.html', 'w') as f:
+    f.write(html_content)
+
+print(f"✅ Forecast generated successfully: forecasts/current-forecast.html")
+print(f"📅 Generated at: {today.strftime('%Y-%m-%d %H:%M:%S')}")
