@@ -20,3 +20,13 @@ jobs:
       
       - name: Generate fire weather forecast
         run: python scripts/generate_forecast.py
+
+            - name: Configure Git
+                  run: |
+                          git config --local user.email "action@github.com"
+                                  git config --local user.name "GitHub Action"
+                                      - name: Commit and push forecast
+                                            run: |
+                                                    git add forecasts/current-forecast.html
+                                                            git commit -m "Update fire weather forecast - $(date)" || true
+                                                                    git push
