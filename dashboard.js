@@ -1,19 +1,19 @@
 console.log("🔥 Five Forks Fire Weather Dashboard Loaded");
 
 // --- 1. DEFINITIONS: SIX COUNTIES AND AREA POLYGON ---
-// Coordinates pulled from the GeoJSON.
+// Coordinates pulled directly from the provided GeoJSON.
 const counties = [
-  // Dinwiddie: [-77.60261, 37.02153]
+  // Dinwiddie
   { name: "Dinwiddie", lat: 37.02153, lon: -77.60261 },
-  // Amelia: [-77.99537, 37.32646]
+  // Amelia
   { name: "Amelia", lat: 37.32646, lon: -77.99537 },
-  // Nottoway: [-78.03382, 37.14824]
+  // Nottoway
   { name: "Nottoway", lat: 37.14824, lon: -78.03382 },
-  // Brunswick: [-77.85049, 36.78112]
+  // Brunswick
   { name: "Brunswick", lat: 36.78112, lon: -77.85049 },
-  // Greensville: [-77.56347, 36.6413]
+  // Greensville
   { name: "Greensville", lat: 36.64130, lon: -77.56347 },
-  // Prince George: [-77.18101, 37.1881]
+  // Prince George
   { name: "Prince George", lat: 37.18810, lon: -77.18101 }
 ];
 
@@ -68,7 +68,7 @@ let map;
 let areaBounds; 
 
 
-// --- HELPER FUNCTION: VA DOF DANGER HEURISTIC ---
+// --- HELPER FUNCTION: VA DOF DANGER HEURISTIC (Unchanged) ---
 function getVADOFDangerLevel(temp, rh, wind) {
   const t = parseFloat(temp) || 70;
   const h = parseFloat(rh) || 70;
@@ -85,7 +85,7 @@ function getVADOFDangerLevel(temp, rh, wind) {
   }
 }
 
-// NOAA Weather API Fallback Fetch (Unchanged from previous versions)
+// NOAA Weather API Fallback Fetch (Unchanged)
 async function fetchWeather(county) {
   try {
     const pointRes = await fetch(`https://api.weather.gov/points/${county.lat},${county.lon}`);
@@ -119,7 +119,7 @@ async function fetchWeather(county) {
   }
 }
 
-// NASA FIRMS GeoJSON fetch (Unchanged from previous versions)
+// NASA FIRMS GeoJSON fetch (Unchanged)
 async function fetchHotspots() {
   try {
     const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6.1/geojson/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.geojson");
@@ -130,7 +130,7 @@ async function fetchHotspots() {
   }
 }
 
-// --- UPDATED renderCard FUNCTION (with bold values) ---
+// --- UPDATED renderCard FUNCTION (with bold values for scannability) ---
 function renderCard(county, weather, hotspotsCount) {
   const container = document.getElementById("cards");
   const card = document.createElement("div");
@@ -148,13 +148,12 @@ function renderCard(county, weather, hotspotsCount) {
   container.appendChild(card);
 }
 
-// --- UPDATED showHotspotsOnMap FUNCTION ---
+// --- UPDATED showHotspotsOnMap FUNCTION (with Reset Control) ---
 function showHotspotsOnMap(geojson, counties, weatherData) {
   if (!map) {
     map = L.map('map');
   } else {
     map.eachLayer(layer => {
-        // Simple way to clear all dynamic layers on refresh
         if (layer._icon || layer._path) map.removeLayer(layer);
     });
   }
@@ -181,7 +180,6 @@ function showHotspotsOnMap(geojson, counties, weatherData) {
   }).addTo(areaBoundary);
   areaBounds = polygonLayer.getBounds(); 
   
-  // Set initial map view
   map.fitBounds(areaBounds);
 
   // 2. Populate Hotspots Layer
@@ -240,21 +238,21 @@ function showHotspotsOnMap(geojson, counties, weatherData) {
   addResetControl(map, areaBounds);
 }
 
-// --- NEW FUNCTION: Reset View Control ---
+// --- NEW FUNCTION: Reset View Control (Implemented as a clickable link/button) ---
 function addResetControl(map, bounds) {
     const CustomControl = L.Control.extend({
         onAdd: function(map) {
+            // Create as a link (<a>) to ensure it acts and looks like a button/link
             const container = L.DomUtil.create('a', 'leaflet-bar leaflet-control leaflet-control-custom');
             container.innerHTML = '🔄 Reset View';
             
             // Set href="#" to make it look and act like a button/link
             container.href = '#'; 
             
-            // Use L.DomEvent.disableClickPropagation to ensure the map doesn't pan when clicked
             L.DomEvent.disableClickPropagation(container); 
             
             L.DomEvent.on(container, 'click', function(e) {
-                L.DomEvent.preventDefault(e); // Prevent default link action (page jump)
+                L.DomEvent.preventDefault(e); // Prevent page jump
                 map.fitBounds(bounds, {
                     padding: [20, 20],
                     duration: 1.5 // Smooth movement animation
@@ -278,6 +276,7 @@ async function refreshData() {
     const county = counties[i];
     const weather = weatherData[i];
     
+    // Turf.js logic to find hotspots within 20km circle (must be loaded in HTML)
     const hotspots = fireData.features.filter(f =>
       turf.booleanPointInPolygon(
         turf.point([f.geometry.coordinates[0], f.geometry.coordinates[1]]),
