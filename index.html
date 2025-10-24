@@ -156,6 +156,7 @@
             <a href="https://www.windy.com/?37.702,-78.333,7,p:favs" target="_blank">Windy</a>
             <a href="https://virginiapro.firesponse.com/save/" target="_blank">fiReponse Virginia</a>
             <a href="https://www.weather.gov/akq/" target="_blank">Wakefield, NWS</a>
+            <a href="https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:today,today;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_aqua_nrt,fires_modis_aqua_sp,fires_modis_terra,fires_modis_terra_nrt,fires_modis_terra_sp,fires_viirs_noaa20,fires_viirs_noaa20_nrt,fires_viirs_noaa20_sp,fires_viirs_noaa21,fires_viirs_snpp,fires_viirs_snpp_nrt,fires_viirs_snpp_sp,active-ca,active-usa,fire-perimeter,sta_detections,sta_mask,street;@-77.70,36.90,9.90z" target="_blank">NASA/FIRMS Map</a>
         </div>
         <button id="dark-mode-toggle">Switch to Dark Mode</button>
     </div>
@@ -326,6 +327,7 @@
 
         async function fetchHotspots() {
           try {
+            // Note: This API call fetches the raw GeoJSON data for processing
             const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6.1/geojson/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.geojson");
             return await res.json();
           } catch (error) {
