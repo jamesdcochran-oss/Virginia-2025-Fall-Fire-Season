@@ -12,7 +12,7 @@ header {
     margin-bottom: 20px;
 }
 
-/* ESSENTIAL: Must set a height for Leaflet map to render */
+/* ESSENTIAL: Must set a height for Leaflet map to render its contents/controls */
 #map {
     height: 600px; 
     width: 100%;
@@ -57,11 +57,12 @@ header {
 }
 
 /* --- Custom Control Styling (Reset View Button) --- */
+/* This styling ensures the custom button link appears correctly */
 .leaflet-control-custom {
     background-color: white;
     padding: 5px 10px;
     text-align: center;
-    text-decoration: none; /* Remove underline for the link */
+    text-decoration: none; 
     font-weight: bold;
     color: #333;
     border-radius: 4px;
