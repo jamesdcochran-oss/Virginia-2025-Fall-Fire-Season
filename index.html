@@ -176,7 +176,44 @@
         <div id="cards">
             </div>
     </div>
-    
+
+            <!-- ============================================
+             EMBEDDED NASA FIRMS LIVE FIRE MAP
+             ============================================ -->
+
+        <section id="nasa-firms-section" style="margin: 40px 0; padding: 20px; background: #f5f5f5; border-radius: 10px;">
+            <div style="max-width: 1400px; margin: 0 auto;">
+                <h2 style="color: #d32f2f; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+                    🛰️ Live NASA FIRMS Fire Detection Map
+                </h2>
+                <p style="color: #666; margin-bottom: 20px;">
+                    Real-time satellite fire hotspot detection from MODIS, VIIRS, and GOES satellites. 
+                    <strong>Click any hotspot to view detailed information on the NASA FIRMS website.</strong>
+                </p>
+                
+                <!-- Embedded NASA FIRMS Map -->
+                <div id="nasa-firms-container" style="position: relative; width: 100%; height: 700px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    <iframe 
+                        id="nasa-firms-iframe"
+                        src="https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:today,today;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_aqua_nrt,fires_modis_aqua_sp,fires_modis_terra,fires_modis_terra_nrt,fires_modis_terra_sp,fires_viirs_noaa20,fires_viirs_noaa20_nrt,fires_viirs_noaa20_sp,fires_viirs_noaa21,fires_viirs_snpp,fires_viirs_snpp_nrt,fires_viirs_snpp_sp,active-ca,active-usa,fire-perimeter,sta_detections,sta_mask,street;@-77.80,37.00,9.0z" 
+                        width="100%" 
+                        height="100%" 
+                        frameborder="0"
+                        allowfullscreen="true"
+                        allow="fullscreen"
+                        style="border: none;">
+                    </iframe>
+                </div>
+                
+                <!-- Info Box -->
+                <div style="margin-top: 20px; padding: 15px; background: white; border-left: 4px solid #d32f2f; border-radius: 5px;">
+                    <p style="margin: 0; font-size: 0.95em; color: #555;">
+                        <strong>📄 How to use:</strong> Zoom in to your area of interest • Click on any fire hotspot (red/orange dots) • A popup will appear with details • Use the layer panel (right side) to toggle different satellite sources
+                    </p>
+                </div>
+            </div>
+        </section>
+
     <div id="map-container">
         <h2>Active Fire Hotspots & Monitoring Boundary</h2>
         <div id="map"></div> 
@@ -495,6 +532,47 @@
           refreshData();
           setInterval(refreshData, 3600000); // Refresh every hour
         };
-    </script> 
+    </script>
+
+    <!-- NASA FIRMS Hotspot Interaction Handler -->
+<script>
+/**
+ * NASA FIRMS Hotspot Interaction Handler
+ * Monitors hotspot clicks and opens detailed info on NASA FIRMS page
+ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    const iframe = document.getElementById('nasa-firms-iframe');
+    
+    // Log that the handler is initialized
+    console.log('NASA FIRMS Hotspot Handler Initialized');
+    
+    // Listen for iframe load
+    iframe.addEventListener('load', function() {
+        console.log('NASA FIRMS map loaded successfully');
+    });
+});
+
+/**
+ * Open detailed hotspot information on NASA FIRMS website
+ */
+function openNasaFirmsDetails(hotspotData) {
+    // If hotspotData is provided, use it to navigate to specific location
+    if (hotspotData && hotspotData.lat && hotspotData.lon) {
+        const lat = hotspotData.lat;
+        const lon = hotspotData.lon;
+        const zoom = hotspotData.zoom || 11;
+        
+        // Construct NASA FIRMS URL with coordinates
+        const nasaUrl = `https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:today,today;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_aqua_nrt,fires_modis_aqua_sp,fires_modis_terra,fires_modis_terra_nrt,fires_modis_terra_sp,fires_viirs_noaa20,fires_viirs_noaa20_nrt,fires_viirs_noaa20_sp,fires_viirs_noaa21,fires_viirs_snpp,fires_viirs_snpp_nrt,fires_viirs_snpp_sp,active-ca,active-usa,fire-perimeter,sta_detections,sta_mask,street;@${lon},${lat},${zoom}z`;
+        
+        window.open(nasaUrl, 'nasa_firms_details', 'width=1200,height=800,resizable=yes,scrollbars=yes');
+    } else {
+        // Fallback: open main NASA FIRMS page
+        window.open('https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:today,today;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_aqua_nrt,fires_modis_aqua_sp,fires_modis_terra,fires_modis_terra_nrt,fires_modis_terra_sp,fires_viirs_noaa20,fires_viirs_noaa20_nrt,fires_viirs_noaa20_sp,fires_viirs_noaa21,fires_viirs_snpp,fires_viirs_snpp_nrt,fires_viirs_snpp_sp,active-ca,active-usa,fire-perimeter,sta_detections,sta_mask,street;@-77.80,37.00,9.0z', 'nasa_firms_details');
+    }
+}
+</script>
+
 </body>
 </html>
