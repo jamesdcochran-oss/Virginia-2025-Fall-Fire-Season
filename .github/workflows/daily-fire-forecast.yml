@@ -1,4 +1,4 @@
-name: Daily Fire Weather Forecast
+ name: Daily Fire Weather Forecast
 
 on:
   schedule:
