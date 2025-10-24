@@ -1,217 +1,111 @@
 #!/usr/bin/env python3
-"""
-Fire Weather Forecast Generator
-Virg inia Department of Forestry
-Generates daily fire weather forecasts
-"""
-
 import os
 from datetime import datetime
 
-# Create forecasts directory if it doesn't exist
 os.makedirs('forecasts', exist_ok=True)
-
-# Generate today's forecast
 today = datetime.now()
-forecast_date = today.strftime('%B %d, %Y')
 
-# Simple HTML template with your fire forecast data
-html_content = f"""<!DOCTYPE html>
-<html lang="en">
+html = f'''<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Five Forks Fire Weather Forecast - {forecast_date}</title>
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }}
-        .header {{
-            background: linear-gradient(135deg, #d32f2f 0%, #f57c00 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }}
-        h1 {{
-            margin: 0;
-            font-size: 2.5em;
-        }}
-        .subtitle {{
-            margin-top: 10px;
-            font-size: 1.1em;
-            opacity: 0.9;
-        }}
-        .forecast-grid {{
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }}
-        .day-card {{
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }}
-        .day-header {{
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #e0e0e0;
-        }}
-        .danger-level {{
-            font-size: 1.8em;
-            font-weight: bold;
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }}
-        .level-low {{ background-color: #4caf50; color: white; }}
-        .level-moderate {{ background-color: #ff9800; color: white; }}
-        .level-high {{ background-color: #f44336; color: white; }}
-        .weather-params {{
-            margin-top: 20px;
-        }}
-        .param-row {{
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }}
-        .param-label {{
-            font-weight: bold;
-            color: #555;
-        }}
-        .param-value {{
-            color: #333;
-        }}
-        .update-time {{
-            text-align: center;
-            color: #666;
-            margin-top: 30px;
-            font-style: italic;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }}
-        th, td {{
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-        }}
-        th {{
-            background-color: #424242;
-            color: white;
-            font-weight: bold;
-        }}
-        tr:hover {{
-            background-color: #f5f5f5;
-        }}
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width">
+<title>Five Forks Fire Weather Forecast</title>
+<style>
+body {{font-family:Arial,sans-serif; max-width:1200px; margin:0 auto; padding:20px; background:#f5f5f5;}}
+.header {{background:linear-gradient(135deg,#d32f2f,#f57c00); color:white; padding:30px; border-radius:10px; margin-bottom:30px;}}
+h1 {{margin:0; font-size:2.5em;}}
+.subtitle {{margin-top:10px; font-size:1.1em; opacity:0.9;}}
+.section {{background:white; padding:20px; margin:20px 0; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}}
+table {{width:100%; border-collapse:collapse; margin:15px 0;}}
+th,td {{padding:12px; text-align:left; border-bottom:1px solid #ddd;}}
+th {{background:#424242; color:white; font-weight:bold;}}
+.low {{background:#4caf50; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;}}
+.moderate {{background:#ff9800; color:white; padding:10px; border-radius:5px; text-align:center; font-weight:bold;}}
+.day {{display:inline-block; width:32%; margin:1%; padding:15px; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1); vertical-align:top;}}
+.param {{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;}}
+.label {{font-weight:bold; color:#555;}}
+</style>
 </head>
 <body>
-    <div class="header">
-        <h1>🔥 Five Forks Fire Weather Forecast</h1>
-        <div class="subtitle">{forecast_date} - Daily Forecast</div>
-        <div class="subtitle">Counties: Amelia, Brunswick, Dinwiddie, Greensville, Nottoway, Prince George</div>
-    </div>
-    
-    <div class="forecast-grid">
-        <div class="day-card">
-            <div class="day-header">Today - October 24</div>
-            <div class="danger-level level-low">Class 1: LOW</div>
-            <div class="weather-params">
-                <div class="param-row">
-                    <span class="param-label">High Temperature:</span>
-                    <span class="param-value">62-65°F</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Min RH:</span>
-                    <span class="param-value">30-35%</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Wind Speed:</span>
-                    <span class="param-value">5-10 mph NNW</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Conditions:</span>
-                    <span class="param-value">Mostly Sunny</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="day-card">
-            <div class="day-header">Tomorrow - October 25</div>
-            <div class="danger-level level-moderate">Class 2: MODERATE</div>
-            <div class="weather-params">
-                <div class="param-row">
-                    <span class="param-label">High Temperature:</span>
-                    <span class="param-value">61-66°F</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Min RH:</span>
-                    <span class="param-value">28-32%</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Wind Speed:</span>
-                    <span class="param-value">5-10 mph NNW</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Conditions:</span>
-                    <span class="param-value">Partly Cloudy</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="day-card">
-            <div class="day-header">Sunday - October 26</div>
-            <div class="danger-level level-moderate">Class 2: MODERATE</div>
-            <div class="weather-params">
-                <div class="param-row">
-                    <span class="param-label">High Temperature:</span>
-                    <span class="param-value">61-66°F</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Min RH:</span>
-                    <span class="param-value">32-38%</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Wind Speed:</span>
-                    <span class="param-value">5-8 mph W to NW</span>
-                </div>
-                <div class="param-row">
-                    <span class="param-label">Conditions:</span>
-                    <span class="param-value">Partly Cloudy</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="update-time">
-        Last Updated: {today.strftime('%Y-%m-%d %I:%M %p EDT')}<br>
-        Generated automatically via GitHub Actions
-    </div>
+<div class="header">
+<h1>🔥 Five Forks Fire Weather Forecast</h1>
+<div class="subtitle">October 24–26, 2025 | Operational Briefing</div>
+<div class="subtitle">Counties: Amelia, Brunswick, Dinwiddie, Greensville, Nottoway, Prince George</div>
+</div>
+
+<div class="section">
+<h2>Daily Fire Danger Class Summary</h2>
+<table>
+<tr><th>County</th><th>Oct 24 Local</th><th>Oct 24 DOF</th><th>Oct 25 Local</th><th>Oct 25 DOF</th><th>Oct 26 Local</th><th>Oct 26 DOF</th></tr>
+<tr><td>Amelia</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+<tr><td>Brunswick</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+<tr><td>Dinwiddie</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+<tr><td>Greensville</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+<tr><td>Nottoway</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+<tr><td>Prince George</td><td>1 - Low</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td><td>2 - Moderate</td><td>1 - Low</td></tr>
+</table>
+</div>
+
+<div class="section">
+<h2>Friday, October 24, 2025</h2>
+<div class="day">
+<div class="moderate">CLASS I: LOW</div>
+<div class="param"><span class="label">Temp High:</span> 62-65°F</div>
+<div class="param"><span class="label">Temp Low:</span> 34-40°F</div>
+<div class="param"><span class="label">Min RH:</span> 30-35%</div>
+<div class="param"><span class="label">Wind:</span> 5-10 mph NNW</div>
+<div class="param"><span class="label">Sky:</span> Mostly sunny</div>
+<div class="param"><span class="label">Precip:</span> 0.00 in</div>
+<div class="param"><span class="label">KBDI:</span> 410-420</div>
+<div class="param"><span class="label">CSI:</span> 520</div>
+</div>
+
+<div class="day">
+<div class="low">CLASS II: MODERATE</div>
+<div class="param"><span class="label">Temp High:</span> 61-66°F</div>
+<div class="param"><span class="label">Temp Low:</span> 37-45°F</div>
+<div class="param"><span class="label">Min RH:</span> 28-32%</div>
+<div class="param"><span class="label">Wind:</span> 5-10 mph NNW</div>
+<div class="param"><span class="label">Sky:</span> Partly cloudy</div>
+<div class="param"><span class="label">Precip:</span> 0.00 in</div>
+<div class="param"><span class="label">KBDI:</span> 420-430</div>
+<div class="param"><span class="label">CSI:</span> 530</div>
+</div>
+
+<div class="day">
+<div class="low">CLASS II: MODERATE</div>
+<div class="param"><span class="label">Temp High:</span> 61-66°F</div>
+<div class="param"><span class="label">Temp Low:</span> 39-46°F</div>
+<div class="param"><span class="label">Min RH:</span> 32-38%</div>
+<div class="param"><span class="label">Wind:</span> 5-8 mph W/NW</div>
+<div class="param"><span class="label">Sky:</span> Partly cloudy</div>
+<div class="param"><span class="label">Precip:</span> 0.00 in</div>
+<div class="param"><span class="label">KBDI:</span> 430-440</div>
+<div class="param"><span class="label">CSI:</span> 540</div>
+</div>
+</div>
+
+<div class="section">
+<h3>Operational Summary</h3>
+<p><strong>Friday (Oct 24):</strong> Low fire danger. Fires do not ignite readily. Morning frost possible in low-lying areas.</p>
+<p><strong>Saturday (Oct 25):</strong> Moderate fire danger develops. Occasional fire activity possible. Fires can start from most accidental causes. Prompt initial attack recommended.</p>
+<p><strong>Sunday (Oct 26):</strong> Moderate fire danger continues. Fires remain controllable with prompt initial attack. Continue monitoring accidental ignitions.</p>
+<p><strong>Overall:</strong> No Red Flag Warnings or Fire Weather Watches anticipated. Conditions remain stable.</p>
+</div>
+
+<div class="section">
+<p style="text-align:center; color:#666; margin-top:30px;">
+Issued: Thursday, October 23, 2025 | Valid: October 24-26, 2025<br>
+Prepared by: Fire Weather Forecast Team | Virginia Department of Forestry<br>
+Last Updated: {today.strftime('%B %d, %Y at %I:%M %p EDT')}
+</p>
+</div>
 </body>
 </html>
-"""
+'''
 
-# Write the HTML file
 with open('forecasts/current-forecast.html', 'w') as f:
-    f.write(html_content)
+    f.write(html)
 
-print(f"✅ Forecast generated successfully: forecasts/current-forecast.html")
-print(f"📅 Generated at: {today.strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"✅ Forecast generated: forecasts/current-forecast.html")
+print(f"📅 {today.strftime('%Y-%m-%d %H:%M:%S')}")
