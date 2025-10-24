@@ -36,7 +36,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
-            padding: 20px; /* Added padding here for overall body */
+            padding: 20px;
         }
 
         header {
@@ -120,8 +120,8 @@
 
         /* Custom Control Styling (Reset View Button) */
         .leaflet-control-custom {
-            background-color: var(--card-bg); /* Use theme variable */
-            color: var(--text-color); /* Use theme variable */
+            background-color: var(--card-bg);
+            color: var(--text-color);
             padding: 5px 10px;
             text-align: center;
             text-decoration: none; 
@@ -152,8 +152,10 @@
     <div id="utility-bar">
         <div id="links">
             External Resources:
-            <a href="https://www.dof.virginia.gov/" target="_blank">VA DOF Site</a>
-            <a href="https://www.weather.gov/" target="_blank">NOAA Weather</a>
+            <a href="https://maps.app.goo.gl/n1x43YPTsjSSFmGi6" target="_blank">Equip Map</a>
+            <a href="https://www.windy.com/?37.702,-78.333,7,p:favs" target="_blank">Windy</a>
+            <a href="https://virginiapro.firesponse.com/save/" target="_blank">fiReponse Virginia</a>
+            <a href="https://www.weather.gov/akq/" target="_blank">Wakefield, NWS</a>
         </div>
         <button id="dark-mode-toggle">Switch to Dark Mode</button>
     </div>
@@ -172,7 +174,7 @@
     <script>
         console.log("🔥 Five Forks Fire Weather Dashboard Loaded");
 
-        // --- DARK MODE LOGIC (NEW) ---
+        // --- DARK MODE LOGIC ---
         function applyDarkMode(isDark) {
             const body = document.body;
             const toggleButton = document.getElementById('dark-mode-toggle');
@@ -199,7 +201,7 @@
         });
         // -----------------------------
 
-        // --- 1. DEFINITIONS: SIX COUNTIES AND AREA POLYGON ---
+        // --- 1. DEFINITIONS ---
         const counties = [
           { name: "Dinwiddie", lat: 37.02153, lon: -77.60261 },
           { name: "Amelia", lat: 37.32646, lon: -77.99537 },
@@ -254,22 +256,35 @@
         let areaBounds; 
 
 
+        // --- UPDATED: VA DOF DANGER HEURISTIC with CROSSOVER WARNING ---
         function getVADOFDangerLevel(temp, rh, wind) {
           const t = parseFloat(temp) || 70;
           const h = parseFloat(rh) || 70;
           const w = parseFloat(wind.split(' ')[0]) || 5; 
 
-          if ((h <= 25 && w >= 15) || (h <= 20 && t >= 85)) {
+          // Crossover Warning: RH ≤30%, wind ≥15 mph, and temp >86°F
+          if (h <= 30 && w >= 15 && t > 86) {
+            return { level: 'CROSSOVER WARNING', color: '#8b0000', emoji: '💀⚠️' }; 
+          }
+          // Existing EXTREME
+          else if ((h <= 25 && w >= 15) || (h <= 20 && t >= 85)) {
             return { level: 'EXTREME', color: '#cc3300', emoji: '🔥🔥🔥' };
-          } else if (h <= 30 && w >= 10) {
+          } 
+          // Existing HIGH
+          else if (h <= 30 && w >= 10) {
             return { level: 'HIGH', color: '#ff6600', emoji: '🔥' };
-          } else if (h <= 45 || w >= 10) {
+          } 
+          // Existing MODERATE
+          else if (h <= 45 || w >= 10) {
             return { level: 'MODERATE', color: '#ffc107', emoji: '⚠️' };
-          } else {
+          } 
+          // Default LOW
+          else {
             return { level: 'LOW', color: '#28a745', emoji: '💧' };
           }
         }
 
+        // --- UPDATED: fetchWeather with Wind Gust ---
         async function fetchWeather(county) {
           try {
             const pointRes = await fetch(`https://api.weather.gov/points/${county.lat},${county.lon}`);
@@ -279,11 +294,17 @@
             const forecastData = await forecastRes.json();
             const now = forecastData.properties.periods[0];
             
+            // Extracts the maximum wind speed from the string (e.g., "5 to 10 mph" -> "10 mph")
             const windSpeedStr = now.windSpeed.includes('to') ? now.windSpeed.split(' to ')[1] : now.windSpeed;
+            
+            // Extracts the maximum wind gust speed
+            const windGustStr = now.windGust ? (now.windGust.includes('to') ? now.windGust.split(' to ')[1] : now.windGust) : 'N/A';
+
 
             const weather = {
               emoji: '🌤️', label: now.shortForecast || 'N/A', temp: now.temperature,
-              rh: now.relativeHumidity?.value || 'N/A', wind: windSpeedStr, dir: now.windDirection
+              rh: now.relativeHumidity?.value || 'N/A', wind: windSpeedStr, dir: now.windDirection,
+              gust: windGustStr // ADDED: Wind Gust
             };
 
             const danger = getVADOFDangerLevel(weather.temp, weather.rh, weather.wind);
@@ -297,7 +318,7 @@
             console.warn(`⚠️ NOAA data fallback for ${county.name}`, error);
             return {
               emoji: '❓', label: 'N/A', temp: 'N/A', rh: 'N/A',
-              wind: 'N/A', dir: 'N/A', danger: 'UNKNOWN',
+              wind: 'N/A', dir: 'N/A', gust: 'N/A', danger: 'UNKNOWN',
               dangerColor: '#6c757d', dangerEmoji: '❓'
             };
           }
@@ -313,6 +334,7 @@
           }
         }
 
+        // --- UPDATED: renderCard with Wind Gust ---
         function renderCard(county, weather, hotspotsCount) {
           const container = document.getElementById("cards");
           const card = document.createElement("div");
@@ -324,7 +346,7 @@
             <h3 style="color: ${weather.dangerColor};">
                 ${weather.dangerEmoji} ${county.name} - ${weather.danger}
             </h3>
-            <p><strong>Wx:</strong> <b>${weather.temp}°F</b> · <b>${weather.rh}% RH</b> · <b>${weather.wind} ${weather.dir}</b></p>
+            <p><strong>Wx:</strong> <b>${weather.temp}°F</b> · <b>${weather.rh}% RH</b> · <b>${weather.wind} ${weather.dir}</b> (G: <b>${weather.gust}</b>)</p>
             <p><strong>Forecast:</strong> <b>${weather.label}</b></p>
             <p><strong>Hotspots (20km):</strong> <span style="font-weight: bold; color: ${hotspotsCount > 0 ? '#cc3300' : 'inherit'};"><b>${hotspotsCount}</b></span></p>`;
           container.appendChild(card);
@@ -379,7 +401,7 @@
                  ${weather.emoji} ${weather.label}<br>
                  Temp: ${weather.temp}°F<br>
                  RH: ${weather.rh}%<br>
-                 Wind: ${weather.wind} ${weather.dir}`
+                 Wind: ${weather.wind} ${weather.dir} (G: ${weather.gust})`
               );
             marker.addTo(weatherMarkers);
 
@@ -410,7 +432,6 @@
             "OpenStreetMap": osm
           };
 
-          // This adds the toggle box to the map
           L.control.layers(baseMaps, overlayMaps).addTo(map);
           
           // --- RESET VIEW BUTTON ---
