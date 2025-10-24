@@ -1,0 +1,327 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+/**
+ * Five Forks Fire Weather – Live Demo (TSX compatible)
+ * ----------------------------------------------------
+ * Fix for: SyntaxError /index.tsx: Unexpected token (1:0)
+ * Root cause: prior canvas contained a full HTML document. In a TSX/React build, the file
+ * must export a React component. This rewrite wraps the previous plain-HTML implementation
+ * into a proper React component and loads Leaflet + Turf via dynamic <script> tags.
+ *
+ * Key notes:
+ * - No react-leaflet hooks; we use vanilla Leaflet once the script loads.
+ * - Leaflet CSS injected at runtime to avoid bundler CSS issues.
+ * - Map layers are cleared each refresh to avoid pile‑ups; map re-fits on each refresh.
+ * - "Open AirNow" button opens a new tab (no embed).
+ * - Kept and extended lightweight tests (console.assert) without altering existing ones.
+ */
+
+// --- Small helpers to load external scripts/CSS safely in a TSX environment ---
+function ensureCss(href: string, id: string) {
+  if (typeof document === "undefined") return;
+  if (document.getElementById(id)) return;
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "stylesheet";
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+function loadScript(src: string, id: string) {
+  return new Promise<void>((resolve, reject) => {
+    if (typeof document === "undefined") return reject(new Error("no document"));
+    const existing = document.getElementById(id) as HTMLScriptElement | null;
+    if (existing) {
+      if ((existing as any)._loaded) return resolve();
+      existing.addEventListener("load", () => resolve());
+      existing.addEventListener("error", () => reject(new Error("script error")));
+      return;
+    }
+    const s = document.createElement("script");
+    s.id = id;
+    s.src = src;
+    s.async = true;
+    (s as any)._loaded = false;
+    s.addEventListener("load", () => {
+      (s as any)._loaded = true;
+      resolve();
+    });
+    s.addEventListener("error", () => reject(new Error(`failed to load ${src}`)));
+    document.body.appendChild(s);
+  });
+}
+
+// --- Domain config ---
+const COUNTIES = [
+  { name: "Dinwiddie", lat: 37.02153, lon: -77.60261 },
+  { name: "Amelia", lat: 37.32646, lon: -77.99537 },
+  { name: "Nottoway", lat: 37.14824, lon: -78.03382 },
+  { name: "Brunswick", lat: 36.78112, lon: -77.85049 },
+  { name: "Greensville", lat: 36.6413, lon: -77.56347 },
+  { name: "Prince George", lat: 37.1881, lon: -77.18101 }
+] as const;
+
+const SIX_COUNTY_POLY = [[
+  [-78.2350117578125,37.363789898359414],[-78.23089188476563,37.29062448283949],[-78.240504921875,37.11755644626926],[-78.21578568359375,37.08250638697882],[-78.15948075195313,37.04634403220737],[-78.07845658203125,37.00797118486934],[-78.00567215820313,37.020830045694964],[-78.0482441796875,36.54218923323913],[-77.28744095703125,36.54217934004624],[-77.41927689453125,36.697591947028855],[-77.4549824609375,36.74712573578124],[-77.46322220703125,36.86427710321731],[-77.54012650390625,36.859882122283764],[-77.6087910546875,36.880756030323596],[-77.15423172851563,37.115021710981814],[-77.07320755859375,37.17741654078484],[-76.96471756835938,37.247412528316616],[-76.99218338867188,37.299453009740276],[-77.0210225,37.306007271306434],[-77.06908768554688,37.26776602706855],[-77.08282059570313,37.27541583062041],[-77.09106034179688,37.31365318781136],[-77.12813919921875,37.303822580920595],[-77.23662918945313,37.31692977113898],[-77.35473221679688,37.23606570446547],[-77.32726639648438,37.19231923958888],[-77.34374588867188,37.16824787325909],[-77.39181107421875,37.170436496249174],[-77.42339676757813,37.16277603847045],[-77.43163651367188,37.185755082241165],[-77.45635575195313,37.18794319808966],[-77.44536942382813,37.21638293433666],[-77.515407265625,37.21857016247888],[-77.5978047265625,37.25792942330379],[-77.64998978515625,37.26667313454041],[-77.66646927734375,37.29320183064708],[-77.71041458984375,37.303033825915705],[-77.7680928125,37.284461200413624],[-77.79830521484375,37.328154196565244],[-77.84774369140625,37.35435780585329],[-77.87520951171875,37.38709945830021],[-77.86422318359375,37.45318674511003],[-77.92876786132813,37.48261602071299],[-78.00155228515625,37.49787108359377],[-78.086696328125,37.45588769581372],[-78.13888138671875,37.46024816203661],[-78.18969315429688,37.446075717235935],[-78.22539872070313,37.40136041928257],[-78.23913163085938,37.382812099276194],[-78.2350117578125,37.362076193229214],[-78.2350117578125,37.363789898359414]
+]] as const;
+
+// Keep hotspots at 24h MODIS feed per request; radius for per-county count stays 20 km.
+const HOTSPOT_RADIUS_KM = 20;
+const AIRNOW_URL = "https://www.airnow.gov/?city=Petersburg&state=VA&country=USA";
+// Windy defaults derived from your FIRMS view (@-77.47,37.02,9.09z)
+const WINDY_URL = "https://www.windy.com/?37.02,-77.47,9,overlay=wind";
+// Reference FIRMS (USFS) map with your layer presets (opens in new tab)
+const FIRMS_PREF_URL = "https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:2025-10-24,2025-10-24;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_terra,fires_viirs_noaa20,fires_viirs_noaa21,fires_viirs_snpp,sta_detections,sta_mask,street;@-77.47,37.02,9.09z";
+
+// --- Pure utilities (keep existing tests intact) ---
+function distanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function dewPointF(tempF: any, rh: any) {
+  if (tempF === "N/A" || rh === "N/A") return "N/A";
+  const tC = (Number(tempF) - 32) * (5 / 9);
+  const a = 17.62, b = 243.12;
+  const gamma = Math.log(Math.max(1e-9, Number(rh) / 100)) + (a * tC) / (b + tC);
+  const dpC = (b * gamma) / (a - gamma);
+  return Math.round(dpC * 9/5 + 32);
+}
+
+// --- Types ---
+interface Weather {
+  emoji: string; label: any; temp: any; rh: any; wind: any; dir: any; gust: any;
+}
+interface CardRow { county: typeof COUNTIES[number]; w: Weather; hotspots: number; }
+
+export default function FireForksDashboard() {
+  // State
+  const [cards, setCards] = useState<CardRow[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const mapDivRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const dynamicGroupRef = useRef<any>(null);
+
+  // Load external libs & init map once
+  useEffect(() => {
+    ensureCss("https://unpkg.com/leaflet@1.9.4/dist/leaflet.css", "leaflet-css");
+    (async () => {
+      await loadScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "leaflet-js");
+      await loadScript("https://unpkg.com/@turf/turf/turf.min.js", "turf-js");
+      const L = (window as any).L;
+      if (!L || !mapDivRef.current) return;
+      const map = L.map(mapDivRef.current).setView([37.1, -77.5], 8);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+      const group = L.layerGroup().addTo(map);
+      mapRef.current = map;
+      dynamicGroupRef.current = group;
+      // run tests after map is safe (DOM exists)
+      runSmokeTests();
+      // initial data
+      refreshData();
+    })().catch(console.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Existing tests + a couple extras (do not modify the originals)
+  function runSmokeTests() {
+    console.assert(Math.abs(distanceKm(0, 0, 1, 0) - 111) < 2, "distanceKm ~111km/deg failed");
+    console.assert(distanceKm(37.1, -77.5, 37.1, -77.5) < 0.001, "distanceKm zero failed");
+    const dp = dewPointF(86, 30);
+    console.assert(Math.abs((dp as number) - 50) <= 6, "dewPointF sanity failed");
+    // Additional non-breaking tests
+    console.assert(COUNTIES.length === 6, "expected 6 counties loaded");
+    console.assert(HOTSPOT_RADIUS_KM > 0, "radius should be positive");
+  }
+
+  // Data fetchers
+  async function fetchWeather(county: typeof COUNTIES[number]): Promise<Weather> {
+    try {
+      const pointRes = await fetch(`https://api.weather.gov/points/${county.lat},${county.lon}`);
+      const pointData = await pointRes.json();
+      const hourlyUrl = pointData.properties.forecastHourly;
+      const forecastRes = await fetch(hourlyUrl);
+      const forecastData = await forecastRes.json();
+      const now = forecastData.properties.periods[0];
+      return {
+        emoji: "🌤️",
+        label: now.shortForecast || "N/A",
+        temp: now.temperature,
+        rh: now.relativeHumidity?.value ?? "N/A",
+        wind: now.windSpeed || "N/A",
+        dir: now.windDirection || "N/A",
+        gust: now.windGust || "—",
+      };
+    } catch (e) {
+      console.warn(`⚠️ NOAA data fallback for ${county.name}`, e);
+      return { emoji: "❓", label: "N/A", temp: "N/A", rh: "N/A", wind: "N/A", dir: "N/A", gust: "—" };
+    }
+  }
+
+  async function fetchHotspots(): Promise<any> {
+    try {
+      const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6.1/geojson/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.geojson", { cache: "no-store" });
+      return await res.json();
+    } catch (e) {
+      console.warn("⚠️ FIRMS data fallback", e);
+      return { type: "FeatureCollection", features: [] };
+    }
+  }
+
+  // Main refresh
+  async function refreshData() {
+    const L = (window as any).L;
+    const turf = (window as any).turf;
+    if (!L || !turf || !mapRef.current || !dynamicGroupRef.current) return;
+
+    // fetch in parallel
+    const [fireData, weatherData] = await Promise.all([
+      fetchHotspots(),
+      Promise.all(COUNTIES.map(fetchWeather)),
+    ]);
+
+    // build cards data
+    const rows: CardRow[] = COUNTIES.map((c, i) => {
+      const hotspots = (fireData.features || []).filter((f: any) => {
+        try {
+          if (!f.geometry || f.geometry.type !== "Point") return false;
+          const [lon, lat] = f.geometry.coordinates;
+          return turf.booleanPointInPolygon(
+            turf.point([lon, lat]),
+            turf.circle([c.lon, c.lat], HOTSPOT_RADIUS_KM, { units: "kilometers" })
+          );
+        } catch { return false; }
+      }).length;
+      return { county: c, w: weatherData[i], hotspots };
+    });
+    setCards(rows);
+
+    // map layers
+    const group = dynamicGroupRef.current;
+    group.clearLayers();
+
+    const firmsLayer = L.geoJSON(fireData, {
+      pointToLayer: (_f: any, latlng: any) =>
+        L.circleMarker(latlng, { radius: 6, color: "#ff3b30", fillColor: "#ff3b30", weight: 1, opacity: 1, fillOpacity: 0.85 })
+          .bindPopup("🔥 Fire detected"),
+    });
+    group.addLayer(firmsLayer);
+
+    rows.forEach((row) => {
+      const marker = L.circleMarker([row.county.lat, row.county.lon], { radius: 7, color: "#2196f3", weight: 2, fillOpacity: 0.3 })
+        .bindPopup(
+          `<strong>${row.county.name}</strong><br>${row.w.emoji} ${row.w.label}<br>` +
+          `Temp: ${row.w.temp}°F<br>RH: ${row.w.rh}%<br>` +
+          `Wind: ${row.w.wind} ${row.w.dir}<br>Gust: ${row.w.gust}<br>` +
+          `Dew Pt: ${dewPointF(row.w.temp, row.w.rh)}°F`
+        );
+      group.addLayer(marker);
+    });
+
+    // fit bounds to everything each refresh
+    try {
+      const pts: [number, number][] = [];
+      (fireData.features || []).forEach((f: any) => {
+        if (f.geometry?.coordinates) pts.push([f.geometry.coordinates[1], f.geometry.coordinates[0]]);
+      });
+      COUNTIES.forEach((c) => pts.push([c.lat, c.lon]));
+      if (pts.length) mapRef.current.fitBounds(pts, { padding: [40, 40] });
+    } catch (e) { console.warn("fitBounds skipped", e); }
+
+    const stamp = new Date().toLocaleString();
+    setLastUpdated(`· Updated ${stamp}`);
+  }
+
+  // Actions
+  const onOpenAirNow = () => window.open(AIRNOW_URL, "_blank", "noopener");
+  const onResetView = () => {
+    const L = (window as any).L;
+    if (!L || !mapRef.current) return;
+    try {
+      const latlngs = (SIX_COUNTY_POLY[0] as readonly number[][]).map(([lon, lat]) => [lat, lon]);
+      mapRef.current.fitBounds(latlngs, { padding: [40, 40] });
+    } catch (e) { console.warn("reset view failed", e); }
+  };
+
+  return (
+    <div style={{ background: "#0e141b", color: "#e6eef7", minHeight: "100vh", fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif" }}>
+      <style>{`
+        .wrap{max-width:1200px;margin:0 auto;padding:16px 24px 28px}
+        header{padding:20px 24px;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #1f2a36}
+        header h1{margin:0;font-size:28px}
+        .sub{color:#9fb0c2;font-size:14px}
+        .updated{font-size:12px;color:#9fb0c2;margin-left:6px}
+        .title-emoji{font-size:28px}
+        .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:12px 0 20px}
+        @media (max-width:1100px){.cards{grid-template-columns:repeat(3,1fr)}}
+        @media (max-width:860px){.cards{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width:560px){.cards{grid-template-columns:1fr}}
+        .card{background:#1b2530;border:1px solid #223143;border-radius:14px;padding:14px;box-shadow:0 8px 20px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:10px}
+        .card h3{margin:0;font-size:16px;display:flex;align-items:center;gap:8px}
+        .status{color:#9fb0c2;font-size:13px}
+        .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+        .stat{background:#1f2a36;border:1px solid #223143;border-radius:10px;padding:8px 10px}
+        .k{display:block;font-size:12px;color:#9fb0c2}
+        .v{display:block;font-size:16px;font-weight:600}
+        .mapShell{position:relative;background:#1b2530;border:1px solid #223143;border-radius:14px;overflow:hidden}
+        .map{height:520px;width:100%}
+        .legend{position:absolute;right:12px;top:12px;background:#1f2a36;border:1px solid #223143;color:#e6eef7;border-radius:12px;width:260px;padding:12px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+        .legend h4{margin:0 0 10px;font-size:14px;color:#9fb0c2}
+        .legend .item{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:14px}
+        .legend .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+        .firms{background:#ff3b30}
+        .county{background:#2196f3}
+        .btn{margin-top:10px;display:inline-block;background:#2a394a;border:1px solid #2d4156;color:#d8e6f5;padding:8px 10px;border-radius:10px;cursor:pointer;font-size:13px}
+        .small{font-size:12px;color:#9fb0c2;margin-top:8px}
+      `}</style>
+
+      <header>
+        <div className="title-emoji">🔥</div>
+        <h1>Five Forks Fire Weather Dashboard</h1>
+        <div className="sub">Real‑time Conditions & Hotspots</div>
+        <div className="updated">{lastUpdated}</div>
+      </header>
+
+      <div className="wrap">
+        {/* Cards */}
+        <div className="cards">
+          {cards.map((row) => (
+            <div className="card" key={row.county.name}>
+              <h3>
+                {row.w.emoji} {row.county.name} <span className="status">{String(row.w.label)}</span>
+              </h3>
+              <div className="stats">
+                <div className="stat"><span className="k">Temp</span><span className="v">{String(row.w.temp)}°F</span></div>
+                <div className="stat"><span className="k">RH</span><span className="v">{String(row.w.rh)}%</span></div>
+                <div className="stat"><span className="k">Wind</span><span className="v">{String(row.w.wind)} {String(row.w.dir)}</span></div>
+                <div className="stat"><span className="k">Gust</span><span className="v">{String(row.w.gust)}</span></div>
+                <div className="stat"><span className="k">Dew Pt</span><span className="v">{String(dewPointF(row.w.temp, row.w.rh))}°F</span></div>
+                <div className="stat"><span className="k">Hotspots</span><span className="v">{row.hotspots}</span></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Map */}
+        <div className="mapShell">
+          <div ref={mapDivRef} className="map" />
+          <div className="legend">
+            <h4>Legend</h4>
+            <div className="item"><span className="dot firms" /> Fire Detected</div>
+            <div className="item"><span className="dot county" /> County Marker</div>
+            <div className="small">Status icons: 🌫️ Haze · ☁️ Cloudy · ☀️ Sunny</div>
+            <button className="btn" onClick={refreshData}>Refresh Data</button>
+            <button className="btn" onClick={() => window.open(AIRNOW_URL, "_blank", "noopener")} style={{ marginLeft: 6 }}>Open AirNow ↗</button>
+            <button className="btn" onClick={() => window.open(WINDY_URL, "_blank", "noopener")} style={{ marginLeft: 6 }}>Open Windy ↗</button>
+            <button className="btn" onClick={() => window.open(FIRMS_PREF_URL, "_blank", "noopener")} style={{ marginLeft: 6 }}>Open FIRMS (USFS) ↗</button>
+            <button className="btn" onClick={onResetView} style={{ marginLeft: 6 }}>Reset View</button>
+            <div className="small">Last updated: {lastUpdated.replace("· ", "") || "—"}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
