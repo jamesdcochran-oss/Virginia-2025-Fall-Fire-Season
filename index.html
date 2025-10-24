@@ -338,11 +338,11 @@
         async function fetchHotspots() {
           try {
             // Note: This API call fetches the raw GeoJSON data for processing
-            const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6.1/geojson/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.geojson");
-            return await res.json();
-          } catch (error) {
-            console.warn("⚠️ FIRMS data fallback");
-            return { type: "FeatureCollection", features: [] };
+    const res = await fetch("https://firms.modaps.eosdis.nasa.gov/active_fire/c6/geojson/VIIRS_SNPP_NRT/USA_contiguous_and_Hawaii_24h.geojson");            return await res.json();
+          } catch (error) 
+              console.warn("⚠️ FIRMS VIIRS NRT API error or data unavailable", error);
+                return { type: "FeatureCollection", features: [] };{
+    
           }
         }
 
