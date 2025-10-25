@@ -31,6 +31,15 @@ const COUNTIES_DATA = [
     dangerLevel: 'MODERATE DANGER'
   },
   {
+    name: 'Greensville County',
+    lat: 36.6821,
+    lon: -77.5719,
+    temp: 71,
+    humidity: 48,
+    wind: '7 mph S',
+    dangerLevel: 'MODERATE DANGER'
+  },
+  {
     name: 'Nottoway County',
     lat: 37.1299,
     lon: -78.0747,
@@ -40,13 +49,13 @@ const COUNTIES_DATA = [
     dangerLevel: 'LOW DANGER'
   },
   {
-    name: 'Powhatan County',
-    lat: 37.5429,
-    lon: -77.9189,
+    name: 'Prince George County',
+    lat: 37.2199,
+    lon: -77.2886,
     temp: 74,
-    humidity: 40,
-    wind: '12 mph SW',
-    dangerLevel: 'HIGH DANGER'
+    humidity: 43,
+    wind: '9 mph SW',
+    dangerLevel: 'MODERATE DANGER'
   }
 ];
 
@@ -77,9 +86,9 @@ function generateCards() {
         ${county.dangerLevel}
       </div>
       <div class="weather-info">
-        <p><strong>Temperature:</strong> ${county.temp}°F</p>
-        <p><strong>Humidity:</strong> ${county.humidity}%</p>
-        <p><strong>Wind:</strong> ${county.wind}</p>
+        <p>Temperature: ${county.temp}°F</p>
+        <p>Humidity: ${county.humidity}%</p>
+        <p>Wind: ${county.wind}</p>
       </div>
     `;
     cardsContainer.appendChild(card);
@@ -108,11 +117,11 @@ function initMap() {
     }).addTo(map);
     
     marker.bindPopup(`
-      <strong>${county.name}</strong><br>
-      <strong>Danger:</strong> ${county.dangerLevel}<br>
-      <strong>Temp:</strong> ${county.temp}°F<br>
-      <strong>Humidity:</strong> ${county.humidity}%<br>
-      <strong>Wind:</strong> ${county.wind}
+      <b>${county.name}</b><br>
+      Danger: ${county.dangerLevel}<br>
+      Temp: ${county.temp}°F<br>
+      Humidity: ${county.humidity}%<br>
+      Wind: ${county.wind}
     `);
   });
 }
@@ -137,7 +146,7 @@ function initForecastModal() {
     document.body.style.overflow = 'hidden'; // Prevent background scrolling
     
     try {
-      modalContent.innerHTML = '<p>Loading forecast data...</p>';
+      modalContent.innerHTML = 'Loading forecast data...';
       
       // Fetch the forecast HTML file
       const response = await fetch('forecasts/current-forecast.html');
@@ -184,7 +193,7 @@ function initForecastModal() {
         <div style="color: #f44336; padding: 20px; text-align: center;">
           <h3>Error Loading Forecast</h3>
           <p>Unable to load the forecast data. Please try again later.</p>
-          <p><small>Error: ${error.message}</small></p>
+          <p>Error: ${error.message}</p>
         </div>
       `;
     }
