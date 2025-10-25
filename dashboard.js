@@ -34,150 +34,199 @@ const COUNTIES_DATA = [
     name: 'Nottoway County',
     lat: 37.1299,
     lon: -78.0747,
-    temp: 75,
-    humidity: 38,
-    wind: '12 mph W',
-    dangerLevel: 'HIGH DANGER'
-  },
-  {
-    name: 'Prince George County',
-    lat: 37.2196,
-    lon: -77.2894,
     temp: 71,
-    humidity: 48,
-    wind: '7 mph SSW',
-    dangerLevel: 'MODERATE DANGER'
-  },
-  {
-    name: 'Sussex County',
-    lat: 36.9165,
-    lon: -77.2894,
-    temp: 69,
-    humidity: 52,
+    humidity: 50,
     wind: '6 mph S',
     dangerLevel: 'LOW DANGER'
+  },
+  {
+    name: 'Powhatan County',
+    lat: 37.5429,
+    lon: -77.9189,
+    temp: 74,
+    humidity: 40,
+    wind: '12 mph SW',
+    dangerLevel: 'HIGH DANGER'
   }
 ];
 
-// Determine danger level CSS class based on danger text
-function getDangerClass(dangerLevel) {
-  const level = dangerLevel.toUpperCase();
-  if (level.includes('HIGH')) return 'danger-high';
-  if (level.includes('MODERATE')) return 'danger-moderate';
-  return 'danger-low';
+// Fire danger color mapping
+function getDangerColor(level) {
+  const colors = {
+    'LOW DANGER': '#4CAF50',
+    'MODERATE DANGER': '#FF9800',
+    'HIGH DANGER': '#F44336',
+    'VERY HIGH DANGER': '#B71C1C',
+    'EXTREME DANGER': '#4A148C'
+  };
+  return colors[level] || '#9E9E9E';
 }
 
-// Generate County Cards
-function generateCountyCards() {
+// Generate county cards
+function generateCards() {
   const cardsContainer = document.getElementById('cards');
-  if (!cardsContainer) {
-    console.error('Cards container not found!');
-    return;
-  }
-
-  cardsContainer.innerHTML = ''; // Clear existing cards
-
+  cardsContainer.innerHTML = '';
+  
   COUNTIES_DATA.forEach(county => {
     const card = document.createElement('div');
-    card.className = `card ${getDangerClass(county.dangerLevel)}`;
-    card.setAttribute('role', 'article');
-    card.setAttribute('aria-label', `${county.name} fire danger information`);
-
+    card.className = 'card';
+    card.style.borderLeft = `5px solid ${getDangerColor(county.dangerLevel)}`;
     card.innerHTML = `
       <h3>${county.name}</h3>
-      <div class="danger-level" aria-label="Danger level: ${county.dangerLevel}">${county.dangerLevel}</div>
-      <div class="weather-stat" aria-label="Temperature: ${county.temp} degrees Fahrenheit">
-        🌡️ <strong>Temperature</strong><br>${county.temp}°F
+      <div class="danger-badge" style="background: ${getDangerColor(county.dangerLevel)}">
+        ${county.dangerLevel}
       </div>
-      <div class="weather-stat" aria-label="Humidity: ${county.humidity} percent">
-        💧 <strong>Humidity</strong><br>${county.humidity}%
-      </div>
-      <div class="weather-stat" aria-label="Wind: ${county.wind}">
-        💨 <strong>Wind</strong><br>${county.wind}
+      <div class="weather-info">
+        <p><strong>Temperature:</strong> ${county.temp}°F</p>
+        <p><strong>Humidity:</strong> ${county.humidity}%</p>
+        <p><strong>Wind:</strong> ${county.wind}</p>
       </div>
     `;
-
     cardsContainer.appendChild(card);
   });
-
-  console.log(`Generated ${COUNTIES_DATA.length} county cards`);
 }
 
-// Initialize Leaflet Map
-function initializeMap() {
-  const mapElement = document.getElementById('map');
-  if (!mapElement) {
-    console.error('Map element not found!');
-    return;
-  }
-
-  // Calculate center point of all counties
-  const avgLat = COUNTIES_DATA.reduce((sum, c) => sum + c.lat, 0) / COUNTIES_DATA.length;
-  const avgLon = COUNTIES_DATA.reduce((sum, c) => sum + c.lon, 0) / COUNTIES_DATA.length;
-
-  // Initialize map
-  const map = L.map('map', {
-    center: [avgLat, avgLon],
-    zoom: 9,
-    zoomControl: true
-  });
-
-  // Add OpenStreetMap tiles
+// Initialize Leaflet map
+function initMap() {
+  const map = L.map('map').setView([37.2, -77.9], 9);
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution: '© OpenStreetMap contributors',
     maxZoom: 19
   }).addTo(map);
-
-  // Add markers for each county
+  
+  // Add county markers
   COUNTIES_DATA.forEach(county => {
-    const dangerClass = getDangerClass(county.dangerLevel);
-    let markerColor = 'green';
-    
-    if (dangerClass === 'danger-high') markerColor = 'red';
-    else if (dangerClass === 'danger-moderate') markerColor = 'orange';
-
+    const color = getDangerColor(county.dangerLevel);
     const marker = L.circleMarker([county.lat, county.lon], {
       radius: 8,
-      fillColor: markerColor,
+      fillColor: color,
       color: '#000',
-      weight: 2,
+      weight: 1,
       opacity: 1,
       fillOpacity: 0.8
     }).addTo(map);
-
+    
     marker.bindPopup(`
       <strong>${county.name}</strong><br>
-      <strong>${county.dangerLevel}</strong><br>
-      Temp: ${county.temp}°F<br>
-      Humidity: ${county.humidity}%<br>
-      Wind: ${county.wind}
+      <strong>Danger:</strong> ${county.dangerLevel}<br>
+      <strong>Temp:</strong> ${county.temp}°F<br>
+      <strong>Humidity:</strong> ${county.humidity}%<br>
+      <strong>Wind:</strong> ${county.wind}
     `);
   });
-
-  console.log('Map initialized with county markers');
 }
 
-// Update last updated timestamp
+// Update timestamp
 function updateTimestamp() {
-  const lastUpdateElement = document.getElementById('lastUpdate');
-  if (lastUpdateElement) {
-    const now = new Date();
-    lastUpdateElement.textContent = now.toLocaleString();
+  const now = new Date();
+  document.getElementById('lastUpdate').textContent = now.toLocaleString();
+}
+
+// Forecast Modal Functionality
+function initForecastModal() {
+  const modal = document.getElementById('forecastModal');
+  const updateBtn = document.getElementById('updateForecastBtn');
+  const closeBtn = document.querySelector('.close-btn');
+  const modalContent = document.getElementById('forecastContent');
+  
+  // Open modal and fetch forecast data
+  updateBtn.addEventListener('click', async () => {
+    modal.style.display = 'block';
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    
+    try {
+      modalContent.innerHTML = '<p>Loading forecast data...</p>';
+      
+      // Fetch the forecast HTML file
+      const response = await fetch('forecasts/current-forecast.html');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const htmlText = await response.text();
+      
+      // Parse the HTML to extract the forecast content
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      
+      // Extract the main content (skip header/footer if any)
+      const forecastBody = doc.querySelector('body') || doc.documentElement;
+      
+      // Display the forecast content
+      modalContent.innerHTML = forecastBody.innerHTML;
+      
+      // Apply styling to tables if present
+      const tables = modalContent.querySelectorAll('table');
+      tables.forEach(table => {
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginBottom = '20px';
+        
+        const cells = table.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          cell.style.border = '1px solid #ddd';
+          cell.style.padding = '8px';
+          cell.style.textAlign = 'left';
+        });
+        
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+          header.style.backgroundColor = '#f2f2f2';
+          header.style.fontWeight = 'bold';
+        });
+      });
+      
+    } catch (error) {
+      console.error('Error fetching forecast:', error);
+      modalContent.innerHTML = `
+        <div style="color: #f44336; padding: 20px; text-align: center;">
+          <h3>Error Loading Forecast</h3>
+          <p>Unable to load the forecast data. Please try again later.</p>
+          <p><small>Error: ${error.message}</small></p>
+        </div>
+      `;
+    }
+  });
+  
+  // Close modal when clicking the X button
+  closeBtn.addEventListener('click', () => {
+    closeModal();
+  });
+  
+  // Close modal when clicking outside the modal content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === 'block') {
+      closeModal();
+    }
+  });
+  
+  function closeModal() {
+    modal.style.display = 'none';
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = ''; // Restore scrolling
   }
 }
 
-// Initialize dashboard when DOM is loaded
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() {
-    generateCountyCards();
-    initializeMap();
-    updateTimestamp();
-  });
-} else {
-  // DOM already loaded
-  generateCountyCards();
-  initializeMap();
+// Initialize dashboard
+function init() {
+  generateCards();
+  initMap();
   updateTimestamp();
+  initForecastModal();
 }
 
-console.log('Dashboard initialization complete!');
+// Run initialization when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
