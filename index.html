@@ -4,193 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Five Forks Fire Weather Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 1rem;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            color: white;
-            padding: 1.5rem 0;
-            margin-bottom: 2rem;
-        }
-
-        header h1 {
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-            margin-bottom: 0.5rem;
-        }
-
-        header p {
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
-            opacity: 0.9;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .county-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .county-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .county-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
-            color: #2d3748;
-        }
-
-        .danger-level {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .danger-low {
-            background: #c6f6d5;
-            color: #22543d;
-        }
-
-        .danger-moderate {
-            background: #feebc8;
-            color: #7c2d12;
-        }
-
-        .danger-high {
-            background: #fed7d7;
-            color: #742a2a;
-        }
-
-        .danger-extreme {
-            background: #feb2b2;
-            color: #742a2a;
-        }
-
-        .conditions {
-            display: grid;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .condition-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem;
-            background: #f7fafc;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
-
-        .condition-label {
-            color: #4a5568;
-        }
-
-        .condition-value {
-            font-weight: bold;
-            color: #2d3748;
-        }
-
-        .map-container {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin-bottom: 2rem;
-        }
-
-        .map-container h2 {
-            margin-bottom: 1rem;
-            color: #2d3748;
-        }
-
-        #map {
-            height: 400px;
-            border-radius: 8px;
-        }
-
-        footer {
-            text-align: center;
-            color: white;
-            padding: 2rem 0;
-            opacity: 0.9;
-        }
-
-        .loading {
-            text-align: center;
-            color: white;
-            font-size: 1.2rem;
-            padding: 2rem;
-        }
-
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            body {
-                padding: 0.5rem;
-            }
-
-            header {
-                padding: 1rem 0;
-                margin-bottom: 1rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .county-card {
-                padding: 1rem;
-            }
-
-            #map {
-                height: 300px;
-            }
-
-            .map-container {
-                padding: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .condition-item {
-                font-size: 0.85rem;
-            }
-
-            .county-card h3 {
-                font-size: 1.2rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
 </head>
 <body>
     <div class="container">
@@ -199,160 +19,35 @@
             <p>Real-Time Fire Danger & Hotspots for Central VA</p>
         </header>
 
-        <div class="cards-grid" id="cards-container">
-            <!-- County cards will be populated here -->
-        </div>
+        <main>
+            <!-- County Cards Grid -->
+            <div id="cards" role="region" aria-label="County Fire Danger Information">
+                <!-- Cards will be generated by JavaScript -->
+            </div>
 
-        <div class="map-container">
-            <h2>Fire Activity Map</h2>
-            <div id="map"></div>
-        </div>
+            <!-- Fire Activity Map -->
+            <section>
+                <h2 style="text-align: center; margin: 20px 0; font-size: 1.5rem;">Fire Activity Map</h2>
+                <div id="map" role="img" aria-label="Interactive map showing fire activity and hotspots"></div>
+            </section>
+        </main>
 
         <footer>
-            <p>Data updates every 6 hours | Last updated: <span id="last-updated">Loading...</span></p>
+            <p>Data updates every 6 hours | Last updated: <span id="lastUpdate"></span></p>
             <p>Five Forks Volunteer Fire Department</p>
         </footer>
+
+        <!-- Fixed Utility Bar with External Resources -->
+        <div class="utility-bar" role="navigation" aria-label="External Resources">
+            <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer" 
+               aria-label="National Weather Service - Opens in new window">NWS</a>
+            <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" rel="noopener noreferrer"
+               aria-label="NASA FIRMS Fire Map - Opens in new window">NASA FIRMS</a>
+            <a href="https://inciweb.nwcg.gov/" target="_blank" rel="noopener noreferrer"
+               aria-label="InciWeb Incident Information - Opens in new window">InciWeb</a>
+        </div>
     </div>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        // County data with demo values
-        const countyData = [
-            {
-                name: 'Amelia County',
-                danger: 'moderate',
-                temp: '72°F',
-                humidity: '45%',
-                wind: '8 mph SW',
-                lat: 37.3465,
-                lon: -77.9772
-            },
-            {
-                name: 'Brunswick County',
-                danger: 'low',
-                temp: '70°F',
-                humidity: '55%',
-                wind: '5 mph S',
-                lat: 36.7157,
-                lon: -77.8500
-            },
-            {
-                name: 'Dinwiddie County',
-                danger: 'moderate',
-                temp: '73°F',
-                humidity: '42%',
-                wind: '10 mph SW',
-                lat: 37.0751,
-                lon: -77.5831
-            },
-            {
-                name: 'Nottoway County',
-                danger: 'high',
-                temp: '75°F',
-                humidity: '38%',
-                wind: '12 mph W',
-                lat: 37.1329,
-                lon: -78.0708
-            },
-            {
-                name: 'Prince George County',
-                danger: 'moderate',
-                temp: '71°F',
-                humidity: '48%',
-                wind: '7 mph SSW',
-                lat: 37.2165,
-                lon: -77.2872
-            },
-            {
-                name: 'Sussex County',
-                danger: 'low',
-                temp: '69°F',
-                humidity: '52%',
-                wind: '6 mph S',
-                lat: 36.9182,
-                lon: -77.2869
-            }
-        ];
-
-        // Populate county cards
-        function populateCards() {
-            const container = document.getElementById('cards-container');
-            
-            countyData.forEach(county => {
-                const card = document.createElement('div');
-                card.className = 'county-card';
-                card.innerHTML = `
-                    <h3>${county.name}</h3>
-                    <div class="danger-level danger-${county.danger}">
-                        ${county.danger.toUpperCase()} DANGER
-                    </div>
-                    <div class="conditions">
-                        <div class="condition-item">
-                            <span class="condition-label">🌡️ Temperature</span>
-                            <span class="condition-value">${county.temp}</span>
-                        </div>
-                        <div class="condition-item">
-                            <span class="condition-label">💧 Humidity</span>
-                            <span class="condition-value">${county.humidity}</span>
-                        </div>
-                        <div class="condition-item">
-                            <span class="condition-label">💨 Wind</span>
-                            <span class="condition-value">${county.wind}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Initialize map
-        function initMap() {
-            const map = L.map('map').setView([37.0751, -77.6], 9);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map);
-
-            // Add markers for each county
-            countyData.forEach(county => {
-                const color = {
-                    'low': 'green',
-                    'moderate': 'orange',
-                    'high': 'red',
-                    'extreme': 'darkred'
-                }[county.danger];
-
-                L.circleMarker([county.lat, county.lon], {
-                    radius: 10,
-                    fillColor: color,
-                    color: '#fff',
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 0.7
-                }).addTo(map).bindPopup(`
-                    <strong>${county.name}</strong><br>
-                    Danger: ${county.danger.toUpperCase()}<br>
-                    Temp: ${county.temp}<br>
-                    Humidity: ${county.humidity}<br>
-                    Wind: ${county.wind}
-                `);
-            });
-        }
-
-        // Update timestamp
-        function updateTimestamp() {
-            const now = new Date();
-            document.getElementById('last-updated').textContent = now.toLocaleString();
-        }
-
-        // Initialize dashboard
-        window.addEventListener('DOMContentLoaded', () => {
-            populateCards();
-            initMap();
-            updateTimestamp();
-        });
-    </script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
