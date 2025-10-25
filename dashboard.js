@@ -95,35 +95,76 @@ function generateCards() {
   });
 }
 
-// Initialize Leaflet map
+// Initialize Leaflet map with enhanced configuration
 function initMap() {
-  const map = L.map('map').setView([37.2, -77.9], 9);
+  // Calculate bounds to fit all six counties with padding
+  const latitudes = COUNTIES_DATA.map(county => county.lat);
+  const longitudes = COUNTIES_DATA.map(county => county.lon);
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLon = Math.min(...longitudes);
+  const maxLon = Math.max(...longitudes);
   
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
+  // Center point with increased zoom for better county visibility
+  const centerLat = (minLat + maxLat) / 2;
+  const centerLon = (minLon + maxLon) / 2;
+  
+  // Initialize map with higher zoom level to show all counties clearly
+  const map = L.map('map').setView([centerLat, centerLon], 10);
+  
+  // Use CartoDB Positron for lighter color scheme (better visibility in both light/dark modes)
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    maxZoom: 19,
+    subdomains: 'abcd'
   }).addTo(map);
   
-  // Add county markers
+  // Enhanced hotspot markers with larger coverage areas and overlap capability
   COUNTIES_DATA.forEach(county => {
     const color = getDangerColor(county.dangerLevel);
+    
+    // Primary marker (county center point)
     const marker = L.circleMarker([county.lat, county.lon], {
-      radius: 8,
+      radius: 12,
       fillColor: color,
       color: '#000',
-      weight: 1,
+      weight: 2,
       opacity: 1,
       fillOpacity: 0.8
     }).addTo(map);
     
-    marker.bindPopup(`
-      <b>${county.name}</b><br>
-      Danger: ${county.dangerLevel}<br>
-      Temp: ${county.temp}°F<br>
-      Humidity: ${county.humidity}%<br>
-      Wind: ${county.wind}
-    `);
+    // Coverage area circle (hotspot zone with overlap)
+    const coverageCircle = L.circle([county.lat, county.lon], {
+      color: color,
+      fillColor: color,
+      fillOpacity: 0.2,
+      weight: 2,
+      radius: 8000 // 8km radius for better coverage and overlap between counties
+    }).addTo(map);
+    
+    // Enhanced popup with more detailed information
+    const popupContent = `
+      <div style="min-width: 200px;">
+        <h4 style="margin: 0 0 10px 0; color: ${color};">${county.name}</h4>
+        <div style="background: ${color}; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-bottom: 10px;">
+          ${county.dangerLevel}
+        </div>
+        <div style="font-size: 14px;">
+          <p style="margin: 4px 0;"><strong>Temperature:</strong> ${county.temp}°F</p>
+          <p style="margin: 4px 0;"><strong>Humidity:</strong> ${county.humidity}%</p>
+          <p style="margin: 4px 0;"><strong>Wind:</strong> ${county.wind}</p>
+          <p style="margin: 4px 0; color: #666;"><em>Coverage radius: ~8km</em></p>
+        </div>
+      </div>
+    `;
+    
+    marker.bindPopup(popupContent);
+    coverageCircle.bindPopup(popupContent);
   });
+  
+  // Fit the map to show all counties with some padding
+  const bounds = L.latLngBounds(COUNTIES_DATA.map(county => [county.lat, county.lon]));
+  map.fitBounds(bounds, { padding: [20, 20] });
 }
 
 // Update timestamp
@@ -193,7 +234,7 @@ function initForecastModal() {
         <div style="color: #f44336; padding: 20px; text-align: center;">
           <h3>Error Loading Forecast</h3>
           <p>Unable to load the forecast data. Please try again later.</p>
-          <p>Error: ${error.message}</p>
+          <p><small>Error: ${error.message}</small></p>
         </div>
       `;
     }
