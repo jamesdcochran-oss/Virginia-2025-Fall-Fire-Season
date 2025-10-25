@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Five Forks Fire Weather Dashboard</title>
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,19 +13,29 @@
         <p>Real-Time Fire Danger & Hotspots for Central VA.</p>
     </header>
     
+    <!-- Banner for user feedback and errors -->
+    <div id="notification-banner" class="banner" role="alert" aria-live="polite" aria-atomic="true" style="display: none;">
+        <span id="banner-message"></span>
+        <button id="banner-close" aria-label="Close notification">×</button>
+    </div>
+    
     <div id="cards-container">
-        <h2>County Conditions & Danger Levels</h2> 
-        <div id="cards">
-        </div>
+        <h2>County Conditions & Danger Levels</h2>
+        <div id="cards"></div>
     </div>
     
     <div id="map-container">
         <h2>Active Fire Hotspots & Monitoring Boundary</h2>
-        <div id="map"></div> 
+        <div id="map"></div>
     </div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     
+    <!-- Configurable Resource Links Section -->
+    <div id="resources-container">
+        <h2>Fire Weather Resources</h2>
+        <div id="resource-links"></div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
