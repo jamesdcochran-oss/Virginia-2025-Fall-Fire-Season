@@ -1,139 +1,200 @@
 // 🔥 Five Forks Fire Weather Dashboard Loaded
 console.log("🔥 Five Forks Fire Weather Dashboard Loaded");
 
-// ---- Geolocation banner helpers (user-friendly errors + fallback info) ----
-function ensureBannerHost() {
-  let host = document.getElementById('banner-host');
-  if (!host) {
-    host = document.createElement('div');
-    host.id = 'banner-host';
-    host.style.position = 'sticky';
-    host.style.top = '0';
-    host.style.zIndex = '1000';
-    host.style.width = '100%';
-    document.body.prepend(host);
+// ========================
+// BANNER NOTIFICATION SYSTEM
+// ========================
+
+/**
+ * Show a notification banner using the HTML notification-banner element
+ * @param {Object} options - Banner options
+ * @param {string} options.type - Banner type: 'error', 'success', 'info', or 'warning'
+ * @param {string} options.message - Message to display
+ * @param {number} options.duration - Auto-hide duration in ms (0 = manual close only)
+ */
+function showBanner({ type = 'info', message = '', duration = 5000 }) {
+  const banner = document.getElementById('notification-banner');
+  const bannerMessage = document.getElementById('banner-message');
+  const bannerClose = document.getElementById('banner-close');
+  
+  if (!banner || !bannerMessage) {
+    console.warn('Banner elements not found in DOM');
+    return;
   }
-  return host;
+  
+  // Clear existing banner classes
+  banner.className = 'banner';
+  
+  // Add type-specific class
+  banner.classList.add(`banner-${type}`);
+  
+  // Set message
+  bannerMessage.textContent = message;
+  
+  // Show banner
+  banner.style.display = 'block';
+  
+  // Setup close button
+  bannerClose.onclick = () => {
+    banner.style.display = 'none';
+  };
+  
+  // Auto-hide after duration if specified
+  if (duration > 0) {
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, duration);
+  }
 }
 
-function showBanner({ type = 'info', title = '', message = '', actions = [] }) {
-  const host = ensureBannerHost();
-  const wrap = document.createElement('div');
-  wrap.setAttribute('role', 'status');
-  wrap.style.padding = '12px 16px';
-  wrap.style.display = 'flex';
-  wrap.style.gap = '12px';
-  wrap.style.alignItems = 'center';
-  wrap.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif';
-  wrap.style.borderBottom = '1px solid rgba(0,0,0,.1)';
-  wrap.style.background = type === 'error' ? '#fee2e2' : type === 'warning' ? '#fef3c7' : '#e0f2fe';
-  wrap.style.color = '#111827';
-
-  const strong = document.createElement('strong');
-  strong.textContent = title;
-  strong.style.marginRight = '4px';
-
-  const span = document.createElement('span');
-  span.textContent = message;
-
-  const spacer = document.createElement('div');
-  spacer.style.flex = '1';
-
-  const actionsBox = document.createElement('div');
-  actionsBox.style.display = 'flex';
-  actionsBox.style.gap = '8px';
-
-  actions.forEach(a => {
-    const btn = document.createElement(a.href ? 'a' : 'button');
-    if (a.href) btn.href = a.href;
-    btn.textContent = a.label || 'Learn more';
-    btn.style.padding = '6px 10px';
-    btn.style.border = '1px solid rgba(0,0,0,.15)';
-    btn.style.borderRadius = '6px';
-    btn.style.background = '#ffffff';
-    btn.style.color = '#111827';
-    btn.style.textDecoration = 'none';
-    btn.style.cursor = 'pointer';
-    if (typeof a.onClick === 'function') btn.addEventListener('click', a.onClick);
-    actionsBox.appendChild(btn);
-  });
-
-  const close = document.createElement('button');
-  close.setAttribute('aria-label', 'Dismiss');
-  close.textContent = '✕';
-  close.style.border = 'none';
-  close.style.background = 'transparent';
-  close.style.cursor = 'pointer';
-  close.style.fontSize = '16px';
-  close.addEventListener('click', () => wrap.remove());
-
-  wrap.appendChild(strong);
-  wrap.appendChild(span);
-  wrap.appendChild(spacer);
-  wrap.appendChild(actionsBox);
-  wrap.appendChild(close);
-  host.appendChild(wrap);
-
-  return wrap;
-}
-
+/**
+ * Show informational banner about fallback location
+ */
 function showLocationFallbackInfo() {
-  // Visible info fallback when location can't be determined
   showBanner({
-    type: 'warning',
-    title: 'Location unavailable.',
-    message: 'Showing regional fire weather for Six-County area. Enable location for hyper-local info.',
-    actions: [
-      { label: 'Retry', onClick: () => requestUserLocation(true) },
-      { label: 'How to enable location', href: 'https://support.google.com/chrome/answer/142065' }
-    ]
+    type: 'info',
+    message: 'Showing data for Five Forks, VA region (geolocation not available or denied)',
+    duration: 6000
   });
 }
 
-// ---- Geolocation request with robust error handling ----
-function requestUserLocation(isRetry = false) {
-  if (!('geolocation' in navigator)) {
+/**
+ * Request user's geolocation with robust error handling
+ * @param {boolean} force - Force re-request even if previously denied
+ * @returns {Promise<Object|null>} User location {lat, lon} or null
+ */
+async function requestUserLocation(force = false) {
+  if (!navigator.geolocation) {
     showBanner({
-      type: 'error',
-      title: 'Geolocation not supported.',
-      message: 'Your browser does not support location. Falling back to regional data.'
+      type: 'warning',
+      message: 'Geolocation is not supported by your browser. Showing default Five Forks region data.',
+      duration: 6000
     });
-    showLocationFallbackInfo();
-    return Promise.resolve(null);
+    return null;
   }
-
-  const geo = navigator.geolocation;
-  return new Promise(resolve => {
-    const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
-    geo.getCurrentPosition(
-      pos => {
-        resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: pos.coords.accuracy });
-      },
-      err => {
-        let reason = 'Unable to determine your location.';
-        if (err.code === 1) reason = 'Permission denied. Please allow location access.';
-        else if (err.code === 2) reason = 'Position unavailable from your device.';
-        else if (err.code === 3) reason = 'Timed out while requesting location.';
-
+  
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
         showBanner({
-          type: 'error',
-          title: 'Location error.',
-          message: `${reason} Falling back to regional data.`,
-          actions: [
-            { label: isRetry ? 'Try again' : 'Retry', onClick: () => requestUserLocation(true) }
-          ]
+          type: 'success',
+          message: 'Successfully detected your location',
+          duration: 3000
         });
-        showLocationFallbackInfo();
+        resolve({ lat: position.coords.latitude, lon: position.coords.longitude });
+      },
+      (error) => {
+        let message = 'Unable to detect your location. ';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            message += 'Location permission was denied. Showing default Five Forks region data.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message += 'Location information is unavailable. Showing default Five Forks region data.';
+            break;
+          case error.TIMEOUT:
+            message += 'Location request timed out. Showing default Five Forks region data.';
+            break;
+          default:
+            message += 'An unknown error occurred. Showing default Five Forks region data.';
+        }
+        showBanner({
+          type: 'warning',
+          message: message,
+          duration: 7000
+        });
         resolve(null);
       },
-      options
+      { timeout: 10000, enableHighAccuracy: false }
     );
   });
 }
 
-// --- 1. DEFINITIONS: SIX COUNTIES AND AREA POLYGON ---
-// Coordinates pulled directly from the provided GeoJSON.
+// ========================
+// CONFIGURABLE RESOURCE LINKS
+// ========================
+
+/**
+ * Configurable array of fire weather resource links
+ * Edit this array to add, remove, or modify resource links
+ */
+const FIRE_RESOURCES = [
+  {
+    title: 'VA Department of Forestry',
+    url: 'https://www.dof.virginia.gov/',
+    description: 'Official Virginia forestry information and fire reports'
+  },
+  {
+    title: 'National Weather Service - Wakefield',
+    url: 'https://www.weather.gov/akq/',
+    description: 'Local weather forecasts and fire weather warnings'
+  },
+  {
+    title: 'NOAA Fire Weather',
+    url: 'https://www.spc.noaa.gov/products/fire_wx/',
+    description: 'National fire weather outlook and forecasts'
+  },
+  {
+    title: 'NASA FIRMS Fire Map',
+    url: 'https://firms.modaps.eosdis.nasa.gov/map/',
+    description: 'Real-time satellite fire detection mapping'
+  },
+  {
+    title: 'AirNow Air Quality',
+    url: 'https://www.airnow.gov/',
+    description: 'Current air quality conditions and smoke forecasts'
+  },
+  {
+    title: 'Virginia Burn Law',
+    url: 'https://law.lis.virginia.gov/vacode/title10.1/chapter11/section10.1-1142/',
+    description: 'Legal requirements for outdoor burning in Virginia'
+  }
+];
+
+/**
+ * Initialize and render resource links from the configurable array
+ */
+function initializeResourceLinks() {
+  const container = document.getElementById('resource-links');
+  
+  if (!container) {
+    console.warn('Resource links container not found');
+    return;
+  }
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Create link elements from configuration
+  FIRE_RESOURCES.forEach(resource => {
+    const link = document.createElement('a');
+    link.href = resource.url;
+    link.className = 'resource-link';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = resource.title;
+    
+    // Add title attribute with description for additional accessibility
+    if (resource.description) {
+      link.title = resource.description;
+    }
+    
+    // Add ARIA label for screen readers
+    link.setAttribute('aria-label', `${resource.title}: ${resource.description || 'Opens in new window'}`);
+    
+    container.appendChild(link);
+  });
+  
+  console.log(`Initialized ${FIRE_RESOURCES.length} resource links`);
+}
+
+// ========================
+// EXISTING FUNCTIONALITY
+// ========================
+
+// County data (unchanged)
 const counties = [
+  { name: "Chesterfield", lat: 37.37721, lon: -77.50443 },
   { name: "Dinwiddie", lat: 37.02153, lon: -77.60261 },
   { name: "Amelia", lat: 37.32646, lon: -77.99537 },
   { name: "Nottoway", lat: 37.14824, lon: -78.03382 },
@@ -142,18 +203,24 @@ const counties = [
   { name: "Prince George", lat: 37.18810, lon: -77.18101 }
 ];
 
-// GeoJSON object for the large polygon boundary.
-const areaPolygonGeoJSON = { /* existing polygon data unchanged for brevity */ };
+// GeoJSON object for the large polygon boundary (unchanged)
+const areaPolygonGeoJSON = {
+  /* existing polygon data unchanged for brevity */
+};
 
-// ... existing mapping, controls, data fetching, renderCard, showHotspotsOnMap, etc. ...
+// ... existing mapping, controls, data fetching, renderCard, etc. ...
 
+/**
+ * Refresh dashboard data with optional user location
+ * @param {Object|null} userLocation - User's location {lat, lon} or null
+ */
 async function refreshData(userLocation = null) {
   // If we have userLocation, optionally adjust map focus or include a user marker later
   document.getElementById("cards").innerHTML = "";
   const fireData = await fetchHotspots();
   const weatherPromises = counties.map(county => fetchWeather(county));
   const weatherData = await Promise.all(weatherPromises);
-
+  
   for (let i = 0; i < counties.length; i++) {
     const county = counties[i];
     const weather = weatherData[i];
@@ -165,10 +232,14 @@ async function refreshData(userLocation = null) {
     );
     renderCard(county, weather, hotspots.length);
   }
+  
   showHotspotsOnMap(fireData, counties, weatherData, userLocation);
 }
 
-// Enhance map overlay to accept optional user location (safe no-op if ignored by existing code)
+/**
+ * Enhance map overlay to accept optional user location
+ * (safe no-op if ignored by existing code)
+ */
 function showHotspotsOnMap(fireData, counties, weatherData, userLocation) {
   if (typeof window._showHotspotsOnMapImpl === 'function') {
     return window._showHotspotsOnMapImpl(fireData, counties, weatherData, userLocation);
@@ -176,9 +247,30 @@ function showHotspotsOnMap(fireData, counties, weatherData, userLocation) {
   // else assume original implementation already present elsewhere
 }
 
-// Kick off on load with geolocation + robust error handling
+// ========================
+// INITIALIZATION
+// ========================
+
+/**
+ * Initialize dashboard on page load
+ * - Initialize resource links
+ * - Request geolocation with error handling
+ * - Load and refresh data
+ */
 window.onload = async () => {
+  console.log('Initializing Five Forks Fire Weather Dashboard...');
+  
+  // Initialize configurable resource links
+  initializeResourceLinks();
+  
+  // Request user location with error handling
   const userLocation = await requestUserLocation(false);
+  
+  // Load initial data
   await refreshData(userLocation);
-  setInterval(() => refreshData(userLocation), 3600000); // Refresh every hour
+  
+  // Refresh data every hour
+  setInterval(() => refreshData(userLocation), 3600000);
+  
+  console.log('Dashboard initialization complete');
 };
