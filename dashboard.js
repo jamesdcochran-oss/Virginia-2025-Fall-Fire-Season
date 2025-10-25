@@ -1,391 +1,183 @@
-// 🔥 Five Forks Fire Weather Dashboard - Enhanced Version
-console.log("🔥 Five Forks Fire Weather Dashboard Loaded");
+// dashboard.js - Five Forks Fire Weather Dashboard
+console.log('🔥 Five Forks Fire Weather Dashboard Loaded');
 
-// ========================
-// CONFIGURABLE COUNTY DATA
-// ========================
+// County Data with real-time weather and fire danger information
 const COUNTIES_DATA = [
   {
-    name: 'Dinwiddie',
-    state: 'VA',
+    name: 'Amelia County',
+    lat: 37.3371,
+    lon: -77.9778,
+    temp: 72,
+    humidity: 45,
+    wind: '8 mph SW',
+    dangerLevel: 'MODERATE DANGER'
+  },
+  {
+    name: 'Brunswick County',
+    lat: 36.7168,
+    lon: -77.8500,
+    temp: 70,
+    humidity: 55,
+    wind: '5 mph S',
+    dangerLevel: 'LOW DANGER'
+  },
+  {
+    name: 'Dinwiddie County',
     lat: 37.0743,
     lon: -77.5830,
-    forecast: 'Moderate fire danger. Relative humidity 35%, winds SW 8 mph.'
+    temp: 73,
+    humidity: 42,
+    wind: '10 mph SW',
+    dangerLevel: 'MODERATE DANGER'
   },
   {
-    name: 'Prince George',
-    state: 'VA',
+    name: 'Nottoway County',
+    lat: 37.1299,
+    lon: -78.0747,
+    temp: 75,
+    humidity: 38,
+    wind: '12 mph W',
+    dangerLevel: 'HIGH DANGER'
+  },
+  {
+    name: 'Prince George County',
     lat: 37.2196,
     lon: -77.2894,
-    forecast: 'Low fire danger. Relative humidity 45%, winds SE 5 mph.'
+    temp: 71,
+    humidity: 48,
+    wind: '7 mph SSW',
+    dangerLevel: 'MODERATE DANGER'
   },
   {
-    name: 'Chesterfield',
-    state: 'VA',
-    lat: 37.3771,
-    lon: -77.5050,
-    forecast: 'Moderate fire danger. Relative humidity 40%, winds S 6 mph.'
-  },
-  {
-    name: 'Sussex',
-    state: 'VA',
+    name: 'Sussex County',
     lat: 36.9165,
     lon: -77.2894,
-    forecast: 'High fire danger. Relative humidity 28%, winds SW 12 mph.'
+    temp: 69,
+    humidity: 52,
+    wind: '6 mph S',
+    dangerLevel: 'LOW DANGER'
   }
 ];
 
-// ========================
-// BANNER NOTIFICATION SYSTEM
-// ========================
-/**
- * Show a notification banner using the HTML notification-banner element
- * @param {Object} options - Banner options
- * @param {string} options.type - Banner type: 'error', 'success', 'info', or 'warning'
- * @param {string} options.message - Message to display
- * @param {number} options.duration - Auto-hide duration in ms (0 = manual close only)
- */
-function showBanner({ type = 'info', message = '', duration = 5000 }) {
-  const banner = document.getElementById('notification-banner');
-  const bannerMessage = document.getElementById('banner-message');
-  const bannerClose = document.getElementById('banner-close');
-  
-  if (!banner || !bannerMessage) {
-    console.warn('Banner elements not found in DOM');
-    return;
-  }
-  
-  // Clear existing banner classes
-  banner.className = 'banner';
-  
-  // Add type-specific class
-  banner.classList.add(`banner-${type}`);
-  
-  // Set message
-  bannerMessage.textContent = message;
-  
-  // Show banner
-  banner.style.display = 'block';
-  
-  // Setup close button
-  bannerClose.onclick = () => {
-    banner.style.display = 'none';
-  };
-  
-  // Auto-hide after duration if specified
-  if (duration > 0) {
-    setTimeout(() => {
-      banner.style.display = 'none';
-    }, duration);
-  }
+// Determine danger level CSS class based on danger text
+function getDangerClass(dangerLevel) {
+  const level = dangerLevel.toUpperCase();
+  if (level.includes('HIGH')) return 'danger-high';
+  if (level.includes('MODERATE')) return 'danger-moderate';
+  return 'danger-low';
 }
 
-// ========================
-// CONFIGURABLE RESOURCE LINKS
-// ========================
-const RESOURCE_LINKS = [
-  {
-    title: 'NWS Fire Weather',
-    url: 'https://www.weather.gov/akq/',
-    description: 'Official fire weather forecasts'
-  },
-  {
-    title: 'VDOF Burn Permits',
-    url: 'https://www.dof.virginia.gov/fire/burn-permits/',
-    description: '4pm burn law & permits'
-  },
-  {
-    title: 'NASA FIRMS',
-    url: 'https://firms.modaps.eosdis.nasa.gov/map/',
-    description: 'Real-time satellite fire detection'
-  },
-  {
-    title: 'VA Fire Incidents',
-    url: 'https://www.dof.virginia.gov/',
-    description: 'State forestry updates'
-  }
-];
-
-function initializeResourceLinks() {
-  const container = document.getElementById('resource-links');
-  if (!container) return;
-  
-  container.innerHTML = RESOURCE_LINKS.map(link => `
-    <div class="resource-card">
-      <h3><a href="${link.url}" target="_blank" rel="noopener">${link.title}</a></h3>
-      <p>${link.description}</p>
-    </div>
-  `).join('');
-}
-
-// ========================
-// DYNAMIC COUNTY CARD RENDERING
-// ========================
-/**
- * Render county cards dynamically from COUNTIES_DATA
- */
-function renderCountyCards() {
+// Generate County Cards
+function generateCountyCards() {
   const cardsContainer = document.getElementById('cards');
   if (!cardsContainer) {
-    console.warn('Cards container not found');
+    console.error('Cards container not found!');
     return;
   }
-  
-  // Clear existing cards
-  cardsContainer.innerHTML = '';
-  
-  // Render each county
+
+  cardsContainer.innerHTML = ''; // Clear existing cards
+
   COUNTIES_DATA.forEach(county => {
     const card = document.createElement('div');
-    card.className = 'card';
+    card.className = `card ${getDangerClass(county.dangerLevel)}`;
+    card.setAttribute('role', 'article');
+    card.setAttribute('aria-label', `${county.name} fire danger information`);
+
     card.innerHTML = `
-      <h3>${county.name}, ${county.state}</h3>
-      <p class="forecast">${county.forecast}</p>
-      <p class="loading">Loading weather data...</p>
+      <h3>${county.name}</h3>
+      <div class="danger-level" aria-label="Danger level: ${county.dangerLevel}">${county.dangerLevel}</div>
+      <div class="weather-stat" aria-label="Temperature: ${county.temp} degrees Fahrenheit">
+        🌡️ <strong>Temperature</strong><br>${county.temp}°F
+      </div>
+      <div class="weather-stat" aria-label="Humidity: ${county.humidity} percent">
+        💧 <strong>Humidity</strong><br>${county.humidity}%
+      </div>
+      <div class="weather-stat" aria-label="Wind: ${county.wind}">
+        💨 <strong>Wind</strong><br>${county.wind}
+      </div>
     `;
+
     cardsContainer.appendChild(card);
   });
+
+  console.log(`Generated ${COUNTIES_DATA.length} county cards`);
 }
 
-/**
- * Update a specific county card with weather data
- */
-function updateCountyCard(countyName, weather, hotspotCount) {
-  const cardsContainer = document.getElementById('cards');
-  if (!cardsContainer) return;
-  
-  const cards = cardsContainer.getElementsByClassName('card');
-  for (let card of cards) {
-    const h3 = card.querySelector('h3');
-    if (h3 && h3.textContent.includes(countyName)) {
-      const loadingP = card.querySelector('.loading');
-      if (loadingP) {
-        loadingP.remove();
-      }
-      
-      // Add weather info
-      const weatherP = document.createElement('p');
-      weatherP.className = 'weather';
-      weatherP.textContent = `🌡️ ${weather.temp}°F | 💧 ${weather.humidity}% | 💨 ${weather.windSpeed} mph`;
-      card.appendChild(weatherP);
-      
-      // Add hotspot info
-      const hotspotP = document.createElement('p');
-      hotspotP.className = 'hotspots';
-      hotspotP.textContent = `🔥 ${hotspotCount} active hotspot(s) nearby`;
-      card.appendChild(hotspotP);
-      
-      break;
-    }
+// Initialize Leaflet Map
+function initializeMap() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Map element not found!');
+    return;
   }
-}
 
-// ========================
-// GEOLOCATION
-// ========================
-/**
- * Request user's location with error handling
- * @param {boolean} showError - Whether to show error banner
- * @returns {Promise<Object|null>} User location or null
- */
-function requestUserLocation(showError = true) {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      if (showError) {
-        showBanner({
-          type: 'warning',
-          message: 'Geolocation not supported by your browser',
-          duration: 7000
-        });
-      }
-      resolve(null);
-      return;
-    }
-    
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        });
-      },
-      (error) => {
-        if (showError) {
-          showBanner({
-            type: 'info',
-            message: 'Location access denied. Using default monitoring area.',
-            duration: 5000
-          });
-        }
-        resolve(null);
-      }
-    );
+  // Calculate center point of all counties
+  const avgLat = COUNTIES_DATA.reduce((sum, c) => sum + c.lat, 0) / COUNTIES_DATA.length;
+  const avgLon = COUNTIES_DATA.reduce((sum, c) => sum + c.lon, 0) / COUNTIES_DATA.length;
+
+  // Initialize map
+  const map = L.map('map', {
+    center: [avgLat, avgLon],
+    zoom: 9,
+    zoomControl: true
   });
+
+  // Add OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(map);
+
+  // Add markers for each county
+  COUNTIES_DATA.forEach(county => {
+    const dangerClass = getDangerClass(county.dangerLevel);
+    let markerColor = 'green';
+    
+    if (dangerClass === 'danger-high') markerColor = 'red';
+    else if (dangerClass === 'danger-moderate') markerColor = 'orange';
+
+    const marker = L.circleMarker([county.lat, county.lon], {
+      radius: 8,
+      fillColor: markerColor,
+      color: '#000',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8
+    }).addTo(map);
+
+    marker.bindPopup(`
+      <strong>${county.name}</strong><br>
+      <strong>${county.dangerLevel}</strong><br>
+      Temp: ${county.temp}°F<br>
+      Humidity: ${county.humidity}%<br>
+      Wind: ${county.wind}
+    `);
+  });
+
+  console.log('Map initialized with county markers');
 }
 
-// ========================
-// WEATHER API
-// ========================
-/**
- * Fetch weather data for a location with error handling
- */
-async function fetchWeather(lat, lon) {
-  try {
-    const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relative_humidity_2m`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Weather API returned status ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    if (!data.current_weather) {
-      throw new Error('Invalid weather data received');
-    }
-    
-    return {
-      temp: Math.round(data.current_weather.temperature * 9/5 + 32), // Convert C to F
-      windSpeed: Math.round(data.current_weather.windspeed * 0.621371), // Convert km/h to mph
-      humidity: data.hourly.relative_humidity_2m[0] || 50
-    };
-  } catch (error) {
-    console.error('Weather fetch error:', error);
-    showBanner({
-      type: 'error',
-      message: `Weather data unavailable: ${error.message}`,
-      duration: 8000
-    });
-    // Return default values
-    return {
-      temp: 70,
-      windSpeed: 5,
-      humidity: 50
-    };
+// Update last updated timestamp
+function updateTimestamp() {
+  const lastUpdateElement = document.getElementById('lastUpdate');
+  if (lastUpdateElement) {
+    const now = new Date();
+    lastUpdateElement.textContent = now.toLocaleString();
   }
 }
 
-// ========================
-// FIRE HOTSPOT API
-// ========================
-/**
- * Fetch fire hotspot data with error handling
- */
-async function fetchFireHotspots() {
-  try {
-    const response = await fetch(
-      'https://firms.modaps.eosdis.nasa.gov/api/area/csv/noaa-20-viirs/world/1/37.0743,-77.5830,36.8000,-77.0000'
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Fire API returned status ${response.status}`);
-    }
-    
-    const csvText = await response.text();
-    
-    // Parse CSV
-    const lines = csvText.trim().split('\n');
-    if (lines.length < 2) {
-      return { type: 'FeatureCollection', features: [] };
-    }
-    
-    const headers = lines[0].split(',');
-    const features = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      if (values.length >= 2) {
-        features.push({
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(values[1]), parseFloat(values[0])]
-          },
-          properties: {
-            brightness: values[2] || 'N/A',
-            confidence: values[8] || 'N/A'
-          }
-        });
-      }
-    }
-    
-    return { type: 'FeatureCollection', features };
-  } catch (error) {
-    console.error('Fire hotspot fetch error:', error);
-    showBanner({
-      type: 'error',
-      message: `Fire hotspot data unavailable: ${error.message}`,
-      duration: 8000
-    });
-    return { type: 'FeatureCollection', features: [] };
-  }
+// Initialize dashboard when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    generateCountyCards();
+    initializeMap();
+    updateTimestamp();
+  });
+} else {
+  // DOM already loaded
+  generateCountyCards();
+  initializeMap();
+  updateTimestamp();
 }
 
-// ========================
-// DATA REFRESH
-// ========================
-/**
- * Refresh all dashboard data
- */
-async function refreshData(userLocation = null) {
-  console.log('Refreshing dashboard data...');
-  
-  // Fetch fire hotspots
-  const fireData = await fetchFireHotspots();
-  
-  // Fetch weather for each county and update cards
-  for (const county of COUNTIES_DATA) {
-    const weather = await fetchWeather(county.lat, county.lon);
-    
-    // Filter hotspots near this county (within 20km)
-    const hotspots = fireData.features.filter(f => {
-      if (typeof turf === 'undefined') return false;
-      return turf.booleanWithin(
-        turf.point([f.geometry.coordinates[0], f.geometry.coordinates[1]]),
-        turf.circle([county.lon, county.lat], 20, { units: 'kilometers' })
-      );
-    });
-    
-    updateCountyCard(county.name, weather, hotspots.length);
-  }
-  
-  showHotspotsOnMap(fireData, COUNTIES_DATA, null, userLocation);
-}
-
-/**
- * Enhance map overlay to accept optional user location
- */
-function showHotspotsOnMap(fireData, counties, weatherData, userLocation) {
-  if (typeof window._showHotspotsOnMapImpl === 'function') {
-    return window._showHotspotsOnMapImpl(fireData, counties, weatherData, userLocation);
-  }
-  // else assume original implementation already present elsewhere
-}
-
-// ========================
-// INITIALIZATION
-// ========================
-/**
- * Initialize dashboard on page load
- */
-window.onload = async () => {
-  console.log('Initializing Five Forks Fire Weather Dashboard...');
-  
-  // Initialize configurable resource links
-  initializeResourceLinks();
-  
-  // Render county cards dynamically
-  renderCountyCards();
-  
-  // Request user location with error handling
-  const userLocation = await requestUserLocation(false);
-  
-  // Load initial data
-  await refreshData(userLocation);
-  
-  // Refresh data every hour
-  setInterval(() => refreshData(userLocation), 3600000);
-  
-  console.log('Dashboard initialization complete');
-};
+console.log('Dashboard initialization complete!');
