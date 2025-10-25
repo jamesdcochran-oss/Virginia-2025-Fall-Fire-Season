@@ -1,3 +1,22 @@
+.menu-link {
+  display: inline-block;
+  margin: 12px 4px 0 0;
+  padding: 10px 18px;
+  background: #364f6b;
+  color: #fff;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.14);
+  transition: background 0.2s;
+}
+.menu-link:hover {
+  background: #fdaf4b;
+  color: #364f6b;
+  text-decoration: underline;
+}
 /* style.css */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
