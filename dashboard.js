@@ -36,13 +36,13 @@ const COUNTIES_DATA = [
     lon: -77.5719,
     temp: 71,
     humidity: 48,
-    wind: '6 mph S',
+    wind: '7 mph S',
     dangerLevel: 'LOW DANGER'
   },
   {
     name: 'Nottoway County',
-    lat: 37.1332,
-    lon: -77.9889,
+    lat: 37.1320,
+    lon: -77.9864,
     temp: 74,
     humidity: 40,
     wind: '12 mph SW',
@@ -50,70 +50,81 @@ const COUNTIES_DATA = [
   },
   {
     name: 'Prince George County',
-    lat: 37.2193,
-    lon: -77.2903,
-    temp: 73,
-    humidity: 43,
+    lat: 37.2165,
+    lon: -77.2833,
+    temp: 72,
+    humidity: 46,
     wind: '9 mph SW',
     dangerLevel: 'MODERATE DANGER'
   }
 ];
 
-// Helper function to get danger color based on level
-function getDangerColor(dangerLevel) {
-  const level = dangerLevel.toUpperCase();
-  if (level.includes('LOW')) return '#007bff';      // Blue
-  if (level.includes('MODERATE')) return '#28a745'; // Green
-  if (level.includes('HIGH')) return '#ffc107';     // Yellow
-  if (level.includes('VERY HIGH')) return '#fd7e14'; // Orange
-  if (level.includes('EXTREME')) return '#dc3545';  // Red
-  return '#6c757d'; // Default gray
+// Get danger class for styling cards
+function getDangerClass(level) {
+  const upperLevel = level.toUpperCase();
+  if (upperLevel.includes('LOW')) return 'low';
+  if (upperLevel.includes('MODERATE')) return 'moderate';
+  if (upperLevel.includes('HIGH')) return 'high';
+  if (upperLevel.includes('VERY HIGH')) return 'high';
+  if (upperLevel.includes('EXTREME')) return 'extreme';
+  return 'moderate';
 }
 
-// Render County Cards
-function renderCountyCards() {
-  const container = document.getElementById('county-cards');
-  if (!container) return;
+// Initialize the dashboard when DOM is ready
+function initDashboard() {
+  console.log('Initializing Dashboard...');
+  const container = document.getElementById('counties-container');
   
-  container.innerHTML = COUNTIES_DATA.map(county => {
-    const dangerColor = getDangerColor(county.dangerLevel);
-    return `
-      <div class="county-card">
-        <div class="county-header">
-          <h3>${county.name}</h3>
-          <span class="danger-badge" style="background-color: ${dangerColor}; color: white;">${county.dangerLevel}</span>
-        </div>
-        <div class="weather-info">
-          <div class="weather-stat">
-            <span class="weather-label">🌡️ Temperature:</span>
-            <span class="weather-value">${county.temp}°F</span>
-          </div>
-          <div class="weather-stat">
-            <span class="weather-label">💧 Humidity:</span>
-            <span class="weather-value">${county.humidity}%</span>
-          </div>
-          <div class="weather-stat">
-            <span class="weather-label">💨 Wind:</span>
-            <span class="weather-value">${county.wind}</span>
-          </div>
-        </div>
-        <div class="county-actions">
-          <button onclick="viewForecast('${county.name}', ${county.lat}, ${county.lon})" class="forecast-btn">View 7-Day Forecast</button>
-        </div>
+  if (!container) {
+    console.error('Counties container not found!');
+    return;
+  }
+
+  // Clear existing content
+  container.innerHTML = '';
+
+  // Create cards for each county
+  COUNTIES_DATA.forEach(county => {
+    const card = createCountyCard(county);
+    container.appendChild(card);
+  });
+
+  console.log(`✓ Loaded ${COUNTIES_DATA.length} counties`);
+}
+
+// Create a county card element
+function createCountyCard(county) {
+  const card = document.createElement('div');
+  const dangerClass = getDangerClass(county.dangerLevel);
+  card.className = `county-card ${dangerClass}`;
+
+  card.innerHTML = `
+    <h2>${county.name}</h2>
+    <div class="weather-info">
+      <div class="weather-item">
+        <span class="label">Temperature:</span>
+        <span class="value">${county.temp}°F</span>
       </div>
-    `;
-  }).join('');
+      <div class="weather-item">
+        <span class="label">Humidity:</span>
+        <span class="value">${county.humidity}%</span>
+      </div>
+      <div class="weather-item">
+        <span class="label">Wind:</span>
+        <span class="value">${county.wind}</span>
+      </div>
+    </div>
+    <div class="danger-level ${dangerClass}">
+      ${county.dangerLevel}
+    </div>
+  `;
+
+  return card;
 }
 
-// View Forecast Function
-function viewForecast(countyName, lat, lon) {
-  localStorage.setItem('selectedCounty', JSON.stringify({ name: countyName, lat, lon }));
-  window.location.href = 'forecast.html';
-}
-
-// Initialize Dashboard
+// Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderCountyCards);
+  document.addEventListener('DOMContentLoaded', initDashboard);
 } else {
-  renderCountyCards();
+  initDashboard();
 }
