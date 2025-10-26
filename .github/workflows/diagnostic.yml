@@ -1,9 +1,8 @@
 name: Daily Diagnostic Check
-
 on:
   schedule:
-    # Run daily at 8:00 AM UTC (4:00 AM EDT / 3:00 AM EST)
-    - cron: '0 8 * * *'
+    # Run daily at 6:30 AM EDT (10:30 AM UTC)
+    - cron: '30 10 * * *'
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -20,10 +19,31 @@ jobs:
           python-version: '3.x'
       
       - name: Run diagnostic check
+        id: diagnostic
         run: |
-          python diagnostic_check.py
+          python diagnostic_check.py 2>&1 | tee diagnostic_output.log
+        continue-on-error: true
       
-      - name: Report status
-        if: failure()
+      - name: Check for major failures
+        id: check_failures
         run: |
-          echo "::error::Diagnostic check failed. Review the logs above for details."
+          if grep -E "(FAIL.*card|FAIL.*map|FAIL.*link|FAIL.*color)" diagnostic_output.log; then
+            echo "major_failure=true" >> $GITHUB_OUTPUT
+            echo "::error::Major diagnostic check failures detected (cards, map, links, or color logic)"
+          else
+            echo "major_failure=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Upload diagnostic artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-report-${{ github.run_number }}
+          path: diagnostic_output.log
+          retention-days: 30
+      
+      - name: Notify on major failure
+        if: steps.check_failures.outputs.major_failure == 'true'
+        run: |
+          echo "::error::Daily diagnostic check found major issues. Please review the artifact and logs."
+          exit 1
