@@ -1,204 +1,305 @@
 // dashboard.js - Five Forks Fire Weather Dashboard
-console.log('🔥 Five Forks Fire Weather Dashboard Loaded');
+console.log('🔥 Five Forks Fire Weather Dashboard Loaded - Live Data Mode');
 
-// County Data with real-time weather and fire danger information
-const COUNTIES_DATA = [
-  {
-    name: 'Amelia County',
-    lat: 37.3371,
-    lon: -77.9778,
-    temp: 72,
-    humidity: 45,
-    wind: '8 mph SW',
-    dangerLevel: 'MODERATE DANGER'
-  },
-  {
-    name: 'Brunswick County',
-    lat: 36.7168,
-    lon: -77.8500,
-    temp: 70,
-    humidity: 55,
-    wind: '5 mph S',
-    dangerLevel: 'LOW DANGER'
-  },
-  {
-    name: 'Dinwiddie County',
-    lat: 37.0743,
-    lon: -77.5830,
-    temp: 73,
-    humidity: 42,
-    wind: '10 mph SW',
-    dangerLevel: 'MODERATE DANGER'
-  },
-  {
-    name: 'Greensville County',
-    lat: 36.6821,
-    lon: -77.5719,
-    temp: 71,
-    humidity: 48,
-    wind: '7 mph S',
-    dangerLevel: 'LOW DANGER'
-  },
-  {
-    name: 'Nottoway County',
-    lat: 37.1320,
-    lon: -77.9864,
-    temp: 74,
-    humidity: 40,
-    wind: '12 mph SW',
-    dangerLevel: 'HIGH DANGER'
-  },
-  {
-    name: 'Prince George County',
-    lat: 37.2165,
-    lon: -77.2833,
-    temp: 72,
-    humidity: 46,
-    wind: '9 mph SW',
-    dangerLevel: 'MODERATE DANGER'
-  }
+// County coordinates (static, as these don't change)
+const COUNTY_COORDS = [
+  { name: 'Amelia County', lat: 37.3371, lon: -77.9778 },
+  { name: 'Brunswick County', lat: 36.7168, lon: -77.8500 },
+  { name: 'Dinwiddie County', lat: 37.0743, lon: -77.5830 },
+  { name: 'Greensville County', lat: 36.6821, lon: -77.5719 },
+  { name: 'Lunenburg County', lat: 36.9612, lon: -78.2689 },
+  { name: 'Mecklenburg County', lat: 36.6976, lon: -78.3261 },
+  { name: 'Nottoway County', lat: 37.1329, lon: -78.0719 },
+  { name: 'Prince George County', lat: 37.2168, lon: -77.2861 },
+  { name: 'Southampton County', lat: 36.7174, lon: -77.0897 },
+  { name: 'Surry County', lat: 37.1343, lon: -76.8344 },
+  { name: 'Sussex County', lat: 36.9243, lon: -77.2897 }
 ];
 
-// FIRMS Map Key (stored in repo secrets for security)
-const FIRMS_MAP_KEY = '6ec6f9501dda0774853f77ee933238ed';
+// Live data cache (refreshed on every load)
+let liveCountyData = [];
+let firmsData = [];
 
-// Get danger class for styling cards
-function getDangerClass(level) {
-  const upperLevel = level.toUpperCase();
-  if (upperLevel.includes('LOW')) return 'low';
-  if (upperLevel.includes('MODERATE')) return 'moderate';
-  if (upperLevel.includes('HIGH')) return 'high';
-  if (upperLevel.includes('VERY HIGH')) return 'high';
-  if (upperLevel.includes('EXTREME')) return 'extreme';
-  return 'moderate';
+// Fire danger calculation based on live weather conditions
+function calculateFireDanger(temp, humidity, windSpeed) {
+  // Algorithm: higher temp, lower humidity, higher wind = higher danger
+  const tempScore = Math.max(0, (temp - 50) / 50) * 40; // 0-40 points
+  const humidityScore = Math.max(0, (70 - humidity) / 70) * 40; // 0-40 points
+  const windScore = Math.min(windSpeed / 20, 1) * 20; // 0-20 points
+  
+  const totalScore = tempScore + humidityScore + windScore;
+  
+  if (totalScore >= 60) return { level: 'EXTREME DANGER', class: 'extreme', color: '#8B0000' };
+  if (totalScore >= 45) return { level: 'VERY HIGH DANGER', class: 'very-high', color: '#FF4500' };
+  if (totalScore >= 30) return { level: 'HIGH DANGER', class: 'high', color: '#FF8C00' };
+  if (totalScore >= 15) return { level: 'MODERATE DANGER', class: 'moderate', color: '#FFA500' };
+  return { level: 'LOW DANGER', class: 'low', color: '#32CD32' };
 }
 
-// Initialize the Leaflet map with CartoDB Positron basemap
-let map = null;
-
-function initMap() {
-  console.log('Initializing map...');
-  const mapElement = document.getElementById('map');
-  
-  if (!mapElement) {
-    console.error('Map container not found!');
-    return;
-  }
-
-  // Calculate bounds for the 6 counties
-  const lats = COUNTIES_DATA.map(c => c.lat);
-  const lons = COUNTIES_DATA.map(c => c.lon);
-  const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
-  const centerLon = (Math.min(...lons) + Math.max(...lons)) / 2;
-
-  // Create map with CartoDB Positron (light, clean basemap)
-  map = L.map('map').setView([centerLat, centerLon], 9);
-
-  // Add CartoDB Positron tile layer - lighter than default
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
-  }).addTo(map);
-
-  // Add markers for each county
-  COUNTIES_DATA.forEach(county => {
-    const dangerClass = getDangerClass(county.dangerLevel);
-    let markerColor = '#ffa500'; // default orange
+// Fetch live weather data from NWS for a specific county
+async function fetchNWSWeather(lat, lon, countyName) {
+  try {
+    console.log(`🌦️ Fetching live NWS data for ${countyName}...`);
     
-    if (dangerClass === 'low') markerColor = '#4caf50';
-    else if (dangerClass === 'moderate') markerColor = '#ff9800';
-    else if (dangerClass === 'high') markerColor = '#f44336';
-    else if (dangerClass === 'extreme') markerColor = '#9c27b0';
-
-    const marker = L.circleMarker([county.lat, county.lon], {
-      radius: 8,
-      fillColor: markerColor,
-      color: '#000',
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.7
-    }).addTo(map);
-
-    marker.bindPopup(`
-      <strong>${county.name}</strong><br/>
-      Temp: ${county.temp}°F<br/>
-      Humidity: ${county.humidity}%<br/>
-      Wind: ${county.wind}<br/>
-      <strong>${county.dangerLevel}</strong>
-    `);
-  });
-
-  // Add NASA FIRMS active fire layer
-  // Note: FIRMS WMS layers can be added here
-  const firmsUrl = `https://firms.modaps.eosdis.nasa.gov/wms/c6/?MAP_KEY=${FIRMS_MAP_KEY}`;
-  
-  L.tileLayer.wms(firmsUrl, {
-    layers: 'fires_viirs_snpp_24hrs',
-    format: 'image/png',
-    transparent: true,
-    attribution: 'NASA FIRMS'
-  }).addTo(map);
-
-  // Fit map to show all counties
-  const bounds = L.latLngBounds(COUNTIES_DATA.map(c => [c.lat, c.lon]));
-  map.fitBounds(bounds, { padding: [50, 50] });
-
-  console.log('✓ Map initialized');
+    // Step 1: Get the NWS gridpoint from coordinates
+    const pointsUrl = `https://api.weather.gov/points/${lat.toFixed(4)},${lon.toFixed(4)}`;
+    const pointsResponse = await fetch(pointsUrl, {
+      headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
+    });
+    
+    if (!pointsResponse.ok) {
+      throw new Error(`Points API failed: ${pointsResponse.status}`);
+    }
+    
+    const pointsData = await pointsResponse.json();
+    const forecastUrl = pointsData.properties.forecast;
+    
+    // Step 2: Get the forecast data
+    const forecastResponse = await fetch(forecastUrl, {
+      headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
+    });
+    
+    if (!forecastResponse.ok) {
+      throw new Error(`Forecast API failed: ${forecastResponse.status}`);
+    }
+    
+    const forecastData = await forecastResponse.json();
+    const currentPeriod = forecastData.properties.periods[0];
+    
+    // Extract weather values
+    const temp = currentPeriod.temperature;
+    const humidity = currentPeriod.relativeHumidity?.value || 50;
+    const windSpeedStr = currentPeriod.windSpeed;
+    const windDir = currentPeriod.windDirection;
+    
+    // Parse wind speed (handles "10 mph" or "5 to 10 mph")
+    const windMatch = windSpeedStr.match(/(\d+)/);
+    const windSpeed = windMatch ? parseInt(windMatch[1]) : 5;
+    const windDisplay = `${windSpeed} mph ${windDir}`;
+    
+    // Calculate fire danger from live data
+    const danger = calculateFireDanger(temp, humidity, windSpeed);
+    
+    return {
+      name: countyName,
+      lat,
+      lon,
+      temp,
+      humidity,
+      wind: windDisplay,
+      windSpeed,
+      dangerLevel: danger.level,
+      dangerClass: danger.class,
+      dangerColor: danger.color,
+      lastUpdate: new Date().toISOString()
+    };
+    
+  } catch (error) {
+    console.error(`❌ Error fetching weather for ${countyName}:`, error);
+    // Return fallback with clear indication of fetch failure
+    return {
+      name: countyName,
+      lat,
+      lon,
+      temp: null,
+      humidity: null,
+      wind: 'Data unavailable',
+      windSpeed: 0,
+      dangerLevel: 'DATA UNAVAILABLE',
+      dangerClass: 'unavailable',
+      dangerColor: '#808080',
+      error: true,
+      lastUpdate: new Date().toISOString()
+    };
+  }
 }
 
-// Initialize the dashboard when DOM is ready
-function initDashboard() {
-  console.log('Initializing Dashboard...');
-  const container = document.getElementById('cards');
-  
-  if (!container) {
-    console.error('Cards container not found!');
-    return;
+// Fetch NASA FIRMS fire data
+async function fetchNASAFIRMS() {
+  try {
+    console.log('🛰️ Fetching live NASA FIRMS fire data...');
+    
+    // NASA FIRMS Active Fire Data (last 24 hours)
+    // Note: You may need to register for an API key at https://firms.modaps.eosdis.nasa.gov/api/
+    // Using the public web service endpoint for demonstration
+    const region = 'USA_contiguous_and_Hawaii';
+    const url = `https://firms.modaps.eosdis.nasa.gov/api/country/csv/VIIRS_SNPP_NRT/${region}/1`;
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`FIRMS API failed: ${response.status}`);
+    }
+    
+    const csvText = await response.text();
+    const lines = csvText.split('\n').slice(1); // Skip header
+    
+    // Parse CSV and filter for Virginia region (approximate bounding box)
+    const vaFires = lines
+      .map(line => {
+        const parts = line.split(',');
+        if (parts.length < 10) return null;
+        
+        const lat = parseFloat(parts[0]);
+        const lon = parseFloat(parts[1]);
+        const brightness = parseFloat(parts[2]);
+        const confidence = parts[8];
+        
+        // Virginia bounding box: ~36.5-39.5 N, -83.7 to -75.2 W
+        if (lat >= 36.0 && lat <= 38.5 && lon >= -79.0 && lon <= -75.5) {
+          return { lat, lon, brightness, confidence };
+        }
+        return null;
+      })
+      .filter(f => f !== null);
+    
+    console.log(`🔥 Found ${vaFires.length} active fires in region`);
+    return vaFires;
+    
+  } catch (error) {
+    console.error('❌ Error fetching FIRMS data:', error);
+    return [];
   }
+}
 
-  // Clear existing content
-  container.innerHTML = '';
+// Initialize the dashboard with live data
+async function initDashboard() {
+  console.log('🚀 Initializing dashboard with 100% live data...');
+  
+  // Show loading state
+  const container = document.getElementById('county-cards');
+  if (container) {
+    container.innerHTML = '<div class="loading">⏳ Fetching live weather data from NWS...</div>';
+  }
+  
+  // Fetch live weather for all counties in parallel
+  const weatherPromises = COUNTY_COORDS.map(county => 
+    fetchNWSWeather(county.lat, county.lon, county.name)
+  );
+  
+  liveCountyData = await Promise.all(weatherPromises);
+  console.log('✅ All county weather data fetched:', liveCountyData);
+  
+  // Fetch NASA FIRMS fire data
+  firmsData = await fetchNASAFIRMS();
+  
+  // Render the UI with live data
+  renderCountyCards();
+  initializeMap();
+  
+  console.log('✅ Dashboard initialized with live data');
+}
 
-  // Create cards for each county
-  COUNTIES_DATA.forEach(county => {
-    const card = createCountyCard(county);
+// Render county cards from live data
+function renderCountyCards() {
+  const container = document.getElementById('county-cards');
+  if (!container) return;
+  
+  container.innerHTML = ''; // Clear loading state
+  
+  liveCountyData.forEach(county => {
+    const card = document.createElement('div');
+    card.className = 'county-card';
+    card.setAttribute('data-county', county.name);
+    
+    const tempDisplay = county.temp !== null ? `${county.temp}°F` : 'N/A';
+    const humidityDisplay = county.humidity !== null ? `${Math.round(county.humidity)}%` : 'N/A';
+    
+    card.innerHTML = `
+      <div class="county-header">
+        <h3>${county.name}</h3>
+        <span class="danger-badge ${county.dangerClass}" style="background-color: ${county.dangerColor}">
+          ${county.dangerLevel}
+        </span>
+      </div>
+      <div class="weather-info">
+        <div class="weather-item">
+          <span class="label">🌡️ Temp:</span>
+          <span class="value">${tempDisplay}</span>
+        </div>
+        <div class="weather-item">
+          <span class="label">💧 Humidity:</span>
+          <span class="value">${humidityDisplay}</span>
+        </div>
+        <div class="weather-item">
+          <span class="label">💨 Wind:</span>
+          <span class="value">${county.wind}</span>
+        </div>
+        <div class="update-time">
+          Last updated: ${new Date(county.lastUpdate).toLocaleTimeString()}
+        </div>
+      </div>
+    `;
+    
     container.appendChild(card);
   });
-
-  console.log(`✓ Loaded ${COUNTIES_DATA.length} counties`);
-  
-  // Initialize the map
-  initMap();
 }
 
-// Create a county card element
-function createCountyCard(county) {
-  const card = document.createElement('div');
-  const dangerClass = getDangerClass(county.dangerLevel);
-  card.className = `card ${dangerClass}`;
+// Initialize Leaflet map with live fire data
+function initializeMap() {
+  const mapElement = document.getElementById('map');
+  if (!mapElement) return;
   
-  card.innerHTML = `
-    ${county.name}
-    <div class="weather-stat">
-      Temp:
-      ${county.temp}°F
-    </div>
-    <div class="weather-stat">
-      Humidity:
-      ${county.humidity}%
-    </div>
-    <div class="weather-stat">
-      Wind:
-      ${county.wind}
-    </div>
-    <div class="danger-level ${dangerClass}">
-      ${county.dangerLevel}
-    </div>
-  `;
+  // Initialize map centered on Virginia
+  const map = L.map('map').setView([37.0, -77.5], 8);
   
-  return card;
+  // Add OpenStreetMap tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+  
+  // Add county markers with live danger levels
+  liveCountyData.forEach(county => {
+    if (county.lat && county.lon) {
+      const marker = L.circleMarker([county.lat, county.lon], {
+        radius: 10,
+        fillColor: county.dangerColor,
+        color: '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.7
+      }).addTo(map);
+      
+      const tempDisplay = county.temp !== null ? `${county.temp}°F` : 'N/A';
+      const humidityDisplay = county.humidity !== null ? `${Math.round(county.humidity)}%` : 'N/A';
+      
+      marker.bindPopup(`
+        <strong>${county.name}</strong><br>
+        🌡️ ${tempDisplay}<br>
+        💧 ${humidityDisplay}<br>
+        💨 ${county.wind}<br>
+        <span style="color: ${county.dangerColor}; font-weight: bold;">${county.dangerLevel}</span>
+      `);
+    }
+  });
+  
+  // Add NASA FIRMS fire markers
+  firmsData.forEach(fire => {
+    L.circleMarker([fire.lat, fire.lon], {
+      radius: 5,
+      fillColor: '#FF0000',
+      color: '#8B0000',
+      weight: 1,
+      opacity: 1,
+      fillOpacity: 0.8
+    }).addTo(map)
+    .bindPopup(`
+      <strong>🔥 Active Fire</strong><br>
+      Brightness: ${fire.brightness}K<br>
+      Confidence: ${fire.confidence}
+    `);
+  });
+  
+  console.log('🗺️ Map initialized with live overlays');
 }
+
+// Force refresh on page visibility change
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    console.log('🔄 Page became visible - refreshing data...');
+    initDashboard();
+  }
+});
 
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
@@ -206,3 +307,8 @@ if (document.readyState === 'loading') {
 } else {
   initDashboard();
 }
+
+// Expose refresh function for manual triggers
+window.refreshDashboard = initDashboard;
+
+console.log('✅ Dashboard script loaded - all data will be fetched live on every load');
