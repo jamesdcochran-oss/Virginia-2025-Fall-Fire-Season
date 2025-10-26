@@ -73,10 +73,10 @@ function getDangerClass(level) {
 // Initialize the dashboard when DOM is ready
 function initDashboard() {
   console.log('Initializing Dashboard...');
-  const container = document.getElementById('counties-container');
+  const container = document.getElementById('cards');
   
   if (!container) {
-    console.error('Counties container not found!');
+    console.error('Cards container not found!');
     return;
   }
 
@@ -96,23 +96,21 @@ function initDashboard() {
 function createCountyCard(county) {
   const card = document.createElement('div');
   const dangerClass = getDangerClass(county.dangerLevel);
-  card.className = `county-card ${dangerClass}`;
+  card.className = `card ${dangerClass}`;
 
   card.innerHTML = `
-    <h2>${county.name}</h2>
-    <div class="weather-info">
-      <div class="weather-item">
-        <span class="label">Temperature:</span>
-        <span class="value">${county.temp}°F</span>
-      </div>
-      <div class="weather-item">
-        <span class="label">Humidity:</span>
-        <span class="value">${county.humidity}%</span>
-      </div>
-      <div class="weather-item">
-        <span class="label">Wind:</span>
-        <span class="value">${county.wind}</span>
-      </div>
+    <h3>${county.name}</h3>
+    <div class="weather-stat">
+      <span>Temp:</span>
+      <strong>${county.temp}°F</strong>
+    </div>
+    <div class="weather-stat">
+      <span>Humidity:</span>
+      <strong>${county.humidity}%</strong>
+    </div>
+    <div class="weather-stat">
+      <span>Wind:</span>
+      <strong>${county.wind}</strong>
     </div>
     <div class="danger-level ${dangerClass}">
       ${county.dangerLevel}
