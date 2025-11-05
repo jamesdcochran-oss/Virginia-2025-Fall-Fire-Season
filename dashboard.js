@@ -31,6 +31,51 @@ function calculateFireDanger(temp, humidity, windSpeed) {
   return { level: 'I (Low)', class: 'low', color: 'blue' };
 }
 
+// === Fosberg Fire Weather Index (FFWI) implementation ===
+// Compute Equilibrium Moisture Content (EMC) using Simard (1968) piecewise
+function calculateEMC(tempF, rh) {
+  // Convert temperature to Fahrenheit if not provided; expecting Fahrenheit input.
+  const T = tempF;
+  const RH = rh;
+  if (RH < 10) {
+    // Low humidity regime
+    return 0.03229 + 0.281073 * RH - 0.000578 * RH * T;
+  } else if (RH < 50) {
+    // Moderate humidity regime
+    return 2.22749 + 0.160107 * RH - 0.014784 * T;
+  } else {
+    // High humidity regime
+    return 21.0606 + 0.005565 * RH * RH - 0.00035 * RH * T - 0.483199 * RH;
+  }
+}
+
+// Moisture damping coefficient: scales from 1 (very dry) to 0 (very moist)
+function calculateEta(m) {
+  let eta = 1 - (m / 30);
+  // Clamp between 0 and 1
+  if (eta < 0) eta = 0;
+  if (eta > 1) eta = 1;
+  return eta;
+}
+
+// Compute Fosberg Fire Weather Index given temperature (F), relative humidity (%), and wind speed (mph)
+function calculateFFWI(tempF, rh, windSpeed) {
+  const m = calculateEMC(tempF, rh);
+  const eta = calculateEta(m);
+  const U = windSpeed;
+  const ffwi = eta * Math.sqrt(1 + U * U) / 0.3002;
+  return ffwi;
+}
+
+// Categorize FFWI into adjective classes with color coding
+function classifyFFWI(ffwi) {
+  if (ffwi >= 80) return { label: 'Extreme', class: 'extreme', color: 'red' };
+  if (ffwi >= 50) return { label: 'Very High', class: 'very-high', color: 'orange' };
+  if (ffwi >= 25) return { label: 'High', class: 'high', color: 'yellow' };
+  if (ffwi >= 12) return { label: 'Moderate', class: 'moderate', color: 'green' };
+  return { label: 'Low', class: 'low', color: 'blue' };
+}
+
 // Fetch live weather data from NWS for a specific county
 async function fetchNWSWeather(lat, lon, countyName) {
   try {
@@ -45,8 +90,7 @@ async function fetchNWSWeather(lat, lon, countyName) {
     const pointsData = await pointsResponse.json();
     const forecastUrl = pointsData.properties.forecast;
 
-    // Step 2: Fetch the hourly forecast
-    const forecastResponse = await fetch(forecastUrl, {
+    // Step 2: Fetch the hourly forecast   const forecastResponse = await fetch(forecastUrl, {
       headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
     });
     
@@ -62,6 +106,9 @@ async function fetchNWSWeather(lat, lon, countyName) {
 
     // Calculate fire danger using live data
     const danger = calculateFireDanger(temp, humidity, windSpeed);
+    // Calculate Fosberg Fire Weather Index (FFWI)
+    const ffwiRaw = calculateFFWI(temp, humidity, windSpeed);
+    const ffwiInfo = classifyFFWI(ffwiRaw);
 
     return {
       name: countyName,
@@ -71,6 +118,10 @@ async function fetchNWSWeather(lat, lon, countyName) {
       dangerLevel: danger.level,
       dangerClass: danger.class,
       dangerColor: danger.color,
+      ffwi: Math.round(ffwiRaw),
+      ffwiLevel: ffwiInfo.label,
+      ffwiClass: ffwiInfo.class,
+      ffwiColor: ffwiInfo.color,
       lat,
       lon
     };
@@ -84,6 +135,10 @@ async function fetchNWSWeather(lat, lon, countyName) {
       dangerLevel: 'Data Unavailable',
       dangerClass: 'low',
       dangerColor: 'gray',
+      ffwi: null,
+      ffwiLevel: 'N/A',
+      ffwiClass: 'low',
+      ffwiColor: 'gray',
       lat,
       lon
     };
@@ -97,6 +152,7 @@ async function fetchFIRMSData() {
     const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/c6331533b26e8aaf5f8e6f19f1c4061c/VIIRS_SNPP_NRT/USA_contiguous/1';
     const response = await fetch(url);
     const csvText = await response.text();
+;
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',');
     
@@ -144,6 +200,13 @@ async function initDashboard() {
   // Render the dashboard
   renderDashboard();
   renderMap();
+  
+  // Update last update timestamp for display
+  const lastUpdateEl = document.getElementById('lastUpdate');
+  if (lastUpdateEl) {
+    const now = new Date();
+    lastUpdateEl.textContent = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+  }
 }
 
 // Render county cards
@@ -162,6 +225,7 @@ function renderDashboard() {
           <p>🌡️ ${tempDisplay}</p>
           <p>💧 ${humidityDisplay}</p>
           <p>💨 ${county.wind}</p>
+          <p>🔥 FFWI: <span style="color: ${county.ffwiColor}; font-weight: bold;">${county.ffwi !== null ? county.ffwi : 'N/A'}${county.ffwiLevel !== 'N/A' ? ' (' + county.ffwiLevel + ')' : ''}</span></p>
         </div>
         <div class="danger-badge ${county.dangerClass}" style="background-color: ${county.dangerColor};">
           ${county.dangerLevel}
@@ -207,6 +271,7 @@ function renderMap() {
         🌡️ ${tempDisplay}<br>
         💧 ${humidityDisplay}<br>
         💨 ${county.wind}<br>
+        🔥 FFWI: <span style="color: ${county.ffwiColor}; font-weight: bold;">${county.ffwi !== null ? county.ffwi : 'N/A'}${county.ffwiLevel !== 'N/A' ? ' (' + county.ffwiLevel + ')' : ''}</span><br>
         <span style="color: ${county.dangerColor}; font-weight: bold;">${county.dangerLevel}</span>
       `);
     }
