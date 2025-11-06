@@ -28,7 +28,7 @@ function calculateFireDanger(temp, humidity, windSpeed) {
   if (totalScore >= 16) return { level: 'IV (Very High)', class: 'very-high', color: 'orange' };
   if (totalScore >= 12) return { level: 'III (High)', class: 'high', color: 'yellow' };
   if (totalScore >= 9)  return { level: 'II (Moderate)', class: 'moderate', color: 'green' };
-    return { level: 'I (Low)', class: 'low', color: 'cyan';}
+    return { level: 'I (Low)', class: 'low', color: 'cyan' };
 
 // === Fosberg Fire Weather Index (FFWI) implementation ===
 // Compute Equilibrium Moisture Content (EMC) using Simard (1968) piecewise
@@ -72,7 +72,7 @@ function classifyFFWI(ffwi) {
   if (ffwi >= 50) return { label: 'Very High', class: 'very-high', color: 'orange' };
   if (ffwi >= 25) return { label: 'High', class: 'high', color: 'yellow' };
   if (ffwi >= 12) return { label: 'Moderate', class: 'moderate', color: 'green' };
-  return { label: 'Low', class: 'low', color: 'blue' };
+  return { label: 'Low', class: 'low', color: 'cyan' };
 }
 
 // Fetch live weather data from NWS for a specific county
