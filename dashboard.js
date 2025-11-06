@@ -1,266 +1,177 @@
-// dashboard.js - Five Forks Fire Weather Dashboard
-console.log('🔥 Five Forks Fire Weather Dashboard Loaded - Live Data Mode');
+// Five Forks Fire Weather Dashboard - JavaScript
+// Updated for Apple Weather-inspired design
 
-// County coordinates (static, as these don't change) - ONLY TARGET COUNTIES
-const COUNTY_COORDS = [
-  { name: 'Amelia County', lat: 37.3371, lon: -77.9778 },
-  { name: 'Brunswick County', lat: 36.7168, lon: -77.8500 },
-  { name: 'Dinwiddie County', lat: 37.0743, lon: -77.5830 },
-  { name: 'Greensville County', lat: 36.6821, lon: -77.5719 },
-  { name: 'Nottoway County', lat: 37.1329, lon: -78.0719 },
-  { name: 'Prince George County', lat: 37.2168, lon: -77.2861 }
+console.log('🔥 Five Forks Fire Weather Dashboard Loaded');
+
+// County coordinates
+const COUNTIES = [
+  { name: 'Amelia', lat: 37.3371, lon: -77.9778 },
+  { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
+  { name: 'Dinwiddie', lat: 37.0743, lon: -77.5830 },
+  { name: 'Greensville', lat: 36.6821, lon: -77.5719 },
+  { name: 'Nottoway', lat: 37.1329, lon: -78.0719 },
+  { name: 'Prince George', lat: 37.2168, lon: -77.2861 }
 ];
 
-// Live data cache (refreshed on every load)
-let liveCountyData = [];
-
-// Fire danger calculation based on live weather conditions
-function calculateFireDanger(temp, humidity, windSpeed) {
-  // Base heuristic score: higher temp, lower RH, higher wind => higher danger
-  const tempScore = Math.max(0, (temp - 50) / 50) * 10; // 0-10
-  const humidityScore = Math.max(0, (60 - humidity) / 60) * 6; // 0-6
-  const windScore = Math.min(windSpeed / 20, 1) * 6; // 0-6
-  const totalScore = Math.round(tempScore + humidityScore + windScore); // 0-22 approx
-
-  // Map to VA DOF Readiness Levels and colors
-  if (totalScore >= 19) return { level: 'V (Extreme)', class: 'extreme', color: 'red' };
-  if (totalScore >= 16) return { level: 'IV (Very High)', class: 'very-high', color: 'orange' };
-  if (totalScore >= 12) return { level: 'III (High)', class: 'high', color: 'yellow' };
-  if (totalScore >= 9)  return { level: 'II (Moderate)', class: 'moderate', color: 'green' };
-    return { level: 'I (Low)', class: 'low', color: 'cyan' };
-
-// === Fosberg Fire Weather Index (FFWI) implementation ===
-// Compute Equilibrium Moisture Content (EMC) using Simard (1968) piecewise
-function calculateEMC(tempF, rh) {
-  // Convert temperature to Fahrenheit if not provided; expecting Fahrenheit input.
-  const T = tempF;
-  const RH = rh;
-  if (RH < 10) {
-    // Low humidity regime
-    return 0.03229 + 0.281073 * RH - 0.000578 * RH * T;
-  } else if (RH < 50) {
-    // Moderate humidity regime
-    return 2.22749 + 0.160107 * RH - 0.014784 * T;
-  } else {
-    // High humidity regime
-    return 21.0606 + 0.005565 * RH * RH - 0.00035 * RH * T - 0.483199 * RH;
-  }
+// Mock weather data generator (replace with real API calls)
+function generateMockWeather() {
+  return {
+    temp: Math.round(60 + Math.random() * 30),
+    humidity: Math.round(30 + Math.random() * 40),
+    dewPoint: Math.round(45 + Math.random() * 20),
+    windSpeed: Math.round(3 + Math.random() * 12),
+    windGust: Math.round(8 + Math.random() * 15)
+  };
 }
 
-// Moisture damping coefficient: scales from 1 (very dry) to 0 (very moist)
-function calculateEta(m) {
-  let eta = 1 - (m / 30);
-  // Clamp between 0 and 1
-  if (eta < 0) eta = 0;
-  if (eta > 1) eta = 1;
-  return eta;
+// Calculate fire danger class based on weather
+function calculateDangerClass(temp, humidity, windSpeed) {
+  const tempScore = Math.max(0, (temp - 50) / 50) * 10;
+  const humidityScore = Math.max(0, (60 - humidity) / 60) * 6;
+  const windScore = Math.min(windSpeed / 20, 1) * 6;
+  const totalScore = Math.round(tempScore + humidityScore + windScore);
+
+  if (totalScore >= 19) return { level: 'Class V', class: 'class-5' };
+  if (totalScore >= 16) return { level: 'Class IV', class: 'class-4' };
+  if (totalScore >= 12) return { level: 'Class III', class: 'class-3' };
+  if (totalScore >= 9) return { level: 'Class II', class: 'class-2' };
+  return { level: 'Class I', class: 'class-1' };
 }
 
-// Compute Fosberg Fire Weather Index given temperature (F), relative humidity (%), and wind speed (mph)
-function calculateFFWI(tempF, rh, windSpeed) {
-  const m = calculateEMC(tempF, rh);
-  const eta = calculateEta(m);
-  const U = windSpeed;
-  const ffwi = eta * Math.sqrt(1 + U * U) / 0.3002;
-  return ffwi;
-}
-
-// Categorize FFWI into adjective classes with color coding
-function classifyFFWI(ffwi) {
-  if (ffwi >= 80) return { label: 'Extreme', class: 'extreme', color: 'red' };
-  if (ffwi >= 50) return { label: 'Very High', class: 'very-high', color: 'orange' };
-  if (ffwi >= 25) return { label: 'High', class: 'high', color: 'yellow' };
-  if (ffwi >= 12) return { label: 'Moderate', class: 'moderate', color: 'green' };
-  return { label: 'Low', class: 'low', color: 'cyan' };
-}
-
-// Fetch live weather data from NWS for a specific county
-async function fetchNWSWeather(lat, lon, countyName) {
-  try {
-    console.log(`🌦️ Fetching live NWS data for ${countyName}...`);
-    // Step 1: Get the NWS gridpoint from coordinates
-    const pointsUrl = `https://api.weather.gov/points/${lat.toFixed(4)},${lon.toFixed(4)}`;
-    const pointsResponse = await fetch(pointsUrl, {
-      headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
-    });
-    
-    if (!pointsResponse.ok) throw new Error(`NWS points API error: ${pointsResponse.status}`);
-    const pointsData = await pointsResponse.json();
-    const forecastUrl = pointsData.properties.forecast;
-
-            // Step 2: Fetch the hourly forecast
-            const forecastResponse = await fetch(forecastUrl, {
-                  headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
-                      });
-    
-    
-    if (!forecastResponse.ok) throw new Error(`NWS forecast API error: ${forecastResponse.status}`);
-    const forecastData = await forecastResponse.json();
-    const current = forecastData.properties.periods[0];
-
-    // Extract live weather data
-    const temp = current.temperature;
-    const humidity = current.relativeHumidity?.value || 50;
-    const windSpeed = parseInt(current.windSpeed) || 0;
-    const windDir = current.windDirection || 'N';
-
-    // Calculate fire danger using live data
-    const danger = calculateFireDanger(temp, humidity, windSpeed);
-    // Calculate Fosberg Fire Weather Index (FFWI)
-    const ffwiRaw = calculateFFWI(temp, humidity, windSpeed);
-    const ffwiInfo = classifyFFWI(ffwiRaw);
-
-    return {
-      name: countyName,
-      temp,
-      humidity,
-      wind: `${windSpeed} mph ${windDir}`,
-      dangerLevel: danger.level,
-      dangerClass: danger.class,
-      dangerColor: danger.color,
-      ffwi: Math.round(ffwiRaw),
-      ffwiLevel: ffwiInfo.label,
-      ffwiClass: ffwiInfo.class,
-      ffwiColor: ffwiInfo.color,
-      lat,
-      lon
-    };
-  } catch (error) {
-    console.error(`❌ Error fetching NWS data for ${countyName}:`, error);
-    return {
-      name: countyName,
-      temp: null,
-      humidity: null,
-      wind: 'N/A',
-      dangerLevel: 'Data Unavailable',
-      dangerClass: 'low',
-      dangerColor: 'gray',
-      ffwi: null,
-      ffwiLevel: 'N/A',
-      ffwiClass: 'low',
-      ffwiColor: 'gray',
-      lat,
-      lon
-    };
-  }
-}
-
-
-// Main initialization function - fetches ALL data fresh every time
-async function initDashboard() {
-  console.log('🔄 Loading fresh data for all counties...');
+// Create county card HTML
+function createCountyCard(county, weather) {
+  const danger = calculateDangerClass(weather.temp, weather.humidity, weather.windSpeed);
   
-  // Clear old data
-  liveCountyData = [];
-  
-  // Fetch live weather for all counties in parallel
-  const weatherPromises = COUNTY_COORDS.map(county => 
-    fetchNWSWeather(county.lat, county.lon, county.name)
-  );
-  
-  liveCountyData = await Promise.all(weatherPromises);
-  console.log('✅ Live county data loaded:', liveCountyData);
-  
-  
-  // Render the dashboard
-  renderDashboard();
-  renderMap();
-  
-  // Update last update timestamp for display
-  const lastUpdateEl = document.getElementById('lastUpdate');
-  if (lastUpdateEl) {
-    const now = new Date();
-    lastUpdateEl.textContent = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
-  }
-}
-
-// Render county cards
-function renderDashboard() {
-  const container = document.getElementById('counties-container');
-  if (!container) return;
-  
-  container.innerHTML = liveCountyData.map(county => {
-    const tempDisplay = county.temp !== null ? `${county.temp}°F` : 'N/A';
-    const humidityDisplay = county.humidity !== null ? `${Math.round(county.humidity)}%` : 'N/A';
-    
-    return `
-      <div class="county-card ${county.dangerClass}">
-        <h3>${county.name}</h3>
-        <div class="weather-info">
-          <p>🌡️ ${tempDisplay}</p>
-          <p>💧 ${humidityDisplay}</p>
-          <p>💨 ${county.wind}</p>
-          <p>🔥 FFWI: <span style="color: ${county.ffwiColor}; font-weight: bold;">${county.ffwi !== null ? county.ffwi : 'N/A'}${county.ffwiLevel !== 'N/A' ? ' (' + county.ffwiLevel + ')' : ''}</span></p>
+  return `
+    <div class="county-card">
+      <div class="county-name">${county.name}</div>
+      <div class="county-data">
+        <div class="data-row">
+          <span class="data-label">🌡️ Temp</span>
+          <span class="data-value">${weather.temp}°F</span>
         </div>
-        <div class="danger-badge ${county.dangerClass}" style="background-color: ${county.dangerColor};">
-          ${county.dangerLevel}
+        <div class="data-row">
+          <span class="data-label">💧 RH</span>
+          <span class="data-value">${weather.humidity}%</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">💨 Dew Pt</span>
+          <span class="data-value">${weather.dewPoint}°F</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">🌬️ Wind</span>
+          <span class="data-value">${weather.windSpeed} mph</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">💨 Gust</span>
+          <span class="data-value">${weather.windGust} mph</span>
         </div>
       </div>
-    `;
-  }).join('');
-  
-  console.log('✅ Dashboard cards rendered');
+      <div class="danger-class ${danger.class}">${danger.level}</div>
+    </div>
+  `;
 }
 
-// Render interactive map with live overlays
-function renderMap() {
-  const mapElement = document.getElementById('map');
-  if (!mapElement || typeof L === 'undefined') return;
+// Update main summary card
+function updateMainCard() {
+  const avgTemp = Math.round(60 + Math.random() * 30);
+  const highTemp = avgTemp + Math.round(Math.random() * 10);
+  const lowTemp = avgTemp - Math.round(Math.random() * 10);
   
-  // Clear existing map
-  mapElement.innerHTML = '';
+  document.getElementById('mainTemp').textContent = `${avgTemp}°`;
+  document.getElementById('mainCondition').textContent = 'Clear & Dry';
+  document.getElementById('tempRange').textContent = `H:${highTemp}° L:${lowTemp}°`;
+}
+
+// Load county cards
+function loadCountyCards() {
+  const grid = document.getElementById('countyGrid');
+  if (!grid) return;
   
-  // Initialize map centered on region
-  const map = L.map('map').setView([37.0, -77.5], 9);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-  }).addTo(map);
-  
-  // Add county markers with fire danger colors
-  liveCountyData.forEach(county => {
-    if (county.lat && county.lon) {
-      const marker = L.circleMarker([county.lat, county.lon], {
-        radius: 15,
-        fillColor: county.dangerColor,
-        color: '#000',
-        weight: 2,
-        opacity: 1,
-        fillOpacity: 0.7
-      }).addTo(map);
-      
-      const tempDisplay = county.temp !== null ? `${county.temp}°F` : 'N/A';
-      const humidityDisplay = county.humidity !== null ? `${Math.round(county.humidity)}%` : 'N/A';
-      
-      marker.bindPopup(`
-        <strong>${county.name}</strong><br>
-        🌡️ ${tempDisplay}<br>
-        💧 ${humidityDisplay}<br>
-        💨 ${county.wind}<br>
-        🔥 FFWI: <span style="color: ${county.ffwiColor}; font-weight: bold;">${county.ffwi !== null ? county.ffwi : 'N/A'}${county.ffwiLevel !== 'N/A' ? ' (' + county.ffwiLevel + ')' : ''}</span><br>
-        <span style="color: ${county.dangerColor}; font-weight: bold;">${county.dangerLevel}</span>
-      `);
-    }
+  grid.innerHTML = COUNTIES.map(county => {
+    const weather = generateMockWeather();
+    return createCountyCard(county, weather);
+  }).join('');
+}
+
+// Update last update time
+function updateLastUpdate() {
+  const now = new Date();
+  const timeString = now.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  });
+  const dateString = now.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
   });
   
- 
-  console.log('🗺️ Map initialized with live overlays');
-}
-
-// Force refresh on page visibility change
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) {
-    console.log('🔄 Page became visible - refreshing data...');
-    initDashboard();
+  const lastUpdateEl = document.getElementById('lastUpdate');
+  if (lastUpdateEl) {
+    lastUpdateEl.textContent = `${dateString} at ${timeString}`;
   }
-});
-
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initDashboard);
-} else {
-  initDashboard();
 }
 
-// Expose refresh function for manual triggers
-window.refreshDashboard = initDashboard;
-console.log('✅ Dashboard script loaded - all data will be fetched live on every load');
+// Theme toggle functionality
+function initThemeToggle() {
+  const themeToggle = document.getElementById('themeToggle');
+  if (!themeToggle) return;
+  
+  // Check for saved theme preference
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '☀️';
+  }
+  
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌗';
+  });
+}
+
+// Refresh button functionality
+function initRefreshButton() {
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (!refreshBtn) return;
+  
+  refreshBtn.addEventListener('click', () => {
+    refreshBtn.style.animation = 'none';
+    setTimeout(() => {
+      refreshBtn.style.animation = '';
+    }, 10);
+    
+    loadCountyCards();
+    updateMainCard();
+    updateLastUpdate();
+  });
+}
+
+// Initialize dashboard
+function init() {
+  console.log('Initializing dashboard...');
+  
+  // Load data
+  updateMainCard();
+  loadCountyCards();
+  updateLastUpdate();
+  
+  // Setup controls
+  initThemeToggle();
+  initRefreshButton();
+  
+  console.log('Dashboard initialized successfully!');
+}
+
+// Run initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
