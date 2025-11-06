@@ -90,9 +90,11 @@ async function fetchNWSWeather(lat, lon, countyName) {
     const pointsData = await pointsResponse.json();
     const forecastUrl = pointsData.properties.forecast;
 
-    // Step 2: Fetch the hourly forecast   const forecastResponse = await fetch(forecastUrl, {
-      headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
-    });
+            // Step 2: Fetch the hourly forecast
+            const forecastResponse = await fetch(forecastUrl, {
+                  headers: { 'User-Agent': '(FireWeatherDashboard, contact@example.com)' }
+                      });
+    
     
     if (!forecastResponse.ok) throw new Error(`NWS forecast API error: ${forecastResponse.status}`);
     const forecastData = await forecastResponse.json();
