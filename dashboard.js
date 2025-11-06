@@ -153,7 +153,6 @@ async function fetchFIRMSData() {
     const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/c6331533b26e8aaf5f8e6f19f1c4061c/VIIRS_SNPP_NRT/USA_contiguous/1';
     const response = await fetch(url);
     const csvText = await response.text();
-;
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',');
     
