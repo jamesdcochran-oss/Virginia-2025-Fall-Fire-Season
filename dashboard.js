@@ -72,6 +72,7 @@ function createCountyCard(county, weather) {
   `;
 }
 
+/*
 // Update main summary card
 function updateMainCard() {
   const avgTemp = Math.round(60 + Math.random() * 30);
@@ -82,6 +83,7 @@ function updateMainCard() {
   document.getElementById('mainCondition').textContent = 'Clear & Dry';
   document.getElementById('tempRange').textContent = `H:${highTemp}° L:${lowTemp}°`;
 }
+*/
 
 // Load county cards
 function loadCountyCards() {
@@ -148,7 +150,7 @@ function initRefreshButton() {
     }, 10);
     
     loadCountyCards();
-    updateMainCard();
+    // updateMainCard();
     updateLastUpdate();
   });
 }
@@ -158,7 +160,7 @@ function init() {
   console.log('Initializing dashboard...');
   
   // Load data
-  updateMainCard();
+  // updateMainCard();
   loadCountyCards();
   updateLastUpdate();
   
