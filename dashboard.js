@@ -13,7 +13,6 @@ const COUNTY_COORDS = [
 
 // Live data cache (refreshed on every load)
 let liveCountyData = [];
-let firmsData = [];
 
 // Fire danger calculation based on live weather conditions
 function calculateFireDanger(temp, humidity, windSpeed) {
@@ -146,37 +145,6 @@ async function fetchNWSWeather(lat, lon, countyName) {
   }
 }
 
-// Fetch active fires from NASA FIRMS
-async function fetchFIRMSData() {
-  try {
-    console.log('🔥 Fetching NASA FIRMS active fire data...');
-    const url = 'https://firms.modaps.eosdis.nasa.gov/api/area/csv/c6331533b26e8aaf5f8e6f19f1c4061c/VIIRS_SNPP_NRT/USA_contiguous/1';
-    const response = await fetch(url);
-    const csvText = await response.text();
-    const lines = csvText.trim().split('\n');
-    const headers = lines[0].split(',');
-    
-    const fires = [];
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',');
-      const lat = parseFloat(values[0]);
-      const lon = parseFloat(values[1]);
-      const brightness = parseFloat(values[2]);
-      const confidence = values[9];
-      
-      // Filter for Virginia region (approximate)
-      if (lat >= 36.5 && lat <= 37.5 && lon >= -78.5 && lon <= -76.5) {
-        fires.push({ lat, lon, brightness, confidence });
-      }
-    }
-    
-    console.log(`🔥 Found ${fires.length} active fires in region`);
-    return fires;
-  } catch (error) {
-    console.error('❌ Error fetching FIRMS data:', error);
-    return [];
-  }
-}
 
 // Main initialization function - fetches ALL data fresh every time
 async function initDashboard() {
@@ -184,7 +152,6 @@ async function initDashboard() {
   
   // Clear old data
   liveCountyData = [];
-    //   firmsData = [];
   
   // Fetch live weather for all counties in parallel
   const weatherPromises = COUNTY_COORDS.map(county => 
@@ -194,8 +161,6 @@ async function initDashboard() {
   liveCountyData = await Promise.all(weatherPromises);
   console.log('✅ Live county data loaded:', liveCountyData);
   
-      // // Fetch active fires
-    //   firmsData = await fetchFIRMSData();
   
   // Render the dashboard
   renderDashboard();
@@ -277,23 +242,7 @@ function renderMap() {
     }
   });
   
-      /* // Add NASA FIRMS fire markers
-  firmsData.forEach(fire => {
-    L.circleMarker([fire.lat, fire.lon], {
-      radius: 5,
-      fillColor: '#FF0000',
-      color: '#8B0000',
-      weight: 1,
-      opacity: 1,
-      fillOpacity: 0.8
-    }).addTo(map)
-    .bindPopup(`
-      🔥 Active Fire<br>
-      Brightness: ${fire.brightness}K<br>
-      Confidence: ${fire.confidence}
-    `); */
-  });
-  
+ 
   console.log('🗺️ Map initialized with live overlays');
 }
 
