@@ -185,7 +185,7 @@ async function initDashboard() {
   
   // Clear old data
   liveCountyData = [];
-  firmsData = [];
+    //   firmsData = [];
   
   // Fetch live weather for all counties in parallel
   const weatherPromises = COUNTY_COORDS.map(county => 
@@ -195,8 +195,8 @@ async function initDashboard() {
   liveCountyData = await Promise.all(weatherPromises);
   console.log('✅ Live county data loaded:', liveCountyData);
   
-  // Fetch active fires
-  firmsData = await fetchFIRMSData();
+      // // Fetch active fires
+    //   firmsData = await fetchFIRMSData();
   
   // Render the dashboard
   renderDashboard();
@@ -278,7 +278,7 @@ function renderMap() {
     }
   });
   
-  // Add NASA FIRMS fire markers
+      /* // Add NASA FIRMS fire markers
   firmsData.forEach(fire => {
     L.circleMarker([fire.lat, fire.lon], {
       radius: 5,
@@ -292,7 +292,7 @@ function renderMap() {
       🔥 Active Fire<br>
       Brightness: ${fire.brightness}K<br>
       Confidence: ${fire.confidence}
-    `);
+    `); */
   });
   
   console.log('🗺️ Map initialized with live overlays');
