@@ -28,8 +28,7 @@ function calculateFireDanger(temp, humidity, windSpeed) {
   if (totalScore >= 16) return { level: 'IV (Very High)', class: 'very-high', color: 'orange' };
   if (totalScore >= 12) return { level: 'III (High)', class: 'high', color: 'yellow' };
   if (totalScore >= 9)  return { level: 'II (Moderate)', class: 'moderate', color: 'green' };
-  return { level: 'I (Low)', class: 'low', color: 'blue' };
-}
+    return { level: 'I (Low)', class: 'low', color: 'cyan';}
 
 // === Fosberg Fire Weather Index (FFWI) implementation ===
 // Compute Equilibrium Moisture Content (EMC) using Simard (1968) piecewise
