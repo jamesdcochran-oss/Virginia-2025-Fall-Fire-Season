@@ -18,6 +18,9 @@ COUNTIES = [
     {"name": "Amelia", "lat": 37.3500, "lon": -77.9700},        {"name": "Prince George", "lat": 37.1835, "lon": -77.2831},
     {"name": "Nottoway", "lat": 37.1000, "lon": -78.0700}]
 
+# Fire danger thresholds for alerting
+ALERT_THRESHOLDS = {"gust": 18, "rh": 30}
+
 
 def fetch_nws_data(lat, lon):
     """Fetch latest observation from NWS API"""
