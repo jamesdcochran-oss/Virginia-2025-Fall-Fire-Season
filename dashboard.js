@@ -5,9 +5,9 @@ const COUNTIES = [
     { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
     { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
     { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
-    { name: 'Sussex', lat: 36.9168, lon: -77.2831 },
+    { name: ''Amelia, lat: 36.9168, lon: -77.2831 },
     { name: 'Prince George', lat: 37.1835, lon: -77.2831 },
-    { name: 'Surry', lat: 37.1335, lon: -76.8331 }
+    { name: 'Nottoway', lat: 37.1335, lon: -76.8331 }
 ];
 
 // Initialize
