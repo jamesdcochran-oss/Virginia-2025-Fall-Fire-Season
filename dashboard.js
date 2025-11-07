@@ -49,45 +49,50 @@ function initMap() {
 }
 
 // Load FIRMS CSV fire hotspot data
-53
-    () {
-    const csvUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/6ec6f9501dda0774853f77ee933238ed/VIIRS_NOAA20_NRT/36.5,-79,38,-77/1/${new Date().toISOString().split('T')[0]}`; // Virginia area, last 24 hours56
-    
-    
-    Papa.parse(csvUrl, {
-        download: true,
-        header: true,
-        complete: function(results) {
-            results.data.forEach(function(row) {
-                const lat = parseFloat(row.latitude);
-                const lon = parseFloat(row.longitude);
-                const brightness = parseFloat(row.brightness);
-                
-                if (!lat || !lon || lat < 36 || lat > 38 || lon < -79 || lon > -76) return; // Filter to VA region
-                
-                // Color based on brightness
-                const color = brightness > 350 ? '#D32F2F' : brightness > 320 ? '#FFA000' : '#FFD700';
-                
-                L.circleMarker([lat, lon], {
-                    radius: 6,
-                    color: '#000',
-                    fillColor: color,
-                    fillOpacity: 0.8,
-                    weight: 1
-                }).addTo(map)
-                .bindPopup(`
-                    <strong>Fire Detected</strong><br>
-                    Date: ${row.acq_date}<br>
-                    Time: ${row.acq_time}<br>
-                    Brightness: ${brightness}K<br>
-                    Confidence: ${row.confidence}%
-                `);
-            });
-        },
-        error: function(error) {
-            console.log('FIRMS data unavailable:', error);
-        }
-    });
+function loadFireData() {
+  // Build FIRMS URL for VA bounding box for today's date
+  const dateStr = new Date().toISOString().split('T')[0];
+  const csvUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/6ec6f9501dda0774853f77ee933238ed/VIIRS_NOAA20_NRT/36.5,-79,38,-77/1/${dateStr}`;
+
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    complete: function (results) {
+      results.data.forEach(function (row) {
+        const lat = parseFloat(row.latitude);
+        const lon = parseFloat(row.longitude);
+        const brightness = parseFloat(row.brightness);
+
+        // Keep only Virginia-area points
+        if (!lat || !lon || lat < 36 || lat > 38 || lon < -79 || lon > -76) return;
+
+        // Color by brightness
+        const color =
+          brightness > 350 ? '#D32F2F' :
+          brightness > 320 ? '#FFA000' :
+          '#FFD700';
+
+        L.circleMarker([lat, lon], {
+          radius: 6,
+          color: '#000',
+          fillColor: color,
+          fillOpacity: 0.8,
+          weight: 1
+        })
+          .addTo(map)
+          .bindPopup(
+            `<strong>Fire Detected</strong><br>
+             Date: ${row.acq_date}<br>
+             Time: ${row.acq_time}<br>
+             Brightness: ${brightness}K<br>
+             Confidence: ${row.confidence}%`
+          );
+      });
+    },
+    error: function (error) {
+      console.log('FIRMS data unavailable:', error);
+    }
+  });
 }
 
 // Load County Weather Data
