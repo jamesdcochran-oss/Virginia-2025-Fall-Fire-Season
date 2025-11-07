@@ -96,7 +96,7 @@ async function loadCountyData() {
     
     try {
         // Try to load from generated JSON first
-        const response = await fetch('forecasts/county_data.json');
+        const response = await fetch('county_data.json');
         if (response.ok) {
             const data = await response.json();
             renderCountyCards(data.counties);
