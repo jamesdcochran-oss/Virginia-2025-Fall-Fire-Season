@@ -1,0 +1,32 @@
+name: Update Weather Data
+
+on:
+  schedule:
+    - cron: '5 */6 * * *'  # Every 6 hours at :05 past
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: pip install requests
+        
+    - name: Fetch weather data
+      run: python fetch_weather.py
+        
+    - name: Commit and push if changed
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add county_data.json
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update weather data [automated]" && git push)
