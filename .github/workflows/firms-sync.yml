@@ -1,0 +1,2 @@
+env:
+  FIRMS_API_KEY: ${{6ec6f9501dda0774853f77ee933238ed}}
