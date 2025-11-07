@@ -14,10 +14,9 @@ COUNTIES = [
     {"name": "Dinwiddie", "lat": 37.0751, "lon": -77.5831},
     {"name": "Brunswick", "lat": 36.7168, "lon": -77.8500},
     {"name": "Greensville", "lat": 36.6835, "lon": -77.5664},
-    {"name": "Amelia", "lat": 36.9168, "lon": -77.2831},
-    {"name": "Prince George", "lat": 37.1835, "lon": -77.2831},
-    {"name": "Nottoway", "lat": 37.1335, "lon": -76.8331}
-]
+    {"name": "Amelia", "lat": 37.3500, "lon": -77.9700}},
+        {"name": "Prince George", "lat": 37.1835, "lon": -77.2831},
+    {"name": "Nottoway", "lat": 37.1000, "lon": -78.0700}]
 
 # Fire danger thresholds for alerting
 ALERT_THRESHOLDS = {"gust": 18, "rh": 30}
