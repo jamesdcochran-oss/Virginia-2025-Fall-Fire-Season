@@ -1,4 +1,3 @@
-17
 #!/usr/bin/env python3
 """
 Five Forks Fire Weather Data Fetcher
