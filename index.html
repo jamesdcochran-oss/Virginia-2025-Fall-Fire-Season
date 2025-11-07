@@ -52,18 +52,19 @@
         </section>
 
         <!-- Embedded Fire Map -->
-        <section class="map-section">
-        <h2>NASA FIRMS - Active Fires & Hotspots</h2>
-    <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@-78.0,37.5,7z" target="_blank" class="map-link">
-        <div class="map-preview">
-            <div class="map-overlay">
-                <span class="map-icon">🔥</span>
-                <span class="map-text">View Live Fire Map</span>
-                <span class="map-subtitle">NASA FIRMS - Active Fires & Hotspots</span>
-            </div>
-        </div>
-    </a>
+       <section class="map-section">
+    <h2>AirNow – Fire & Smoke Map</h2>
+    <div class="fire-map" style="max-width:100vw; margin:1em auto; padding:0;">
+        <iframe 
+            src="https://fire.airnow.gov/"
+            width="100%"
+            height="300"
+            frameborder="0"
+            style="border-radius:12px; min-width:0; max-width:100vw; display:block;">
+        </iframe>
+    </div>
 </section>
+
         <!-- Footer -->
         <footer>
             <p>Last updated: <span id="lastUpdate">--</span></p>
