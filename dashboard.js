@@ -49,8 +49,10 @@ function initMap() {
 }
 
 // Load FIRMS CSV fire hotspot data
-function loadFireData() {
-    const csvUrl = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv";
+53
+    () {
+    const csvUrl = `https://firms.modaps.eosdis.nasa.gov/api/area/csv/6ec6f9501dda0774853f77ee933238ed/VIIRS_NOAA20_NRT/36.5,-79,38,-77/1/${new Date().toISOString().split('T')[0]}`; // Virginia area, last 24 hours56
+    
     
     Papa.parse(csvUrl, {
         download: true,
