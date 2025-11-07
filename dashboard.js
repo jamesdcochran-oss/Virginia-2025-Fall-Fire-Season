@@ -177,3 +177,14 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+<div id="fire-map-container">
+  <div class="fire-map" style="max-width:100vw; margin:1em auto; padding:0;">
+    <iframe
+      src="https://fire.airnow.gov/"
+      width="100%"
+      height="300"
+      frameborder="0"
+      style="border-radius:12px; min-width:0; max-width:100vw; display:block;">
+    </iframe>
+  </div>
+</div>
