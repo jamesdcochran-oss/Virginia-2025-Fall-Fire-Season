@@ -1,190 +1,227 @@
-// Five Forks Fire Weather Dashboard - JavaScript
-// Updated for Apple Weather-inspired design
+// Five Forks Fire Weather Dashboard - Main Script
 
-console.log('🔥 Five Forks Fire Weather Dashboard Loaded');
-
-// County coordinates
+// County data with centroids for NWS API
 const COUNTIES = [
-  { name: 'Amelia', lat: 37.3371, lon: -77.9778 },
-  { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
-  { name: 'Dinwiddie', lat: 37.0743, lon: -77.5830 },
-  { name: 'Greensville', lat: 36.6821, lon: -77.5719 },
-  { name: 'Nottoway', lat: 37.1329, lon: -78.0719 },
-  { name: 'Prince George', lat: 37.2168, lon: -77.2861 }
+    { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
+    { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
+    { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
+    { name: 'Sussex', lat: 36.9168, lon: -77.2831 },
+    { name: 'Prince George', lat: 37.1835, lon: -77.2831 },
+    { name: 'Surry', lat: 37.1335, lon: -76.8331 }
 ];
 
-// Mock weather data generator (replace with real API calls)
-function generateMockWeather() {
-  return {
-    temp: Math.round(60 + Math.random() * 30),
-    humidity: Math.round(30 + Math.random() * 40),
-    dewPoint: Math.round(45 + Math.random() * 20),
-    windSpeed: Math.round(3 + Math.random() * 12),
-    windGust: Math.round(8 + Math.random() * 15)
-  };
-}
-
-// Calculate fire danger class based on weather
-function calculateDangerClass(temp, humidity, windSpeed) {
-  const tempScore = Math.max(0, (temp - 50) / 50) * 10;
-  const humidityScore = Math.max(0, (60 - humidity) / 60) * 6;
-  const windScore = Math.min(windSpeed / 20, 1) * 6;
-  const totalScore = Math.round(tempScore + humidityScore + windScore);
-
-  if (totalScore >= 19) return { level: 'Class V', class: 'class-5' };
-  if (totalScore >= 16) return { level: 'Class IV', class: 'class-4' };
-  if (totalScore >= 12) return { level: 'Class III', class: 'class-3' };
-  if (totalScore >= 9) return { level: 'Class II', class: 'class-2' };
-  return { level: 'Class I', class: 'class-1' };
-}
-
-// Create county card HTML
-function createCountyCard(county, weather) {
-  const danger = calculateDangerClass(weather.temp, weather.humidity, weather.windSpeed);
-  
-  return `
-    <div class="county-card">
-      <div class="county-name">${county.name}</div>
-      <div class="county-data">
-        <div class="data-row">
-          <span class="data-label">🌡️ Temp</span>
-          <span class="data-value">${weather.temp}°F</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">💧 RH</span>
-          <span class="data-value">${weather.humidity}%</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">💨 Dew Pt</span>
-          <span class="data-value">${weather.dewPoint}°F</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">🌬️ Wind</span>
-          <span class="data-value">${weather.windSpeed} mph</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">💨 Gust</span>
-          <span class="data-value">${weather.windGust} mph</span>
-        </div>
-      </div>
-      <div class="danger-class ${danger.class}">${danger.level}</div>
-    </div>
-  `;
-}
-
-/*
-// Update main summary card
-function updateMainCard() {
-  const avgTemp = Math.round(60 + Math.random() * 30);
-  const highTemp = avgTemp + Math.round(Math.random() * 10);
-  const lowTemp = avgTemp - Math.round(Math.random() * 10);
-  
-  document.getElementById('mainTemp').textContent = `${avgTemp}°`;
-  document.getElementById('mainCondition').textContent = 'Clear & Dry';
-  document.getElementById('tempRange').textContent = `H:${highTemp}° L:${lowTemp}°`;
-}
-*/
-
-// Load county cards
-function loadCountyCards() {
-  const grid = document.getElementById('countyGrid');
-  if (!grid) return;
-  
-  grid.innerHTML = COUNTIES.map(county => {
-    const weather = generateMockWeather();
-    return createCountyCard(county, weather);
-  }).join('');
-}
-
-// Update last update time
-function updateLastUpdate() {
-  const now = new Date();
-  const timeString = now.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
-    minute: '2-digit',
-    hour12: true 
-  });
-  const dateString = now.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  });
-  
-  const lastUpdateEl = document.getElementById('lastUpdate');
-  if (lastUpdateEl) {
-    lastUpdateEl.textContent = `${dateString} at ${timeString}`;
-  }
-}
-
-// Theme toggle functionality
-function initThemeToggle() {
-  const themeToggle = document.getElementById('themeToggle');
-  if (!themeToggle) return;
-  
-  // Check for saved theme preference
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  if (savedTheme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    themeToggle.textContent = '☀️';
-  }
-  
-  themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initTheme();
+    initMap();
+    loadCountyData();
     
-    document.documentElement.setAttribute('data-theme', newTheme);
+    // Event listeners
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('refreshBtn').addEventListener('click', refreshData);
+});
+
+// Theme Management
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.body.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
-    
-    themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌗';
-  });
 }
 
-// Refresh button functionality
-function initRefreshButton() {
-  const refreshBtn = document.getElementById('refreshBtn');
-  if (!refreshBtn) return;
-  
-  refreshBtn.addEventListener('click', () => {
-    refreshBtn.style.animation = 'none';
+// Map Initialization
+let map;
+function initMap() {
+    map = L.map('map').setView([37.2, -77.7], 8);
+    
+    // Light basemap for fire visibility
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CartoDB',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Load FIRMS fire data
+    loadFireData();
+}
+
+// Load FIRMS CSV fire hotspot data
+function loadFireData() {
+    const csvUrl = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv";
+    
+    Papa.parse(csvUrl, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            results.data.forEach(function(row) {
+                const lat = parseFloat(row.latitude);
+                const lon = parseFloat(row.longitude);
+                const brightness = parseFloat(row.brightness);
+                
+                if (!lat || !lon || lat < 36 || lat > 38 || lon < -79 || lon > -76) return; // Filter to VA region
+                
+                // Color based on brightness
+                const color = brightness > 350 ? '#D32F2F' : brightness > 320 ? '#FFA000' : '#FFD700';
+                
+                L.circleMarker([lat, lon], {
+                    radius: 6,
+                    color: '#000',
+                    fillColor: color,
+                    fillOpacity: 0.8,
+                    weight: 1
+                }).addTo(map)
+                .bindPopup(`
+                    <strong>Fire Detected</strong><br>
+                    Date: ${row.acq_date}<br>
+                    Time: ${row.acq_time}<br>
+                    Brightness: ${brightness}K<br>
+                    Confidence: ${row.confidence}%
+                `);
+            });
+        },
+        error: function(error) {
+            console.log('FIRMS data unavailable:', error);
+        }
+    });
+}
+
+// Load County Weather Data
+async function loadCountyData() {
+    const countyGrid = document.getElementById('countyGrid');
+    countyGrid.innerHTML = '<div class="loading">Loading county data...</div>';
+    
+    try {
+        // Try to load from generated JSON first
+        const response = await fetch('forecasts/county_data.json');
+        if (response.ok) {
+            const data = await response.json();
+            renderCountyCards(data.counties);
+            updateTimestamp(data.timestamp);
+            return;
+        }
+    } catch (error) {
+        console.log('No pre-generated data, fetching live...');
+    }
+    
+    // Fallback: Generate from demo data
+    const countyData = await generateDemoData();
+    renderCountyCards(countyData);
+    updateTimestamp(new Date().toISOString());
+}
+
+// Generate demo data (until backend is set up)
+async function generateDemoData() {
+    return COUNTIES.map(county => ({
+        name: county.name,
+        temp: Math.floor(Math.random() * 20) + 65,
+        rh: Math.floor(Math.random() * 40) + 20,
+        dewPoint: Math.floor(Math.random() * 20) + 45,
+        wind: Math.floor(Math.random() * 15) + 5,
+        gust: Math.floor(Math.random() * 10) + 15,
+        dangerClass: Math.floor(Math.random() * 3) + 2 // Classes 2-4 for demo
+    }));
+}
+
+// Calculate fire danger class from weather data
+function calculateDangerClass(temp, rh, wind) {
+    let score = 0;
+    
+    // Temperature scoring
+    if (temp >= 80) score += 2;
+    else if (temp >= 70) score += 1;
+    
+    // Relative Humidity scoring
+    if (rh < 20) score += 3;
+    else if (rh < 30) score += 2;
+    else if (rh < 40) score += 1;
+    
+    // Wind scoring
+    if (wind >= 18) score += 2;
+    else if (wind >= 12) score += 1;
+    
+    // Convert score to class
+    if (score <= 2) return 1;
+    if (score <= 4) return 2;
+    if (score <= 6) return 3;
+    if (score <= 8) return 4;
+    return 5;
+}
+
+// Render county cards
+function renderCountyCards(counties) {
+    const countyGrid = document.getElementById('countyGrid');
+    countyGrid.innerHTML = '';
+    
+    counties.forEach(county => {
+        const card = document.createElement('div');
+        card.className = 'county-card';
+        
+        card.innerHTML = `
+            <span class="danger-bubble class-${county.dangerClass}">${county.dangerClass}</span>
+            <div class="county-name">${county.name}</div>
+            <div class="county-data">
+                <div class="data-row">
+                    <span class="data-label">Temp</span>
+                    <span class="data-value">${county.temp}°F</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">RH</span>
+                    <span class="data-value">${county.rh}%</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Dew Pt</span>
+                    <span class="data-value">${county.dewPoint}°F</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Wind</span>
+                    <span class="data-value">${county.wind} mph</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Gust</span>
+                    <span class="data-value">${county.gust} mph</span>
+                </div>
+            </div>
+        `;
+        
+        countyGrid.appendChild(card);
+    });
+}
+
+// Update timestamp
+function updateTimestamp(timestamp) {
+    const lastUpdate = document.getElementById('lastUpdate');
+    const date = new Date(timestamp);
+    lastUpdate.textContent = date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+// Refresh data
+async function refreshData() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    refreshBtn.style.animation = 'spin 1s linear';
+    
+    await loadCountyData();
+    
     setTimeout(() => {
-      refreshBtn.style.animation = '';
-    }, 10);
-    
-    loadCountyCards();
-    // updateMainCard();
-    updateLastUpdate();
-  });
+        refreshBtn.style.animation = '';
+    }, 1000);
 }
 
-// Initialize dashboard
-function init() {
-  console.log('Initializing dashboard...');
-  
-  // Load data
-  // updateMainCard();
-  loadCountyCards();
-  updateLastUpdate();
-  
-  // Setup controls
-  initThemeToggle();
-  initRefreshButton();
-  
-  console.log('Dashboard initialized successfully!');
-}
-
-// Run initialization when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
-<div id="fire-map-container">
-  <div class="fire-map" style="max-width:100vw; margin:1em auto; padding:0;">
-    <iframe
-      src="https://fire.airnow.gov/"
-      width="100%"
-      height="300"
-      frameborder="0"
-      style="border-radius:12px; min-width:0; max-width:100vw; display:block;">
-    </iframe>
-  </div>
-</div>
+// Add spin animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
