@@ -6,9 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>Five Forks Fire Weather</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-theme="light">
     <div class="container">
         <!-- Header with Title and Controls -->
         <header>
@@ -21,7 +22,6 @@
                 <button class="icon-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh">🔄</button>
             </div>
         </header>
-
 
         <!-- Quick Links Bar -->
         <div class="quick-links">
@@ -51,43 +51,26 @@
             </div>
         </section>
 
-        <!-- Embedded Fire Map -->
-        <!DOCTYPE html>
-<html>
-<head>
-  <title>NASA FIRMS Fire Hotspots Map</title>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <style>
-    #map { height: 681px; width: 100%; border-radius: 12px; }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    // Initialize Leaflet map centered over Virginia
-    var map = L.map('6ec6f9501dda0774853f77ee933238ed').setView([37.2, -77.71], 9);
-
-    L.tileLayer('https://firms.modaps.eosdis.nasa.gov/wms/?MAP_KEY=YOUR_MAP_KEY', {
-      layers: 'fires_modis_24', // Change to 'fires_viirs_24' for VIIRS data
-      format: 'image/png',
-      transparent: true,
-      attribution: 'NASA FIRMS'
-    }).addTo(map);
-  </script>
-</body>
-</html>
+        <!-- Fire Map Section -->
+        <section class="map-section">
+            <h2>Active Fire Hotspots</h2>
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="map-link-btn">
+                Open Full FIRMS Map →
+            </a>
+        </section>
 
         <!-- Footer -->
         <footer>
-            <p>Last updated: <span id="lastUpdate">--</span></p>
-            <p class="data-note">Data updates every 6 hours</p>
+            <p>Last updated: <span id="lastUpdate">Loading...</span></p>
+            <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
         </footer>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>
