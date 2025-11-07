@@ -52,19 +52,34 @@
         </section>
 
         <!-- Embedded Fire Map -->
-       <section class="map-section">
-    <h2>NASA FIRMS MAP
-</h2>
-    <div class="fire-map" style="max-width:100vw; margin:1em auto; padding:0;">
-        <iframe 
-            src="https://firms.modaps.eosdis.nasa.gov/usfs/map/#m:advanced;d:today,today;l:fires_goes_all,fires_goes_g18,fires_goes_g18frp,fires_goes_g19,fires_goes_g19frp,fires_landsat_landsat,fires_modis_aqua,fires_modis_aqua_nrt,fires_modis_aqua_sp,fires_modis_terra,fires_modis_terra_nrt,fires_modis_terra_sp,fires_viirs_noaa20,fires_viirs_noaa20_nrt,fires_viirs_noaa20_sp,fires_viirs_noaa21,fires_viirs_snpp,fires_viirs_snpp_nrt,fires_viirs_snpp_sp,active-ca,active-usa,active-usa-detail=100,fire-perimeter,sta_detections,sta_mask,street;@-77.71,37.20,9.00z"
-            width: "100%"
-            height: "681"
-            frameborder: "0"
-            style: "border-radius:12px; min-width:0; max-width:100vw; display:block;"
-        </iframe>
-    </div>
-</section>
+        <!DOCTYPE html>
+<html>
+<head>
+  <title>NASA FIRMS Fire Hotspots Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map { height: 681px; width: 100%; border-radius: 12px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Initialize Leaflet map centered over Virginia
+    var map = L.map('6ec6f9501dda0774853f77ee933238ed').setView([37.2, -77.71], 9);
+
+    L.tileLayer('https://firms.modaps.eosdis.nasa.gov/wms/?MAP_KEY=YOUR_MAP_KEY', {
+      layers: 'fires_modis_24', // Change to 'fires_viirs_24' for VIIRS data
+      format: 'image/png',
+      transparent: true,
+      attribution: 'NASA FIRMS'
+    }).addTo(map);
+  </script>
+</body>
+</html>
 
         <!-- Footer -->
         <footer>
