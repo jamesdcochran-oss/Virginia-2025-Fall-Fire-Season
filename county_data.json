@@ -1,67 +1,55 @@
 {
-  "lastUpdated": "2025-11-09T18:34:27.625421Z",
+  "lastUpdated": "2025-11-10T02:18:09.840947Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 71,
-      "rh": 66,
-      "dewPoint": 59,
-      "wind": 46,
-      "gust": 60,
-      "dangerClass": 3
-    },
-    {
-      "name": "Brunswick",
-      "temp": 76,
-      "rh": 61,
-      "dewPoint": 61,
-      "wind": 29,
-      "gust": 38,
-      "dangerClass": 3
+      "temp": 57,
+      "rh": 88,
+      "dewPoint": 54,
+      "wind": 17,
+      "gust": 22,
+      "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 74,
-      "rh": 64,
+      "temp": 67,
+      "rh": 80,
       "dewPoint": 61,
-      "wind": 33,
-      "gust": 43,
+      "wind": 25,
+      "gust": 32,
       "dangerClass": 3
     },
     {
       "name": "Amelia",
-      "temp": 75,
-      "rh": 62,
-      "dewPoint": 61,
-      "wind": 33,
-      "gust": 43,
-      "dangerClass": 3
+      "temp": 57,
+      "rh": 99,
+      "dewPoint": 57,
+      "wind": null,
+      "gust": null,
+      "dangerClass": 2
     },
     {
       "name": "Prince George",
-      "temp": 71,
-      "rh": 66,
-      "dewPoint": 59,
-      "wind": 46,
-      "gust": 60,
-      "dangerClass": 3
+      "temp": 57,
+      "rh": 88,
+      "dewPoint": 54,
+      "wind": 17,
+      "gust": 22,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 75,
-      "rh": 62,
-      "dewPoint": 61,
-      "wind": 33,
-      "gust": 43,
-      "dangerClass": 3
+      "temp": 57,
+      "rh": 99,
+      "dewPoint": 57,
+      "wind": null,
+      "gust": null,
+      "dangerClass": 2
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (60 mph)",
-    "Brunswick: High gusts (38 mph)",
-    "Greensville: High gusts (43 mph)",
-    "Amelia: High gusts (43 mph)",
-    "Prince George: High gusts (60 mph)",
-    "Nottoway: High gusts (43 mph)"
+    "Dinwiddie: High gusts (22 mph)",
+    "Greensville: High gusts (32 mph)",
+    "Prince George: High gusts (22 mph)"
   ]
 }
