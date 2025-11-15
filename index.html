@@ -63,7 +63,10 @@
             <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
         </footer>
     </div>
-{
+import json
+
+# Input JSON block
+data = {
   "period": "2025-11-15 to 2025-11-16",
   "leaf_fall": 75,
   "greenup_factor": 0,
@@ -99,6 +102,26 @@
     "HDWI elevated on Nov 16"
   ]
 }
+
+# Generate HTML table
+def render_table(data):
+    html = f"<h2>🔥 Fire Danger Forecast — {data['period']}</h2>"
+    html += "<table border='1' cellpadding='6'><tr><th>Field</th><th>Nov 15</th><th>Nov 16</th></tr>"
+    for key in data["forecast"]["2025-11-15"]:
+        val1 = data["forecast"]["2025-11-15"][key]
+        val2 = data["forecast"]["2025-11-16"][key]
+        html += f"<tr><td>{key.replace('_', ' ').title()}</td><td>{val1}</td><td>{val2}</td></tr>"
+    html += "</table><br><h3>🧠 Class Logic</h3>"
+    html += f"<p>Leaf Fall: {data['leaf_fall']}%<br>Green-up Factor: {data['greenup_factor']}</p>"
+    html += "<h3>📝 Notes</h3><ul>"
+    for note in data["notes"]:
+        html += f"<li>{note}</li>"
+    html += "</ul>"
+    return html
+
+# Output HTML string
+html_output = render_table(data)
+print(html_output)
     <!-- External Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
