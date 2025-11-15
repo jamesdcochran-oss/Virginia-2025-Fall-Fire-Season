@@ -63,44 +63,45 @@
             <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
         </footer>
     </div>
-import json
+
+    import json
 
 # Input JSON block
 data = {
-  "period": "2025-11-15 to 2025-11-16",
-  "leaf_fall": 75,
-  "greenup_factor": 0,
-  "counties": ["Amelia", "Brunswick", "Dinwiddie", "Greensville", "Nottoway", "Prince George"],
-  "forecast": {
-    "2025-11-15": {
-      "local_class": 2,
-      "DOF_class": 2,
-      "temp_max": 55,
-      "temp_min": 37,
-      "RH_min": 36,
-      "wind": "W 5–8 mph",
-      "rain": 0.00,
-      "CSI": 360,
-      "HDWI": "Low"
+    "period": "2025-11-15 to 2025-11-16",
+    "leaf_fall": 75,
+    "greenup_factor": 0,
+    "counties": ["Amelia", "Brunswick", "Dinwiddie", "Greensville", "Nottoway", "Prince George"],
+    "forecast": {
+        "2025-11-15": {
+            "local_class": 2,
+            "DOF_class": 2,
+            "temp_max": 55,
+            "temp_min": 37,
+            "RH_min": 36,
+            "wind": "W 5–8 mph",
+            "rain": 0.00,
+            "CSI": 360,
+            "HDWI": "Low"
+        },
+        "2025-11-16": {
+            "local_class": 3,
+            "DOF_class": 3,
+            "temp_max": 71,
+            "temp_min": 51,
+            "RH_min": 32,
+            "wind": "SW 8–12 mph",
+            "rain": 0.01,
+            "CSI": 362,
+            "HDWI": "Moderate"
+        }
     },
-    "2025-11-16": {
-      "local_class": 3,
-      "DOF_class": 3,
-      "temp_max": 71,
-      "temp_min": 51,
-      "RH_min": 32,
-      "wind": "SW 8–12 mph",
-      "rain": 0.01,
-      "CSI": 362,
-      "HDWI": "Moderate"
-    }
-  },
-  "notes": [
-    "Nov 16 meets 30/30/30 crossover",
-    "Rainfall not suppressive",
-    "Greensville in extreme drought",
-    "HDWI elevated on Nov 16"
-  ]
+    "notes": [
+        "Nov 16 meets 30/30/30 crossover",
+        "Rainfall not suppressive",
+        "Greensville in extreme drought",
+        "HDWI elevated on Nov 16"
+    ]
 }
 
 # Generate HTML table
@@ -111,17 +112,22 @@ def render_table(data):
         val1 = data["forecast"]["2025-11-15"][key]
         val2 = data["forecast"]["2025-11-16"][key]
         html += f"<tr><td>{key.replace('_', ' ').title()}</td><td>{val1}</td><td>{val2}</td></tr>"
-    html += "</table><br><h3>🧠 Class Logic</h3>"
+    html += "</table>"
+
+    html += "<h3>🧠 Class Logic</h3>"
     html += f"<p>Leaf Fall: {data['leaf_fall']}%<br>Green-up Factor: {data['greenup_factor']}</p>"
+
     html += "<h3>📝 Notes</h3><ul>"
     for note in data["notes"]:
         html += f"<li>{note}</li>"
     html += "</ul>"
+
     return html
 
 # Output HTML string
 html_output = render_table(data)
 print(html_output)
+    
     <!-- External Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
