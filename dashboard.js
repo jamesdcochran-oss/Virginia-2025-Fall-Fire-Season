@@ -24,13 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // Theme Management
 function initTheme() {
     const savedTheme = localStorage.getItem('theme') || 'light';
-    document.body.setAttribute('data-theme', savedTheme);
+    document.body.setAttribute('data-color-scheme', savedTheme);
 }
 
 function toggleTheme() {
-    const currentTheme = document.body.getAttribute('data-theme');
+    const currentTheme = document.body.getAttribute('data-color-scheme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    document.body.setAttribute('data-theme', newTheme);
+    document.body.setAttribute('data-color-scheme', newTheme);
     localStorage.setItem('theme', newTheme);
 }
 
