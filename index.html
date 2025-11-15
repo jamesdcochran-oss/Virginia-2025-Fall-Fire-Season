@@ -64,69 +64,43 @@
         </footer>
     </div>
 
-    import json
+   <h2>🔥 Fire Danger Forecast — 2025-11-15 to 2025-11-16</h2>
 
-# Input JSON block
-data = {
-    "period": "2025-11-15 to 2025-11-16",
-    "leaf_fall": 75,
-    "greenup_factor": 0,
-    "counties": ["Amelia", "Brunswick", "Dinwiddie", "Greensville", "Nottoway", "Prince George"],
-    "forecast": {
-        "2025-11-15": {
-            "local_class": 2,
-            "DOF_class": 2,
-            "temp_max": 55,
-            "temp_min": 37,
-            "RH_min": 36,
-            "wind": "W 5–8 mph",
-            "rain": 0.00,
-            "CSI": 360,
-            "HDWI": "Low"
-        },
-        "2025-11-16": {
-            "local_class": 3,
-            "DOF_class": 3,
-            "temp_max": 71,
-            "temp_min": 51,
-            "RH_min": 32,
-            "wind": "SW 8–12 mph",
-            "rain": 0.01,
-            "CSI": 362,
-            "HDWI": "Moderate"
-        }
-    },
-    "notes": [
-        "Nov 16 meets 30/30/30 crossover",
-        "Rainfall not suppressive",
-        "Greensville in extreme drought",
-        "HDWI elevated on Nov 16"
-    ]
-}
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Nov 15</th>
+      <th>Nov 16</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Local Class</td><td>2</td><td>3</td></tr>
+    <tr><td>DOF Class</td><td>2</td><td>3</td></tr>
+    <tr><td>Max Temp (°F)</td><td>55</td><td>71</td></tr>
+    <tr><td>Min Temp (°F)</td><td>37</td><td>51</td></tr>
+    <tr><td>Min RH (%)</td><td>36</td><td>32</td></tr>
+    <tr><td>Wind</td><td>W 5–8 mph</td><td>SW 8–12 mph</td></tr>
+    <tr><td>Rainfall (in)</td><td>0.00</td><td>0.01</td></tr>
+    <tr><td>CSI</td><td>360</td><td>362</td></tr>
+    <tr><td>HDWI</td><td>Low</td><td>Moderate</td></tr>
+  </tbody>
+</table>
 
-# Generate HTML table
-def render_table(data):
-    html = f"<h2>🔥 Fire Danger Forecast — {data['period']}</h2>"
-    html += "<table border='1' cellpadding='6'><tr><th>Field</th><th>Nov 15</th><th>Nov 16</th></tr>"
-    for key in data["forecast"]["2025-11-15"]:
-        val1 = data["forecast"]["2025-11-15"][key]
-        val2 = data["forecast"]["2025-11-16"][key]
-        html += f"<tr><td>{key.replace('_', ' ').title()}</td><td>{val1}</td><td>{val2}</td></tr>"
-    html += "</table>"
+<h3>🧠 Class Logic</h3>
+<ul>
+  <li>Leaf Fall: 75%</li>
+  <li>Green-up Factor: 0</li>
+</ul>
 
-    html += "<h3>🧠 Class Logic</h3>"
-    html += f"<p>Leaf Fall: {data['leaf_fall']}%<br>Green-up Factor: {data['greenup_factor']}</p>"
-
-    html += "<h3>📝 Notes</h3><ul>"
-    for note in data["notes"]:
-        html += f"<li>{note}</li>"
-    html += "</ul>"
-
-    return html
-
-# Output HTML string
-html_output = render_table(data)
-print(html_output)
+<h3>📝 Notes</h3>
+<ul>
+  <li>Nov 16 meets 30/30/30 crossover</li>
+  <li>Rainfall not suppressive</li>
+  <li>Greensville in extreme drought</li>
+  <li>HDWI elevated on Nov 16</li>
+</ul>
+ 
     
     <!-- External Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
