@@ -63,7 +63,75 @@
             <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
         </footer>
     </div>
-
+{
+  "forecast_period": "2025-11-15 to 2025-11-16",
+  "leaf_fall": "75%",
+  "counties": [
+    "Amelia",
+    "Brunswick",
+    "Dinwiddie",
+    "Greensville",
+    "Nottoway",
+    "Prince George"
+  ],
+  "daily_forecast": {
+    "2025-11-15": {
+      "local_class": 2,
+      "DOF_class": 2,
+      "temperature_max": 55,
+      "temperature_min": 37,
+      "RH_min": 36,
+      "wind_speed": "W 5–8 mph",
+      "rainfall": 0.00,
+      "CSI": 360,
+      "HDWI": "Low",
+      "RainCalc_suppression": false
+    },
+    "2025-11-16": {
+      "local_class": 3,
+      "DOF_class": 3,
+      "temperature_max": 71,
+      "temperature_min": 51,
+      "RH_min": 32,
+      "wind_speed": "SW 8–12 mph",
+      "rainfall": 0.01,
+      "CSI": 362,
+      "HDWI": "Moderate",
+      "RainCalc_suppression": false
+    }
+  },
+  "class_logic": {
+    "greenup_factor": 0,
+    "CSI_override": false,
+    "DOF_calculation_method": {
+      "factors": [
+        "Days Since Rainfall",
+        "Rainfall Correction",
+        "Temperature",
+        "Relative Humidity",
+        "Wind Speed",
+        "CSI",
+        "Green-up Factor"
+      ],
+      "Nov_15_total_points": 11,
+      "Nov_16_total_points": 15
+    }
+  },
+  "notes": [
+    "Nov 16 meets 30/30/30 crossover criteria",
+    "Trace rainfall on Nov 16 not suppressive",
+    "Greensville remains in extreme drought (KBDI 460–490)",
+    "Ventilation poor overnight; LVORI elevated",
+    "HDWI moderate on Nov 16 due to warmth and wind"
+  ],
+  "sources": [
+    "NWS AKQ, LWX, RNK Fire Weather Forecasts",
+    "Weather Underground PWS",
+    "Virginia DOF daily classes",
+    "USDA HDWI research",
+    "WFAS and NOAA drought data"
+  ]
+}
     <!-- External Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
