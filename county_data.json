@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2025-11-17T06:43:35.341574Z",
+  "lastUpdated": "2025-11-17T12:59:16.787156Z",
   "counties": [
     {
       "name": "Dinwiddie",
       "temp": 35,
-      "rh": 60,
+      "rh": 58,
       "dewPoint": 22,
       "wind": null,
       "gust": null,
@@ -12,35 +12,35 @@
     },
     {
       "name": "Brunswick",
-      "temp": 49,
-      "rh": 29,
-      "dewPoint": 18,
-      "wind": null,
-      "gust": null,
+      "temp": 42,
+      "rh": 42,
+      "dewPoint": 21,
+      "wind": 17,
+      "gust": 22,
       "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": null,
-      "rh": null,
-      "dewPoint": 23,
+      "temp": 40,
+      "rh": 49,
+      "dewPoint": 22,
       "wind": null,
       "gust": null,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 45,
-      "rh": 41,
-      "dewPoint": 23,
-      "wind": null,
-      "gust": null,
+      "temp": 37,
+      "rh": 61,
+      "dewPoint": 25,
+      "wind": 12,
+      "gust": 16,
       "dangerClass": 2
     },
     {
       "name": "Prince George",
       "temp": 35,
-      "rh": 60,
+      "rh": 58,
       "dewPoint": 22,
       "wind": null,
       "gust": null,
@@ -48,15 +48,15 @@
     },
     {
       "name": "Nottoway",
-      "temp": 45,
-      "rh": 41,
-      "dewPoint": 23,
-      "wind": null,
-      "gust": null,
+      "temp": 37,
+      "rh": 61,
+      "dewPoint": 25,
+      "wind": 12,
+      "gust": 16,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Brunswick: Low humidity (29%)"
+    "Brunswick: High gusts (22 mph)"
   ]
 }
