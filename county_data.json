@@ -1,70 +1,46 @@
 {
-  "lastUpdated": "2025-11-16T18:36:46.862265Z",
+  "lastUpdated": "2025-11-17T02:09:29.134354Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 70,
+      "temp": 52,
       "rh": null,
       "dewPoint": null,
-      "wind": 50,
-      "gust": 83,
+      "wind": 12,
+      "gust": 16,
       "dangerClass": 2
-    },
-    {
-      "name": "Brunswick",
-      "temp": 71,
-      "rh": 29,
-      "dewPoint": 37,
-      "wind": 46,
-      "gust": 95,
-      "dangerClass": 4
     },
     {
       "name": "Greensville",
-      "temp": 72,
-      "rh": 31,
-      "dewPoint": 40,
-      "wind": 75,
-      "gust": 104,
-      "dangerClass": 3
-    },
-    {
-      "name": "Amelia",
-      "temp": 70,
-      "rh": 29,
-      "dewPoint": 36,
-      "wind": 25,
-      "gust": 32,
-      "dangerClass": 4
-    },
-    {
-      "name": "Prince George",
-      "temp": 70,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 50,
-      "gust": 83,
+      "temp": 54,
+      "rh": 25,
+      "dewPoint": 19,
+      "wind": null,
+      "gust": null,
       "dangerClass": 2
     },
     {
+      "name": "Amelia",
+      "temp": 55,
+      "rh": 22,
+      "dewPoint": 17,
+      "wind": 12,
+      "gust": 16,
+      "dangerClass": 3
+    },
+    {
       "name": "Nottoway",
-      "temp": 70,
-      "rh": 29,
-      "dewPoint": 36,
-      "wind": 25,
-      "gust": 32,
-      "dangerClass": 4
+      "temp": 55,
+      "rh": 22,
+      "dewPoint": 17,
+      "wind": 12,
+      "gust": 16,
+      "dangerClass": 3
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (83 mph)",
-    "Brunswick: High gusts (95 mph)",
-    "Brunswick: Low humidity (29%)",
-    "Greensville: High gusts (104 mph)",
-    "Amelia: High gusts (32 mph)",
-    "Amelia: Low humidity (29%)",
-    "Prince George: High gusts (83 mph)",
-    "Nottoway: High gusts (32 mph)",
-    "Nottoway: Low humidity (29%)"
+    "Greensville: Low humidity (25%)",
+    "Amelia: Low humidity (22%)",
+    "Nottoway: Low humidity (22%)"
   ]
 }
