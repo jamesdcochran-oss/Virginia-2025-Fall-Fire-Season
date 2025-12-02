@@ -5,39 +5,135 @@ on:
     - cron: '0 6 * * *'  # 6am UTC daily
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   generate-brief:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 1
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install python-docx requests
-    - name: Fetch live NWS weather data
-      run: python scripts/fetch_weather.py
-    - name: Generate fire weather brief from template
-      run: python scripts/generate_brief_from_forecast.py
-    - name: Build DOCX brief
-      run: |
-        TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-        python scripts/build_five_forks_brief.py \
-          fire_weather_brief_input.json \
-          briefs/Five_Forks_Brief_${TIMESTAMP}.docx
-    - name: Commit and push brief
-      run: |
-        git config user.name "Fire Weather Bot"
-        git config user.email "noreply@github.com"
-        git add briefs/
-        git add county_data.json
-        git commit -m "Daily brief - $(date +%Y-%m-%d) - NWS+DOF forecast" || echo "No changes to commit"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-docx requests
+
+      - name: Debug: show repo files (helps if paths change)
+        run: |
+          set -e
+          echo "SHA: $(git rev-parse HEAD)"
+          ls -la
+          ls -la scripts || true
+          ls -la Scripts || true
+          find . -maxdepth 4 -type f -name "*.py" | sort
+
+      - name: Fetch live NWS weather data
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CANDIDATES=(
+            "scripts/fetch_weather.py"
+            "Scripts/fetch_weather.py"
+            "scripts/fetch_nws_weather.py"
+            "scripts/fetch_forecast.py"
+            "tools/fetch_weather.py"
+            "src/fetch_weather.py"
+          )
+
+          FOUND=""
+          for f in "${CANDIDATES[@]}"; do
+            if [[ -f "$f" ]]; then FOUND="$f"; break; fi
+          done
+
+          if [[ -z "$FOUND" ]]; then
+            FOUND="$(find . -maxdepth 4 -type f -name "*.py" | grep -iE 'fetch.*(weather|nws|forecast)|(weather|nws|forecast).*fetch' | head -n 1 || true)"
+          fi
+
+          if [[ -z "$FOUND" ]]; then
+            echo "ERROR: Could not locate a fetch-weather script."
+            echo "Python files present:"
+            find . -maxdepth 4 -type f -name "*.py" | sort
+            exit 1
+          fi
+
+          echo "Running: $FOUND"
+          python "$FOUND"
+
+      - name: Generate fire weather brief from template
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CANDIDATES=(
+            "scripts/generate_brief_from_forecast.py"
+            "Scripts/generate_brief_from_forecast.py"
+            "scripts/generate_brief.py"
+            "tools/generate_brief_from_forecast.py"
+            "src/generate_brief_from_forecast.py"
+          )
+
+          FOUND=""
+          for f in "${CANDIDATES[@]}"; do
+            if [[ -f "$f" ]]; then FOUND="$f"; break; fi
+          done
+
+          if [[ -z "$FOUND" ]]; then
+            FOUND="$(find . -maxdepth 4 -type f -name "*.py" | grep -iE 'generate.*brief|brief.*generate' | head -n 1 || true)"
+          fi
+
+          if [[ -z "$FOUND" ]]; then
+            echo "ERROR: Could not locate a brief generator script."
+            find . -maxdepth 4 -type f -name "*.py" | sort
+            exit 1
+          fi
+
+          echo "Running: $FOUND"
+          python "$FOUND"
+
+      - name: Build DOCX brief
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p briefs
+
+          # Ensure the input JSON exists before building the doc
+          test -f fire_weather_brief_input.json || { echo "Missing fire_weather_brief_input.json"; ls -la; exit 1; }
+
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+          # If build script moved, locate it similarly
+          BUILD="scripts/build_five_forks_brief.py"
+          if [[ ! -f "$BUILD" ]]; then
+            BUILD="$(find . -maxdepth 4 -type f -name "*.py" | grep -i 'build.*five.*forks.*brief' | head -n 1 || true)"
+          fi
+          test -f "$BUILD" || { echo "Missing build script (build_five_forks_brief.py)"; exit 1; }
+
+          python "$BUILD" \
+            fire_weather_brief_input.json \
+            briefs/Five_Forks_Brief_${TIMESTAMP}.docx
+
+      - name: Commit and push brief
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Fire Weather Bot"
+          git config user.email "noreply@github.com"
+
+          git add briefs/ county_data.json || true
+          git commit -m "Daily brief - $(date +%Y-%m-%d) - NWS+DOF forecast" || echo "No changes to commit"
+
+          # Avoid push failures if branch moved since checkout
+          git pull --rebase
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
