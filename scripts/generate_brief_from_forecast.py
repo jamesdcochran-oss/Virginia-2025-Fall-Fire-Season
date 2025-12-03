@@ -1,16 +1,60 @@
 #!/usr/bin/env python3
 """Generate Fire Weather Brief Input from Forecast Data"""
 import json
-import requests
-from datetime import datetime, timedelta
+from datetime import datetime
+import os
 
-COUNTIES = [
-    {"name": "Dinwiddie", "lat": 37.0751, "lon": -77.5831},
-    {"name": "Brunswick", "lat": 36.7168, "lon": -77.8500},
-    {"name": "Greensville", "lat": 36.6835, "lon": -77.5664},
-    {"name": "Amelia", "lat": 37.3500, "lon": -77.9700},
-    {"name": "Prince George", "lat": 37.1835, "lon": -77.2831},
-    {"name": "Nottoway", "lat": 37.1000, "lon": -78.0700}
-]
+def map_danger_class_to_level(danger_class):
+    """Map numeric danger class to text level"""
+    danger_map = {
+        1: "Low",
+        2: "Moderate",
+        3: "High",
+        4: "Very High",
+        5: "Extreme"
+    }
+    return danger_map.get(danger_class, "Unknown")
 
-print("Fire weather brief generator - see repo for full code")
+def generate_brief_input():
+    """Read county_data.json and generate fire_weather_brief_input.json"""
+    
+    # Read county data
+    input_file = 'county_data.json'
+    if not os.path.exists(input_file):
+        print(f"Error: {input_file} not found")
+        return False
+    
+    with open(input_file, 'r') as f:
+        county_data = json.load(f)
+    
+    # Transform data for brief generation
+    counties_list = []
+    for county in county_data:
+        counties_list.append({
+            "name": county.get("name", "Unknown"),
+            "temp_f": county.get("temp_f", 0),
+            "rh_percent": county.get("rh_percent", 0),
+            "dew_point_f": county.get("dew_point_f", 0),
+            "wind_mph": county.get("wind_mph", 0),
+            "gust_mph": county.get("gust_mph", 0),
+            "danger_class": county.get("danger_class", 1),
+            "danger_level": map_danger_class_to_level(county.get("danger_class", 1))
+        })
+    
+    # Create output structure
+    output_data = {
+        "generated": datetime.utcnow().isoformat() + "Z",
+        "counties": counties_list
+    }
+    
+    # Write output file
+    output_file = 'fire_weather_brief_input.json'
+    with open(output_file, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    print(f"Generated {output_file} with {len(counties_list)} counties")
+    return True
+
+if __name__ == "__main__":
+    success = generate_brief_input()
+    exit(0 if success else 1)
