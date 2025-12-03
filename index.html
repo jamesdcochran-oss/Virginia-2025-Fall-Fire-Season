@@ -42,6 +42,10 @@
                 <span class="link-label">Windy</span>
             </a>
         </div>
+              <button class="link-btn" id="fuelCalcBtn" title="Fuel Moisture Calculator">
+        <span class="link-icon">💧</span>
+        <span class="link-label">Fuel Calc</span>
+      </button>
 
         <!-- County Cards Section -->
         <section class="counties-section">
@@ -64,11 +68,26 @@
         </footer>
     </div>
 
+      <!-- Fuel Calculator Modal -->
+  <div id="fuelCalcModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>💧 Fuel Moisture Calculator</h2>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body" id="fuelCalcBody">
+        <!-- Calculator content will be inserted here by JavaScript -->
+        <p>Loading calculator...</p>
+      </div>
+    </div>
+  </div>
+
    
     
     <!-- External Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+      <script src="fuel-calculator.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>
