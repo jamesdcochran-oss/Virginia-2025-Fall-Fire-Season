@@ -1,3 +1,25 @@
+/**
+ * Fuel Moisture Calculator - Core Calculation Engine
+ * 
+ * @author James D. Cochran (jamesdcochran-oss)
+ * @project Five Forks Fire Weather Dashboard
+ * @repository https://github.com/jamesdcochran-oss/Virginia-2025-Fall-Fire-Season
+ * @created December 2025
+ * @license MIT
+ * 
+ * This calculator was conceptualized and developed by James D. Cochran
+ * for the Virginia 2025 Fall Fire Season monitoring application.
+ * Development assisted by AI (Perplexity) for implementation.
+ * 
+ * Based on:
+ * - NFDRS (National Fire Danger Rating System) methodology
+ * - Nelson (2000) fuel moisture modeling research
+ * - Fire behavior prediction standards used in wildland firefighting
+ * 
+ * Purpose: Forecast fine dead fuel moisture content over multi-day periods
+ * to support operational fire weather decision-making.
+ */
+
 // Fuel Moisture Calculator - Core Calculation Engine
 // Fine dead fuel drying model with EMC and time-lag classes
 // Based on NFDRS (National Fire Danger Rating System) methodology
