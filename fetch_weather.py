@@ -66,8 +66,8 @@ def fetch_nws_data(lat, lon):
             "temp": round(temp_f) if temp_f else None,
             "rh": round(rh) if rh else None,
             "dewPoint": round(dew_f) if dew_f else None,
-            "wind": round(wind_mph) if wind_mph else None,
-            "gust": round(gust_mph) if gust_mph and gust_mph > 0 else (round(wind_mph * 1.3) if wind_mph else None)
+            "wind": round(wind_mph) if wind_mph else 0,
+            "gust": round(gust_mph) if gust_mph and gust_mph > 0 else (round(wind_mph * 1.3) if wind_mph else 0)
         }
         
     except Exception as e:
