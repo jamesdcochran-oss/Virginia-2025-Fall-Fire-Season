@@ -51,7 +51,7 @@ def generate_brief_input():
                                 "dates": [
                 (datetime.utcnow() + timedelta(days=0)).strftime("%Y-%m-%d"),
                 (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d"),
-                (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d")
+                (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d"",
             ]
         },
         "counties": counties_list
