@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event listeners
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
   document.getElementById('refreshBtn').addEventListener('click', refreshData);
+    document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
 });
 
 // Theme Management
@@ -254,5 +255,25 @@ style.textContent = `
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
+
+  // Fuel Calculator Modal Controls
+  function openFuelCalcModal() {
+    const modal = document.getElementById('fuelCalcModal');
+      modal.style.display = 'flex';
+        // TODO: Build calculator UI interface here
+        }
+
+        function closeFuelCalcModal() {
+          const modal = document.getElementById('fuelCalcModal');
+            modal.style.display = 'none';
+            }
+
+            // Modal event listeners
+            document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+
+            // Close modal when clicking backdrop
+            document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
+              if (e.target === this) closeFuelCalcModal();
+              });
 `;
 document.head.appendChild(style);
