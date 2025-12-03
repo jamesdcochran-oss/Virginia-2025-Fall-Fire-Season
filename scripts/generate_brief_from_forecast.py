@@ -25,21 +25,22 @@ def generate_brief_input():
         return False
     
     with open(input_file, 'r') as f:
-        county_data = json.load(f)
+        data = json.load(f)
+        county_data = data.get("counties", [])
     
     # Transform data for brief generation
     counties_list = []
     for county in county_data:
         counties_list.append({
             "name": county.get("name", "Unknown"),
-            "temp_f": county.get("temp_f", 0),
-            "rh_percent": county.get("rh_percent", 0),
-            "dew_point_f": county.get("dew_point_f", 0),
-            "wind_mph": county.get("wind_mph", 0),
-            "gust_mph": county.get("gust_mph", 0),
-            "danger_class": county.get("danger_class", 1),
-            "danger_level": map_danger_class_to_level(county.get("danger_class", 1))
-        })
+            "name": county.get("name", "Unknown"),
+            "temp_f": county.get("temp", 0),
+            "rh_percent": county.get("rh", 0),
+            "dew_point_f": county.get("dewPoint", 0),
+            "wind_mph": county.get("wind", 0),
+            "gust_mph": county.get("gust", 0),
+                        "danger_class": county.get("dangerClass", 1),
+                        "danger_level": map_danger_class_to_level(county.get("dangerClass", 1))
     
     # Create output structure
     output_data = {
