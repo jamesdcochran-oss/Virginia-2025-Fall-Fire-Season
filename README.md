@@ -7,6 +7,18 @@ A mobile-optimized, real-time fire weather monitoring dashboard for Central Virg
 Access the dashboard at: 
 **[https://jamesdcochran-oss.github.io/Virginia-2025-Fall-Fire-Season](https://jamesdcochran-oss.github.io/Virginia-2025-Fall-Fire-Season)**
 
+## 📋 Daily Fire Weather Brief
+
+Automated daily fire weather briefings are generated and available in the [briefs folder](https://github.com/jamesdcochran-oss/Virginia-2025-Fall-Fire-Season/tree/main/briefs).
+
+**Latest Brief:** [Download Current Brief](https://github.com/jamesdcochran-oss/Virginia-2025-Fall-Fire-Season/blob/main/briefs/)
+
+Briefings are automatically generated daily and include:
+- Current fire weather conditions for all monitored counties
+- 3-day forecast outlook
+- Fire danger classifications
+- Critical weather alerts
+
 ## 📱 Features
 
 - **Mobile-First Design**: Fully responsive layout optimized for smartphones, tablets, and desktop
