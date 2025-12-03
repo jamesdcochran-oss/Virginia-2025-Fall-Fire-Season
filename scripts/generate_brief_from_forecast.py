@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Generate Fire Weather Brief Input from Forecast Data"""
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
-
 def map_danger_class_to_level(danger_class):
     """Map numeric danger class to text level"""
     danger_map = {
@@ -49,6 +48,11 @@ def generate_brief_input():
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "source": "NWS API",
             "region": "Virginia Fire Districts"
+                                "dates": [
+                (datetime.utcnow() + timedelta(days=0)).strftime("%Y-%m-%d"),
+                (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d"),
+                (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d")
+            ]
         },
         "counties": counties_list
     }
