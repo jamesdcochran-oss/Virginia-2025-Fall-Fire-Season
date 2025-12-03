@@ -47,13 +47,12 @@ def generate_brief_input():
                 "meta": {
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "source": "NWS API",
-            "region": "Virginia Fire Districts"
+            "region": "Virginia Fire Districts",
                                 "dates": [
                 (datetime.utcnow() + timedelta(days=0)).strftime("%Y-%m-%d"),
                 (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d"),
-                (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d"",
-            ]
-        },
+                (datetime.utcnow() + timedelta(days=2)).strftime("%Y-%m-%d"",,
+            ]        },
         "counties": counties_list
     }
     
