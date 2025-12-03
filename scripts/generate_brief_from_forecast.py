@@ -33,7 +33,6 @@ def generate_brief_input():
     for county in county_data:
         counties_list.append({
             "name": county.get("name", "Unknown"),
-            "name": county.get("name", "Unknown"),
             "temp_f": county.get("temp", 0),
             "rh_percent": county.get("rh", 0),
             "dew_point_f": county.get("dewPoint", 0),
@@ -41,6 +40,7 @@ def generate_brief_input():
             "gust_mph": county.get("gust", 0),
                         "danger_class": county.get("dangerClass", 1),
                         "danger_level": map_danger_class_to_level(county.get("dangerClass", 1))
+                    })
     
     # Create output structure
     output_data = {
