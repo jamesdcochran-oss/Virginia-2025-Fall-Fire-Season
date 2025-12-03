@@ -45,6 +45,11 @@ def generate_brief_input():
     # Create output structure
     output_data = {
         "generated": datetime.utcnow().isoformat() + "Z",
+                "meta": {
+            "generated_at": datetime.utcnow().isoformat() + "Z",
+            "source": "NWS API",
+            "region": "Virginia Fire Districts"
+        },
         "counties": counties_list
     }
     
