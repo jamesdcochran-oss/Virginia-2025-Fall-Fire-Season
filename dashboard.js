@@ -19,7 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Event listeners
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
   document.getElementById('refreshBtn').addEventListener('click', refreshData);
-    document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
+  document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
+  document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+  
+  // Close modal when clicking backdrop
+  document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFuelCalcModal();
+  });
+  
+  // Run Model button
+  document.getElementById('runModelBtn').addEventListener('click', runModelFromUI);
 });
 
 // Theme Management
@@ -249,97 +258,82 @@ async function refreshData() {
   }, 1000);
 }
 
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+// Fuel Calculator Modal Controls
+function openFuelCalcModal() {
+  const modal = document.getElementById('fuelCalcModal');
+  modal.style.display = 'flex';
+  buildForecastTable();
+}
+
+function closeFuelCalcModal() {
+  const modal = document.getElementById('fuelCalcModal');
+  modal.style.display = 'none';
+}
+
+// Build forecast table rows (5 days)
+function buildForecastTable() {
+  const tbody = document.getElementById('forecastDays');
+  tbody.innerHTML = '';
+
+  for (let i = 1; i <= 5; i++) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>Day ${i}</td>
+      <td><input type="number" id="temp_${i}" value="75" min="0" max="120"></td>
+      <td><input type="number" id="rh_${i}" value="30" min="0" max="100"></td>
+      <td><input type="number" id="wind_${i}" value="5" min="0" max="50"></td>
+      <td><input type="number" id="hours_${i}" value="10" min="0" max="24" step="0.5"></td>
+    `;
+    tbody.appendChild(row);
+  }
+}
+
+// Run Model from UI
+function runModelFromUI() {
+  // Get initial conditions
+  const initial1Hr = parseFloat(document.getElementById('initial1hr').value);
+  const initial10Hr = parseFloat(document.getElementById('initial10hr').value);
+
+  // Collect forecast data
+  const forecast = [];
+  for (let i = 1; i <= 5; i++) {
+    forecast.push({
+      label: `Day ${i}`,
+      temp: parseFloat(document.getElementById(`temp_${i}`).value),
+      rh: parseFloat(document.getElementById(`rh_${i}`).value),
+      wind: parseFloat(document.getElementById(`wind_${i}`).value),
+      dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
+    });
   }
 
-  // Fuel Calculator Modal Controls
-  function openFuelCalcModal() {
-    const modal = document.getElementById('fuelCalcModal');
-      modal.style.display = 'flex';
-          // Build forecast table rows (5 days)
-            buildForecastTable();
-        }
+  // Run the fuel moisture model
+  const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
 
-        function closeFuelCalcModal() {
-          const modal = document.getElementById('fuelCalcModal');
-            modal.style.display = 'none';
-            }
+  // Display results
+  displayResults(results);
+}
 
-            // Modal event listeners
-            document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+// Display calculation results
+function displayResults(results) {
+  const resultsSection = document.getElementById('resultsSection');
+  const resultsTable = document.getElementById('resultsTable');
+  const warningBox = document.getElementById('warningMessage');
 
-            // Close modal when clicking backdrop
-            document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
-              if (e.target === this) closeFuelCalcModal();
-              });
+  // Build results table
+  let html = '<table style="width:100%; border-collapse: collapse;">';
+  html += '<tr><th>Day</th><th>1-hr FM (%)</th><th>10-hr FM (%)</th><th>Status</th></tr>';
 
-              // Helper function to build forecast table rows
-              function buildForecastTable() {
-                const tbody = document.getElementById('forecastDays');
-                  tbody.innerHTML = ''; // Clear existing rows
+  let criticalDays = [];
+  results.dailyResults.forEach((day, i) => {
+    const status1hr = day.moisture1Hr <= 6 ? '⚠️ Critical' : day.moisture1Hr <= 8 ? '⚡ Elevated' : '✓ Normal';
+    const status10hr = day.moisture10Hr <= 8 ? '⚠️ Critical' : day.moisture10Hr <= 10 ? '⚡ Elevated' : '✓ Normal';
+    const worstStatus = (day.moisture1Hr <= 6 || day.moisture10Hr <= 8) ? 'Critical' : 'Normal';
+    if (worstStatus === 'Critical') criticalDays.push(i + 1);
 
-                    for (let i = 1; i <= 5; i++) {
-                        const row = document.createElement('tr');
-                            row.innerHTML = `
-        <td>Day ${i}</td>
-        <td><input type="number" id="temp_${i}" value="75" min="0" max="120"></td>
-        <td><input type="number" id="rh_${i}" value="30" min="0" max="100"></td>
-        <td><input type="number" id="wind_${i}" value="5" min="0" max="50"></td>
-        <td><input type="number" id="hours_${i}" value="10" min="0" max="24" step="0.5"></td>
-      `;
-          tbody.appendChild(row);
-            }
-            }
-
-            // Wire up Run Model button
-            document.getElementById('runModelBtn').addEventListener('click', function() {
-              // Get initial conditions
-                const initial1hr = parseFloat(document.getElementById('initial1hr').value);
-                  const initial10hr = parseFloat(document.getElementById('initial10hr').value);
-
-                    // Collect forecast data
-                      const forecastDays = [];
-                        for (let i = 1; i <= 5; i++) {
-                            forecastDays.push({
-                                  maxTemp: parseFloat(document.getElementById(`temp_${i}`).value),
-                                        minRH: parseFloat(document.getElementById(`rh_${i}`).value),
-                                              avgWind: parseFloat(document.getElementById(`wind_${i}`).value),
-                                                    dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
-                                                        });
-                                                          }
-
-                                                            // Run the fuel moisture model
-                                                              const results = runFuelMoistureModel(initial1hr, initial10hr, forecastDays);
-
-                                                                // Display results
-                                                                  displayResults(results);
-                                                                  });
-
-                                                                  // Display calculation results
-                                                                  function displayResults(results) {
-                                                                    const resultsSection = document.getElementById('resultsSection');
-                                                                      const resultsTable = document.getElementById('resultsTable');
-                                                                        const warningBox = document.getElementById('warningMessage');
-
-                                                                          // Build results table
-                                                                            let html = '<table style="width:100%; border-collapse: collapse;">';
-                                                                              html += '<tr><th>Day</th><th>1-hr FM (%)</th><th>10-hr FM (%)</th><th>Status</th></tr>';
-
-                                                                                let criticalDays = [];
-                                                                                  results.forEach((day, i) => {
-                                                                                      const status1hr = day.fm1hr <= 6 ? '⚠️ Critical' : day.fm1hr <= 8 ? '⚡ Elevated' : '✓ Normal';
-                                                                                          const status10hr = day.fm10hr <= 8 ? '⚠️ Critical' : day.fm10hr <= 10 ? '⚡ Elevated' : '✓ Normal';
-                                                                                              const worstStatus = (day.fm1hr <= 6 || day.fm10hr <= 8) ? 'Critical' : 'Normal';
-                                                                                                  if (worstStatus === 'Critical') criticalDays.push(i + 1);
-
-                                                                                                      html += `<tr>`;
-                                                                                                          html += `<td>Day ${i + 1}</td>`;
-      html += `<td>${day.fm1hr.toFixed(1)}% ${status1hr}</td>`;
-    html += `<td>${day.fm10hr.toFixed(1)}% ${status10hr}</td>`;
+    html += `<tr>`;
+    html += `<td>${day.label}</td>`;
+    html += `<td>${day.moisture1Hr}% ${status1hr}</td>`;
+    html += `<td>${day.moisture10Hr}% ${status10hr}</td>`;
     html += `<td>${worstStatus}</td>`;
     html += `</tr>`;
   });
@@ -348,14 +342,22 @@ style.textContent = `
 
   // Show warning if critical
   if (criticalDays.length > 0) {
-        warningBox.innerHTML = `⚠️ CRITICAL FIRE WEATHER: Extremely low fuel moisture on Day${criticalDays.length > 1 ? 's' : ''} ${criticalDays.join(', ')}. Increased fire danger expected.`;
-        warningBox.style.display = 'block';
-      } else {
-        warningBox.style.display = 'none';
-      }
+    warningBox.innerHTML = `⚠️ CRITICAL FIRE WEATHER: Extremely low fuel moisture on Day${criticalDays.length > 1 ? 's' : ''} ${criticalDays.join(', ')}. Increased fire danger expected.`;
+    warningBox.style.display = 'block';
+  } else {
+    warningBox.style.display = 'none';
+  }
 
   // Show results section
   resultsSection.style.display = 'block';
 }
+
+// Add spin animation for refresh button
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
 `;
 document.head.appendChild(style);
