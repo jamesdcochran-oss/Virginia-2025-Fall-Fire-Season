@@ -57,10 +57,10 @@ def fetch_nws_data(lat, lon):
         dew_f = (dew_c * 9/5) + 32 if dew_c else None
         
         wind_ms = props.get('windSpeed', {}).get('value')
-        wind_mph = wind_ms * 2.237 if wind_ms else None
+        wind_mph = wind_ms * 0.621371 if wind_ms else None
         
         gust_ms = props.get('windGust', {}).get('value')
-        gust_mph = gust_ms * 2.237 if gust_ms else None
+        gust_mph = gust_ms * 0.621371 if gust_ms else None
         
         return {
             "temp": round(temp_f) if temp_f else None,
