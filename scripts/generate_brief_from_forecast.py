@@ -50,6 +50,7 @@ def generate_brief_input():
             "generated_at": datetime.utcnow().isoformat() + "Z",
             "source": "NWS API",
             "region": "Virginia Fire Districts",
+            "counties": [county.get("name") for county in counties_list],
             "dates": [
                 (datetime.utcnow() + timedelta(days=0)).strftime("%Y-%m-%d"),
                 (datetime.utcnow() + timedelta(days=1)).strftime("%Y-%m-%d"),
