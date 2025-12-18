@@ -204,8 +204,6 @@ async function loadFIRMSData() {
     }
 }
 
-  }
-}
 
 function calculateDangerClass(temp, rh, wind) {
   let score = 0;
