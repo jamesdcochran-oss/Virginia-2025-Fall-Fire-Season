@@ -139,33 +139,71 @@ async function loadCountyData() {
 }
 
 // Load FIRMS fire hotspot data from pre-generated JSON
+// Load FIRMS fire hotspot data with enhanced satellite info and color coding
 async function loadFIRMSData() {
-  try {
-    const response = await fetch('firms_data.json');
-    if (!response.ok) {
-      console.warn('FIRMS data unavailable');
-      return;
+    try {
+        const response = await fetch('firms_data.json');
+        if (!response.ok) {
+            console.warn('FIRMS data unavailable');
+            return;
+        }
+        const data = await response.json();
+        
+        // Display statistics if available
+        if (data.statistics) {
+            console.log('🔥 FIRMS Data Statistics:', data.statistics);
+            const totalDetections = Object.values(data.statistics).reduce((a, b) => a + b, 0);
+            console.log(`📊 Total detections: ${totalDetections} (${data.count} unique after deduplication)`);
+        }
+        
+        if (data.hotspots && data.hotspots.length > 0) {
+            data.hotspots.forEach(hotspot => {
+                // Color code by satellite source
+                let color = '#ff4444';
+                let satelliteName = 'Unknown';
+                
+                if (hotspot.satellite) {
+                    if (hotspot.satellite.includes('MODIS')) {
+                        color = '#ff6600'; // Orange for MODIS
+                        satelliteName = 'MODIS (Terra/Aqua)';
+                    } else if (hotspot.satellite.includes('SNPP')) {
+                        color = '#ff0000'; // Bright red for VIIRS SNPP
+                        satelliteName = 'VIIRS S-NPP';
+                    } else if (hotspot.satellite.includes('NOAA20')) {
+                        color = '#cc0000'; // Dark red for VIIRS NOAA-20
+                        satelliteName = 'VIIRS NOAA-20';
+                    }
+                }
+                
+                // Create fire marker with enhanced popup
+                L.circleMarker([hotspot.latitude, hotspot.longitude], {
+                    radius: 6,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.7,
+                    weight: 2
+                }).bindPopup(`
+                    <div style="min-width: 200px;">
+                        <strong style="font-size: 14px;">🔥 Fire Detection</strong><br><br>
+                        <b>Satellite:</b> ${satelliteName}<br>
+                        <b>Confidence:</b> <span style="color: ${hotspot.confidence === 'high' ? '#00aa00' : hotspot.confidence === 'nominal' ? '#ffaa00' : '#ff6600'}">${hotspot.confidence || 'Unknown'}</span><br>
+                        <b>Brightness:</b> ${hotspot.brightness}K<br>
+                        <b>FRP:</b> ${hotspot.frp || 'N/A'} MW<br>
+                        <b>Location:</b> ${hotspot.latitude.toFixed(4)}°N, ${Math.abs(hotspot.longitude).toFixed(4)}°W<br>
+                        <b>Detected:</b> ${hotspot.acq_date} ${hotspot.acq_time} UTC
+                    </div>
+                `).addTo(map);
+            });
+            
+            console.log(`✅ Loaded ${data.hotspots.length} fire hotspots on map`);
+        } else {
+            console.log('✓ No active fire hotspots detected in Virginia');
+        }
+    } catch (error) {
+        console.warn('Could not load FIRMS data:', error);
     }
-    const data = await response.json();
-    
-    if (data.hotspots && data.hotspots.length > 0) {
-      data.hotspots.forEach(hotspot => {
-        L.circleMarker([hotspot.latitude, hotspot.longitude], {
-          radius: 6,
-          color: '#ff4444',
-          fillColor: '#ff0000',
-          fillOpacity: 0.7,
-          weight: 1
-        }).bindPopup(`
-          <strong>🔥 Fire Hotspot</strong><br>
-          Confidence: ${hotspot.confidence}<br>
-          Brightness: ${hotspot.brightness}K<br>
-          Time: ${hotspot.acq_date} ${hotspot.acq_time}
-        `).addTo(map);
-      });
-    }
-  } catch (error) {
-    console.warn('Could not load FIRMS data:', error);
+}
+
   }
 }
 
