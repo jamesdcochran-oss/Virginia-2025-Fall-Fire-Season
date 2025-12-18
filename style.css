@@ -1497,8 +1497,30 @@ footer {
 
 .table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: thin; /* Firefox thin scrollbar */
+    scrollbar-color: var(--color-primary) var(--color-border); /* Firefox scrollbar colors */
     margin: 15px 0;
 }
+
+/* Webkit scrollbar styling for table-container */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+  }
+
+.table-container::-webkit-scrollbar-track {
+    background: var(--color-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: var(--radius-sm);
+  }
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--color-primary-hover);
+  }
 
 .forecast-table {
     width: 100%;
@@ -1532,4 +1554,17 @@ footer {
     .forecast-table td {
         padding: 8px 5px;
     }
+
+    /* Enhanced mobile table scrolling */
+    .table-container {
+          position: relative;
+          width: 100%;
+          margin: 10px 0;
+          /* Add visual hint for scrollability */
+          box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.3);
+        }
+
+    .forecast-table {
+          min-width: 600px; /* Force horizontal scroll on mobile */
+        }
 }
