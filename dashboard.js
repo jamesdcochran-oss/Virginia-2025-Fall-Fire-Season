@@ -361,3 +361,97 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+
+// Five Forks Fire Weather Forecast Data
+const fiveForksForecast = {
+  dates: "December 18–20, 2025",
+  counties: ["Amelia","Brunswick","Dinwiddie","Greensville","Nottoway","Prince George"],
+  overview: "A strong cold front brings rain and gusty winds tonight into Friday, followed by drier, seasonable high pressure through the weekend. Fire danger remains low to moderate with some short-term wind concerns as fuels dry after frontal passage.",
+  csiNote: "CSI coverage note: The Farmville (Central Region) CSI 231–235 (Class 2) applies to areas including Nottoway and Amelia Counties, while the Petersburg (Five Forks District) CSI 352 (Class 2) applies to the remainder of the Five Forks service area (Brunswick, Dinwiddie, Greensville, Prince George).",
+  classes: [
+    { county: "Amelia",       thuLocal: 2, thuDOF: "2 (Farmville)",   friLocal: 2, friDOF: "2 (Farmville)",   satLocal: "1–2", satDOF: "2 (Farmville)" },
+    { county: "Brunswick",    thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
+    { county: "Dinwiddie",    thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
+    { county: "Greensville",  thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
+    { county: "Nottoway",     thuLocal: 2, thuDOF: "2 (Farmville)",  friLocal: 2, friDOF: "2 (Farmville)",  satLocal: "1–2", satDOF: "2 (Farmville)" },
+    { county: "Prince George",thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" }
+  ],
+  ros: [
+    { county: "Amelia",        thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
+    { county: "Brunswick",     thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
+    { county: "Dinwiddie",     thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
+    { county: "Greensville",   thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
+    { county: "Nottoway",      thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
+    { county: "Prince George", thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" }
+  ]
+};
+
+// Function to build HTML tables
+function buildForecastTable(tableId, headers, rows) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  
+  table.innerHTML = ''; // Clear existing content
+  
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  
+  // Create body
+  const tbody = document.createElement('tbody');
+  rows.forEach(rowData => {
+    const tr = document.createElement('tr');
+    rowData.forEach(cellData => {
+      const td = document.createElement('td');
+      td.textContent = cellData;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+}
+
+// Render Five Forks Forecast
+function renderFiveForksForecast() {
+  // Set text content
+  const datesEl = document.getElementById('ff-dates');
+  const overviewEl = document.getElementById('ff-overview');
+  const csiNoteEl = document.getElementById('ff-csi-note');
+  
+  if (datesEl) datesEl.textContent = `Dates: ${fiveForksForecast.dates}`;
+  if (overviewEl) overviewEl.textContent = fiveForksForecast.overview;
+  if (csiNoteEl) csiNoteEl.textContent = fiveForksForecast.csiNote;
+
+  // Build class table
+  buildForecastTable(
+    'ff-class-table',
+    ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
+    fiveForksForecast.classes.map(c => [
+      c.county, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
+    ])
+  );
+
+  // Build ROS table
+  buildForecastTable(
+    'ff-ros-table',
+    ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
+    fiveForksForecast.ros.map(c => [
+      c.county, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
+    ])
+  );
+}
+
+// Call render function when page loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderFiveForksForecast);
+} else {
+  renderFiveForksForecast();
+}
