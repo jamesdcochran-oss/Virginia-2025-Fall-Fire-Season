@@ -148,6 +148,16 @@ def main():
             })
         else:
             print(f"  Warning: Could not fetch data for {county['name']}")
+                        # Still add county with None values so it appears in dashboard
+            county_data.append({
+                "name": county['name'],
+                "temp": None,
+                "rh": None,
+                "dewPoint": None,
+                "wind": None,
+                "gust": None,
+                "dangerClass": 1  # Default to low danger when data unavailable
+            })
         
         time.sleep(1)
     
