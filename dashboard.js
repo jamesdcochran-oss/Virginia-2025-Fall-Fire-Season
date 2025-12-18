@@ -262,7 +262,7 @@ async function refreshData() {
 function openFuelCalcModal() {
   const modal = document.getElementById('fuelCalcModal');
   modal.style.display = 'flex';
-  buildForecastTable();
+  buildFuelCalcForecastTable();
 }
 
 function closeFuelCalcModal() {
@@ -271,7 +271,7 @@ function closeFuelCalcModal() {
 }
 
 // Build forecast table rows (5 days)
-function buildForecastTable() {
+function buildFuelCalcForecastTable() {
   const tbody = document.getElementById('forecastDays');
   tbody.innerHTML = '';
 
@@ -388,7 +388,7 @@ const fiveForksForecast = {
 };
 
 // Function to build HTML tables
-function buildForecastTable(tableId, headers, rows) {
+function buildFiveForksForecastTable(tableId, headers, rows) {
   const table = document.getElementById(tableId);
   if (!table) return;
   
@@ -435,7 +435,7 @@ function renderFiveForksForecast() {
     'ff-class-table',
     ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
     fiveForksForecast.classes.map(c => [
-      c.county, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
+      c.buildFiveForksForecastTable, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
     ])
   );
 
@@ -444,7 +444,7 @@ function renderFiveForksForecast() {
     'ff-ros-table',
     ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
     fiveForksForecast.ros.map(c => [
-      c.county, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
+      c.buildFiveForksForecastTable, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
     ])
   );
 }
