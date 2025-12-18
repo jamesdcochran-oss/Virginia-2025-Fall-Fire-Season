@@ -2,7 +2,8 @@ name: Sync FIRMS Fire Data
 
 on:
   schedule:
-    - cron: '15 */6 * * *'  # Every 6 hours at :15 past
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC (1 AM EST / 2 AM EDT)
+    - cron: '0 18 * * *' # Daily at 6 PM UTC (1 PM EST / 2 PM EDT)
   workflow_dispatch:  # Manual trigger
 
 jobs:
@@ -10,25 +11,36 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: pip install -r requirements.txt
       
-      - name: Install dependencies
-        run: pip install requests
+    - name: Fetch FIRMS data from all satellites
+      env:
+        FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+      run: python fetch_firms.py
       
-      - name: Fetch FIRMS data
-        env:
-          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
-        run: python fetch_firms.py
+    - name: Generate timestamp
+      run: |
+        mkdir -p data
+        date > data/firms_timestamp.txt
+      shell: bash
       
-      - name: Commit and push if changed
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add firms_data.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update FIRMS data [automated]" && git push)
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "actions@github.com"
+        git config pull.rebase false
+        git status
+        git pull origin ${{ github.ref }}
+        git add firms_data.json firms_data.geojson data/firms_timestamp.txt
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update FIRMS data [automated]" && git push)
+      shell: bash
