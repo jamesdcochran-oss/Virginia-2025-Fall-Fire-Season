@@ -435,7 +435,7 @@ function renderFiveForksForecast() {
     'ff-class-table',
     ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
     fiveForksForecast.classes.map(c => [
-      c.buildFiveForksForecastTable, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
+      c.county, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
     ])
   );
 
@@ -444,7 +444,7 @@ function renderFiveForksForecast() {
     'ff-ros-table',
     ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
     fiveForksForecast.ros.map(c => [
-      c.buildFiveForksForecastTable, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
+      c.county, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
     ])
   );
 }
