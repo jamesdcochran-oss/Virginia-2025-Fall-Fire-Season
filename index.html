@@ -65,7 +65,16 @@
 
 
 
-                <!-- Five Forks Fire Weather Forecast Card -->
+            <!-- Five Forks Fire Weather Forecast Card -->
+<iframe 
+    id="five-forks-forecast" 
+    src="forecasts/current-forecast.html" 
+    style="width: 100%; border: none; min-height: 1200px; overflow: hidden;"
+    onload="this.style.height=(this.contentWindow.document.documentElement.scrollHeight)+'px';"
+    title="Five Forks Fire Weather Forecast">
+</iframe>
+<!-- END Five Forks Forecast -->    
+            <!-- Five Forks Fire Weather Forecast Card -->
     <section id="five-forks-forecast" class="forecast-card">
         <h2>Five Forks Fire Weather Forecast</h2>
         <p id="ff-dates" class="forecast-dates"></p>
