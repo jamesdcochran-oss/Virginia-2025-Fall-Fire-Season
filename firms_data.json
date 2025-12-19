@@ -1,5 +1,10 @@
 {
-  "lastUpdated": "2025-12-18T18:48:47.420340Z",
+  "lastUpdated": "2025-12-19T06:30:37.150823Z",
   "count": 0,
-  "hotspots": []
+  "hotspots": [],
+  "statistics": {
+    "MODIS": 0,
+    "VIIRS_SNPP": 0,
+    "VIIRS_NOAA20": 0
+  }
 }
