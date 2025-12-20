@@ -1,67 +1,60 @@
 {
-  "lastUpdated": "2025-12-19T18:42:17.785221Z",
+  "lastUpdated": "2025-12-20T02:07:41.498090Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 58,
-      "rh": 38,
-      "dewPoint": null,
-      "wind": 14,
-      "gust": 30,
-      "dangerClass": 3
+      "temp": 45,
+      "rh": 31,
+      "dewPoint": 16,
+      "wind": 7,
+      "gust": 9,
+      "dangerClass": 1
     },
     {
       "name": "Brunswick",
-      "temp": 59,
-      "rh": 41,
-      "dewPoint": 36,
-      "wind": 14,
-      "gust": 26,
+      "temp": 47,
+      "rh": 30,
+      "dewPoint": 17,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 58,
-      "rh": 43,
-      "dewPoint": 36,
-      "wind": 0,
-      "gust": 31,
-      "dangerClass": 2
+      "temp": 46,
+      "rh": 31,
+      "dewPoint": 17,
+      "wind": 6,
+      "gust": 8,
+      "dangerClass": 1
     },
     {
       "name": "Amelia",
-      "temp": 60,
-      "rh": 37,
-      "dewPoint": 33,
-      "wind": 15,
-      "gust": 30,
-      "dangerClass": 3
+      "temp": 46,
+      "rh": 36,
+      "dewPoint": 20,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 58,
-      "rh": 38,
-      "dewPoint": null,
-      "wind": 14,
-      "gust": 30,
-      "dangerClass": 3
+      "temp": 45,
+      "rh": 31,
+      "dewPoint": 16,
+      "wind": 7,
+      "gust": 9,
+      "dangerClass": 1
     },
     {
       "name": "Nottoway",
-      "temp": 60,
-      "rh": 37,
-      "dewPoint": 33,
-      "wind": 15,
-      "gust": 30,
-      "dangerClass": 3
+      "temp": 46,
+      "rh": 36,
+      "dewPoint": 20,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 1
     }
   ],
-  "alerts": [
-    "Dinwiddie: High gusts (30 mph)",
-    "Brunswick: High gusts (26 mph)",
-    "Greensville: High gusts (31 mph)",
-    "Amelia: High gusts (30 mph)",
-    "Prince George: High gusts (30 mph)",
-    "Nottoway: High gusts (30 mph)"
-  ]
+  "alerts": []
 }
