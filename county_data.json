@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-21T06:26:11.699769Z",
+  "lastUpdated": "2025-12-21T06:43:26.866298Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -24,8 +24,8 @@
       "temp": 36,
       "rh": 74,
       "dewPoint": 28,
-      "wind": 6,
-      "gust": 8,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 1
     },
     {
@@ -33,8 +33,8 @@
       "temp": 41,
       "rh": 58,
       "dewPoint": 28,
-      "wind": 7,
-      "gust": 9,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 1
     },
     {
@@ -51,8 +51,8 @@
       "temp": 41,
       "rh": 58,
       "dewPoint": 28,
-      "wind": 7,
-      "gust": 9,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 1
     }
   ],
