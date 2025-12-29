@@ -427,8 +427,9 @@ const fiveForksForecast = {
 function buildFiveForksForecastTable(tableId, headers, rows) {
   const table = document.getElementById(tableId);
   if (!table) return;
+    table.innerHTML = ''; // Clear existing content
+
   
-function buildForecastTable(tableId, headers, rows) {  
   // Create header
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
@@ -456,7 +457,37 @@ function buildForecastTable(tableId, headers, rows) {
 
 // Render Five Forks Forecast
 function renderFiveForksForecast() {
-  // Set text content
+ 
+  
+  function buildForecastTable(tableId, headers, rows) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  table.innerHTML = ''; // Clear existing content
+  
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  
+  // Create body
+  const tbody = document.createElement('tbody');
+  rows.forEach(rowData => {
+    const tr = document.createElement('tr');
+    rowData.forEach(cellData => {
+      const td = document.createElement('td');
+      td.textContent = cellData;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+}// Set text content
   const datesEl = document.getElementById('ff-dates');
   const overviewEl = document.getElementById('ff-overview');
   const csiNoteEl = document.getElementById('ff-csi-note');
