@@ -47,6 +47,8 @@ function toggleTheme() {
 // Map Initialization
 let map;
 let countyLayerGroup;
+let heatLayer = null;
+let heatmapEnabled = false;
 
 function initMap() {
   map = L.map('map').setView([37.2, -77.7], 8);
@@ -149,6 +151,9 @@ async function loadFIRMSData() {
             return;
         }
         const data = await response.json();
+
+          // Create heatmap from FIRMS data
+    createHeatmap(data.hotspots || []);
         
         // Display statistics if available
         if (data.statistics) {
@@ -566,4 +571,67 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', renderFiveForksForecast);
 } else {
   renderFiveForksForecast();
+}
+
+// ===== HEATMAP INTEGRATION =====
+
+function createHeatmap(hotspots) {
+  // Remove existing heatmap
+  if (heatLayer && map.hasLayer(heatLayer)) {
+    map.removeLayer(heatLayer);
+  }
+  
+  if (!hotspots || hotspots.length === 0) {
+    console.log('No hotspots for heatmap');
+    return;
+  }
+  
+  // Convert to heatmap format [lat, lon, intensity]
+  const heatData = hotspots.map(h => {
+    const intensity = h.brightness ? Math.min(h.brightness / 400, 1) : 0.5;
+    return [h.latitude, h.longitude, intensity];
+  });
+  
+  // Create heatmap layer
+  heatLayer = L.heatLayer(heatData, {
+    radius: 25,
+    blur: 15,
+    maxZoom: 17,
+    max: 1.0,
+    gradient: {
+      0.0: 'blue',
+      0.3: 'cyan',
+      0.5: 'lime',
+      0.7: 'yellow',
+      0.9: 'orange',
+      1.0: 'red'
+    }
+  });
+  
+  if (heatmapEnabled) {
+    heatLayer.addTo(map);
+  }
+  
+  console.log(`✅ Heatmap ready with ${hotspots.length} points`);
+}
+
+function toggleHeatmap() {
+  heatmapEnabled = !heatmapEnabled;
+  
+  if (heatmapEnabled && heatLayer) {
+    heatLayer.addTo(map);
+    console.log('🔥 Heatmap enabled');
+  } else if (heatLayer) {
+    map.removeLayer(heatLayer);
+    console.log('📍 Heatmap disabled');
+  }
+  
+  // Update button text
+  const btn = document.getElementById('heatmapToggle');
+  if (btn) {
+    const label = btn.querySelector('.link-label');
+    if (label) {
+      label.textContent = heatmapEnabled ? 'Hide Heat' : 'Heatmap';
+    }
+  }
 }
