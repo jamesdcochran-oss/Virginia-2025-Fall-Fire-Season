@@ -134,7 +134,8 @@ async function loadCountyData() {
     
   } catch (error) {
     console.error('Error loading county data:', error);
-    countyGrid.innerHTML = '<div class="error">⚠️ Unable to load county data. Please refresh.</div>';
+    countyGrid.inner
+          loadForecastData();HTML = '<div class="error">⚠️ Unable to load county data. Please refresh.</div>';
   }
 }
 
@@ -207,6 +208,51 @@ async function loadFIRMSData() {
 
 function calculateDangerClass(temp, rh, wind) {
   let score = 0;
+
+  // Load and display forecast data from JSON
+async function loadForecastData() {
+  try {
+    const response = await fetch('forecasts/forecast_data.json');
+    if (!response.ok) {
+      console.warn('Forecast data not available');
+      return;
+    }
+    const data = await response.json();
+    
+    // Display dates
+    const datesEl = document.getElementById('forecastDates');
+    if (datesEl && data.dates) {
+      datesEl.textContent = `Forecast Period: ${data.dates}`;
+    }
+    
+    // Display overview
+    const overviewEl = document.getElementById('forecastOverview');
+    if (overviewEl && data.overview) {
+      overviewEl.innerHTML = `<p>${data.overview}</p>`;
+    }
+    
+    // Build forecast table
+    const tableEl = document.getElementById('forecastTable');
+    if (tableEl && data.classes && data.classes.length > 0) {
+      const headers = ['County', 'Day 1 Local', 'Day 1 DOF', 'Day 2 Local', 'Day 2 DOF', 'Day 3 Local', 'Day 3 DOF'];
+      const rows = data.classes.map(c => [
+        c.county,
+        c.day1Local,
+        c.day1DOF,
+        c.day2Local,
+        c.day2DOF,
+        c.day3Local,
+        c.day3DOF
+      ]);
+      buildForecastTable('forecastTable', headers, rows);
+    }
+    
+    console.log('✅ Forecast data loaded successfully');
+  } catch (error) {
+    console.warn('Could not load forecast data:', error);
+  }
+}
+
 
   if (temp >= 80) score += 2;
   else if (temp >= 70) score += 1;
