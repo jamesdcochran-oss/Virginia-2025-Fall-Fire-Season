@@ -10,6 +10,7 @@
     <title>Five Forks Fire Weather</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="style.css">
+        <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 </head>
 <body data-color-scheme="light">
     <div class="container">
@@ -48,6 +49,12 @@
         <span class="link-icon">💧</span>
         <span class="link-label">Fuel Calc</span>
       </button>
+
+                <!-- Heatmap Toggle Button -->
+        <button id="heatmapToggle" onclick="toggleHeatmap()" class="link-btn" title="Toggle Fire Heatmap" style="margin-top: 12px; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);">
+            <span class="link-icon">🔥</span>
+            <span class="link-label">Heatmap</span>
+        </button>
 
             <!-- Fire Weather Forecast Section -->
     <section class="forecast-section" id="forecastSection">
