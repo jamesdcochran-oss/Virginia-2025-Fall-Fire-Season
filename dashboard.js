@@ -428,8 +428,7 @@ function buildFiveForksForecastTable(tableId, headers, rows) {
   const table = document.getElementById(tableId);
   if (!table) return;
   
-  table.innerHTML = ''; // Clear existing content
-  
+function buildForecastTable(tableId, headers, rows) {  
   // Create header
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
