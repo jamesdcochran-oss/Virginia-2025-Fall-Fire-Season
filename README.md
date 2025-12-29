@@ -70,7 +70,7 @@ The system features GitHub Actions workflows:
 
 ## 👨‍🚒 Five Forks VFD
 
-This dashboard was created for the Five Forks Volunteer Fire Department to enhance situational awareness and support fire prevention efforts in Central Virginia.
+
 
 ## 📝 License
 
