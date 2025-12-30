@@ -134,8 +134,7 @@ function renderCountyCards(counties) {
         <div class="data-row"><span class="data-label">Wind</span><span class="data-value">${c.wind ?? 'N/A'} mph</span></div>
         <div class="data-row"><span class="data-label">Gust</span><span class="data-value">${c.gust ?? 'N/A'} mph</span></div>
         <div class="data-row"><span class="data-label">Danger</span><span class="data-value">${label}</span></div>
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
 }
@@ -202,14 +201,13 @@ async function refreshData() {
   await Promise.all([loadCountyData(), loadFIRMSData(), loadForecastData()]);
   setTimeout(() => { btn.style.animation = ''; }, 1000);
 }
-const style = document.createElement('style');
-style.textContent = `@keyframes spin {from {transform: rotate(0deg);} to {transform: rotate(360deg);} }`;
-document.head.appendChild(style);
+const styleEl = document.createElement('style');
+styleEl.textContent = `@keyframes spin {from {transform: rotate(0deg);} to {transform: rotate(360deg);} }`;
+document.head.appendChild(styleEl);
 
 /* Fuel calculator controls are loaded via fuel-calculator.js */
 function openFuelCalcModal() {
   document.getElementById('fuelCalcModal').style.display = 'flex';
-  // your existing fuel calc script will populate the table
 }
 function closeFuelCalcModal() {
   document.getElementById('fuelCalcModal').style.display = 'none';
