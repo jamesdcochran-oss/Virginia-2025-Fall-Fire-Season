@@ -117,6 +117,9 @@
 </head>
 <body>
     <header>
+        .equipment-section { margin-top: 1.5rem; }
+    .equipment-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .equipment-card { min-height: 120px; }
         <h1 aria-label="Five Forks Fire Weather">🔥 Five Forks Fire Weather</h1>
         <nav class="menu" aria-label="Primary">
             <button id="themeBtn" class="btn" type="button" aria-pressed="false" title="Toggle theme (T)">🌙 Theme</button>
@@ -136,6 +139,35 @@
         <section class="map-wrap" aria-label="Active wildfire hotspots map">
             <div id="map" style="height:100%"></div>
         </section>
+            <section id="equipment" class="equipment-section" aria-label="Equipment Locator">
+      <h2 style="font-size:1.25rem;margin-bottom:1rem;color:var(--text);">🚒 Equipment Locator</h2>
+      <div class="equipment-grid">
+        <div class="card equipment-card">
+          <strong>Engine 1</strong><br>
+          <div class="meta">Station: Five Forks</div>
+          <div class="meta">Status: <span class="pill ok" style="font-size:0.7rem;padding:0.2rem 0.4rem;">Available</span></div>
+          <div class="meta">Type: Type 1 Structural</div>
+        </div>
+        <div class="card equipment-card">
+          <strong>Brush 1</strong><br>
+          <div class="meta">Station: Five Forks</div>
+          <div class="meta">Status: <span class="pill ok" style="font-size:0.7rem;padding:0.2rem 0.4rem;">Available</span></div>
+          <div class="meta">Type: Type 6 Wildland</div>
+        </div>
+        <div class="card equipment-card">
+          <strong>Tanker 1</strong><br>
+          <div class="meta">Station: Five Forks</div>
+          <div class="meta">Status: <span class="pill ok" style="font-size:0.7rem;padding:0.2rem 0.4rem;">Available</span></div>
+          <div class="meta">Capacity: 2000 gal</div>
+        </div>
+        <div class="card equipment-card">
+          <strong>Utility 1</strong><br>
+          <div class="meta">Station: Five Forks</div>
+          <div class="meta">Status: <span class="pill warn" style="font-size:0.7rem;padding:0.2rem 0.4rem;">In Service</span></div>
+          <div class="meta">Type: Support Vehicle</div>
+        </div>
+      </div>
+    </section>
     </main>
     <footer>Data: NOAA & NASA FIRMS • Updates hourly</footer>
 <script>
