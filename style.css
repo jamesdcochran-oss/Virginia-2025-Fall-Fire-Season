@@ -1577,10 +1577,10 @@ footer {
 }
 
 .county-grid {
-  display: grid;
+  display: gri !important;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  width: 100%;
+  width: 100% !important;
 }
 
 .county-card {
