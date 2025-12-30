@@ -121,6 +121,51 @@
 </head>
 <body>
     <div class="container">
+        
+        .quick-links {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+
+        .heatmap-toggle {
+            display: block;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .heatmap-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
         <header>
             <h1>🔥 Five Forks Fire Weather</h1>
             <div class="last-update" id="lastUpdate">Loading...</div>
@@ -129,6 +174,18 @@
         <div id="map"></div>
         
         <div class="grid" id="countyGrid">
+            
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="link-btn">🛰️ FIRMS</a>
+            <a href="https://www.weather.gov/akq/" target="_blank" class="link-btn">🌧️ NWS</a>
+            <a href="https://maps.app.goo.gl/vcWebUQrrLSY8gX4A" target="_blank" class="link-btn">🗺️ Equipment</a>
+            <a href="https://www.windy.com/?37.233,-77.400,8" target="_blank" class="link-btn">🌪️ Windy</a>
+            <button id="fuelCalcBtn" class="link-btn">💧 Fuel Calculator</button>
+        </div>
+
+        <!-- Heatmap Toggle -->
+        <button id="heatmapToggle" class="heatmap-toggle">🔥 Toggle Heatmap</button>
             <div class="loading">Loading county data...</div>
         </div>
     </div>
@@ -185,6 +242,7 @@
                     temp: current.temperature,
                     rh: current.relativeHumidity?.value || 50,
                     wind: parseInt(current.windSpeed) || 0,
+                                    windGust: parseInt(current.windGust?.value) || 0,
                     dewPoint: current.dewpoint?.value ? Math.round((current.dewpoint.value * 9/5) + 32) : 'N/A',
                     conditions: current.shortForecast
                 };
@@ -195,6 +253,7 @@
                     temp: 'N/A',
                     rh: 'N/A',
                     wind: 'N/A',
+                                    windGust: 'N/A',
                     dewPoint: 'N/A',
                     conditions: 'Data unavailable'
                 };
@@ -224,6 +283,10 @@
                         <span class="data-label">Wind Speed</span>
                         <span class="data-value">${data.wind} mph</span>
                     </div>
+                                    <div class="data-row">
+                    <span class="data-label">Wind Gust</span>
+                    <span class="data-value">${data.windGust} mph</span>
+                </div>
                     <div class="data-row">
                         <span class="data-label">Dew Point</span>
                         <span class="data-value">${data.dewPoint}°F</span>
