@@ -1,103 +1,298 @@
 <!DOCTYPE html>
+
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <title>Five Forks Fire Weather</title>
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Five Forks Fire Weather</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
 </head>
-
 <body data-color-scheme="light">
-  <div class="container">
+    <div class="container">
+        <!-- Header with Title and Controls -->
+        <header>
+            <div class="location-info">
+                <h1>Five Forks</h1>
+                <p class="subtitle">Virginia Fire Weather</p>
+            </div>
+            <div class="header-controls">
+                <button class="icon-btn" id="themeToggle" aria-label="Toggle day/night mode" title="Toggle theme">🌗</button>
+                <button class="icon-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh">🔄</button>
+            </div>
+        </header>
 
-    <!-- Header -->
-    <header>
-      <div class="location-info">
-        <h1>Five Forks</h1>
-        <p class="subtitle">Virginia Fire Weather</p>
-      </div>
-      <div class="header-controls">
-        <button class="icon-btn" id="themeToggle" aria-label="Toggle day/night mode" title="Toggle theme">🌗</button>
-        <button class="icon-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh">🔄</button>
-      </div>
-    </header>
-
-    <!-- Quick Links -->
-    <div class="quick-links">
-      <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="link-btn">
-        <span class="link-icon">🛰️</span><span class="link-label">FIRMS</span>
-      </a>
-      <a href="https://www.weather.gov/akq/" target="_blank" class="link-btn">
-        <span class="link-icon">🌧️</span><span class="link-label">NWS</span>
-      </a>
-      <a href="https://maps.app.goo.gl/vcWebUQrrLSY8gX4A" target="_blank" class="link-btn">
-        <span class="link-icon">🗺️</span><span class="link-label">Equip</span>
-      </a>
-      <a href="https://www.windy.com/?37.233,-77.400,8" target="_blank" class="link-btn">
-        <span class="link-icon">🌪️</span><span class="link-label">Windy</span>
-      </a>
-      <button class="link-btn" id="fuelCalcBtn" title="Fuel Moisture Calculator">
-        <span class="link-icon">💧</span><span class="link-label">Fuel Calc</span>
+        <!-- Quick Links Bar -->
+        <div class="quick-links">
+            <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="link-btn">
+                <span class="link-icon">🛰️</span>
+                <span class="link-label">FIRMS</span>
+            </a>
+            <a href="https://www.weather.gov/akq/" target="_blank" class="link-btn">
+                <span class="link-icon">🌧️</span>
+                <span class="link-label">NWS</span>
+            </a>
+            <a href="https://maps.app.goo.gl/vcWebUQrrLSY8gX4A" target="_blank" class="link-btn">
+                <span class="link-icon">🗺️</span>
+                <span class="link-label">Equip</span>
+            </a>
+            <a href="https://www.windy.com/?37.233,-77.400,8" target="_blank" class="link-btn">
+                <span class="link-icon">🌪️</span>
+                <span class="link-label">Windy</span>
+            </a>
+        </div>
+              <button class="link-btn" id="fuelCalcBtn" title="Fuel Moisture Calculator">
+        <span class="link-icon">💧</span>
+        <span class="link-label">Fuel Calc</span>
       </button>
+
+        <!-- County Cards Section -->
+        <section class="counties-section">
+            <h2>County Conditions</h2>
+            <div class="county-grid" id="countyGrid">
+                <!-- County cards will be dynamically generated here by dashboard.js -->
+            </div>
+            
+
+        <!-- Map Section (if you want to add a map container) -->
+        <section class="map-section" data-color-scheme="light">
+            <h2>Fire Activity Map</h2>
+            <div id="map"></div>
+
+
+
+
+            <!-- Five Forks Fire Weather Forecast Card -->
+<iframe 
+    id="five-forks-forecast" 
+    src="forecasts/current-forecast.html" 
+    style="width: 100%; border: none; min-height: 1200px; overflow: hidden;"
+    onload="this.style.height=(this.contentWindow.document.documentElement.scrollHeight)+'px';"
+    title="Five Forks Fire Weather Forecast">
+</iframe>
+<!-- END Five Forks Forecast -->    
+            <!-- Five Forks Fire Weather Forecast Card -->
+    <section id="five-forks-forecast" class="forecast-card">
+        <h2>Five Forks Fire Weather Forecast</h2>
+        <p id="ff-dates" class="forecast-dates"></p>
+        <p id="ff-overview" class="forecast-overview"></p>
+        <p id="ff-csi-note" class="forecast-csi-note"></p>
+
+        <h3>Daily Class Summary</h3>
+        <div class="table-container">
+                <table id="ff-class-table" class="forecast-table">
+                    <thead>
+                        <tr>
+                            <th>County</th>
+ <th>Thu 25 Local</th>                            <th>Thu 18 DOF</th>
+                             <th>Thu 25 DOF</th>
+                             <th>Fri 26 Local</th>
+                             <th>Fri 26 DOF</th>
+                             <th>Sat 27 Local</th>
+                             <th>Sat 27 DOF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Amelia</td>
+ <td>1 - Low</td>                            <td>2 (Farmville)</td>
+                             <td>1 - Low</td>
+                             <td>2 - Moderate</td>
+                             <td>1 - Low</td>
+                             <td>2 - Moderate</td>
+                        </tr>
+                        <tr>
+                            <td>Brunswick</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>1–2</td>
+                            <td>2 (Petersburg)</td>
+                        </tr>
+                        <tr>
+                            <td>Dinwiddie</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>1–2</td>
+                            <td>2 (Petersburg)</td>
+                        </tr>
+                        <tr>
+                            <td>Greensville</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>1–2</td>
+                            <td>2 (Petersburg)</td>
+                        </tr>
+                        <tr>
+                            <td>Nottoway</td>
+                            <td>2</td>
+                            <td>2 (Farmville)</td>
+                            <td>2</td>
+                            <td>2 (Farmville)</td>
+                            <td>1–2</td>
+                            <td>2 (Farmville)</td>
+                        </tr>
+                        <tr>
+                            <td>Prince George</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>2</td>
+                            <td>2 (Petersburg)</td>
+                            <td>1–2</td>
+                            <td>2 (Petersburg)</td>
+                        </tr>
+                    </tbody>
+                </table>        </div>
+
+        <h3>Rate of Spread (ft/hr)</h3>
+        <div class="table-container">
+                <table id="ff-ros-table" class="forecast-table">
+                    <thead>
+                        <tr>
+                            <th>County</th>
+                            <th>Thu ROS (ft/hr)</th>
+                            <th>Thu Peak</th>
+                            <th>Fri ROS (ft/hr)</th>
+                            <th>Fri Peak</th>
+                            <th>Sat ROS (ft/hr)</th>
+                            <th>Sat Peak</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Amelia</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                        <tr>
+                            <td>Brunswick</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                        <tr>
+                            <td>Dinwiddie</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                        <tr>
+                            <td>Greensville</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                        <tr>
+                            <td>Nottoway</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                        <tr>
+                            <td>Prince George</td>
+                            <td>300–720</td>
+                            <td>1300–1600</td>
+                            <td>600–1200</td>
+                            <td>1200–1700</td>
+                            <td>240–600</td>
+                            <td>1300–1600</td>
+                        </tr>
+                    </tbody>
+                </table>        </div>
+    </section>
+
+
+        <!-- Footer -->
+        <footer>
+            <p>Last updated: <span id="lastUpdate">Loading...</span></p>
+            <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
+        </footer>
     </div>
 
-    <!-- 3‑Day Forecast Section -->
-    <section class="forecast-section" id="forecastSection">
-      <h2>3-Day Fire Weather Forecast</h2>
-      <div id="forecastDates" class="forecast-dates"></div>
-      <div id="forecastOverview" class="forecast-overview"></div>
-      <div class="table-container"><table id="forecastTable" class="forecast-table"></table></div>
-    </section>
-
-    <!-- County Conditions Section -->
-    <section class="counties-section">
-      <h2>County Conditions</h2>
-      <div class="county-grid" id="countyGrid"></div>
-    </section>
-
-    <!-- Map Section -->
-    <section class="map-section">
-      <h2>Fire Activity Map</h2>
-      <div id="map"></div>
-    </section>
-
-    <!-- Optional Forecast Card (iframe) -->
-    <!--
-    <iframe id="five-forks-forecast-iframe"
-            src="forecasts/current-forecast.html"
-            style="width:100%; border:none; min-height:900px; overflow:hidden;"
-            title="Five Forks Fire Weather Forecast">
-    </iframe>
-    -->
-
-    <!-- Footer -->
-    <footer>
-      <p>Last updated: <span id="lastUpdate">Loading…</span></p>
-      <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
-    </footer>
-  </div>
-
-  <!-- Fuel Calculator Modal -->
-  <div id="fuelCalcModal" class="modal" style="display:none;">
+      <!-- Fuel Calculator Modal -->
+  <div id="fuelCalcModal" class="modal" style="display: none;">
     <div class="modal-content">
       <div class="modal-header">
         <h2>💧 Fuel Moisture Calculator</h2>
         <button class="modal-close" id="modalCloseBtn">&times;</button>
       </div>
       <div class="modal-body" id="fuelCalcBody">
-        <!-- Fuel calculator content will be inserted by fuel-calculator.js -->
+                    <!-- Initial Conditions -->
+                    <div class="calc-section">
+                                    <h3>Initial Fuel Moisture</h3>
+                                    <div class="input-row">
+                                                      <label>1-hour fuel (%): <input type="number" id="initial1hr" value="8" min="1" max="30" step="0.1"></label>
+                                                      <label>10-hour fuel (%): <input type="number" id="initial10hr" value="10" min="1" max="30" step="0.1"></label>
+                                                    </div>
+                                  </div>
+
+                    <!-- Forecast Days -->
+                    <div class="calc-section">
+                                    <h3>Forecast Conditions</h3>
+                                    <div class="forecast-table">
+                                                      <table id="forecastTable">
+                                                                          <thead>
+                                                                                                <tr>
+                                                                                                                        <th>Day</th>
+                                                                                                                        <th>Max Temp (°F)</th>
+                                                                                                                        <th>Min RH (%)</th>
+                                                                                                                        <th>Avg Wind (mph)</th>
+                                                                                                                        <th>Drying Hours</th>
+                                                                                                                      </tr>
+                                                                                              </thead>
+                                                                          <tbody id="forecastDays">
+                                                                                                <!-- Forecast rows will be generated by JavaScript -->
+                                                                                              </tbody>
+                                                                        </table>
+                                                    </div>
+                                  </div>
+
+                    <!-- Run Model Button -->
+                    <div class="calc-section">
+                                    <button id="runModelBtn" class="btn-primary">Run Fuel Moisture Model</button>
+                                  </div>
+
+                    <!-- Results Display -->
+                    <div id="resultsSection" class="calc-section" style="display: none;">
+                                    <h3>Model Results</h3>
+                                    <div id="resultsTable"></div>
+                                    <div id="warningMessage" class="warning-box" style="display: none;"></div>
+                                  </div>
       </div>
     </div>
+      
   </div>
 
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="fuel-calculator.js"></script>
-  <script src="dashboard.js"></script>
+   
+    
+    <!-- External Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+      <script src="fuel-calculator.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html>
