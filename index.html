@@ -13,7 +13,6 @@
 
 <body data-color-scheme="light">
   <div class="container">
-    <!-- Header -->
     <header>
       <div class="location-info">
         <h1>Five Forks</h1>
@@ -25,7 +24,6 @@
       </div>
     </header>
 
-    <!-- Quick Links -->
     <div class="quick-links">
       <a href="https://firms.modaps.eosdis.nasa.gov/map/" target="_blank" class="link-btn">
         <span class="link-icon">🛰️</span><span class="link-label">FIRMS</span>
@@ -40,21 +38,22 @@
         <span class="link-icon">🌪️</span><span class="link-label">Windy</span>
       </a>
 
-      <!-- Fuel Calc button belongs in the same bar -->
-      <button class="link-btn" id="fuelCalcBtn" title="Fuel Moisture Calculator" type="button">
+      <button class="link-btn" id="fuelCalcBtn" title="Fuel Moisture Calculator">
         <span class="link-icon">💧</span><span class="link-label">Fuel Calc</span>
       </button>
     </div>
 
-    <!-- 3-Day Forecast (JSON-driven) -->
+    <!-- 3-day forecast -->
     <section class="forecast-section" id="forecastSection">
       <h2>3-Day Fire Weather Forecast</h2>
       <div id="forecastDates" class="forecast-dates"></div>
       <div id="forecastOverview" class="forecast-overview"></div>
-      <div id="forecastTableWrap" class="forecast-table"></div>
+      <div class="table-container">
+        <table id="forecastTable" class="forecast-table"></table>
+      </div>
     </section>
 
-    <!-- County Cards -->
+    <!-- County cards -->
     <section class="counties-section">
       <h2>County Conditions</h2>
       <div class="county-grid" id="countyGrid"></div>
@@ -66,17 +65,6 @@
       <div id="map"></div>
     </section>
 
-    <!-- Optional: iframe forecast card (keep only if you REALLY generate it) -->
-    <!--
-    <iframe
-      id="fiveForksForecastFrame"
-      src="forecasts/current-forecast.html"
-      style="width: 100%; border: none; min-height: 1200px; overflow: hidden;"
-      title="Five Forks Fire Weather Forecast">
-    </iframe>
-    -->
-
-    <!-- Footer -->
     <footer>
       <p>Last updated: <span id="lastUpdate">Loading...</span></p>
       <p class="data-note">Data updates every 6 hours • NWS + FIRMS</p>
@@ -88,29 +76,25 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>💧 Fuel Moisture Calculator</h2>
-        <button class="modal-close" id="modalCloseBtn" type="button">&times;</button>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
       </div>
 
       <div class="modal-body" id="fuelCalcBody">
         <div class="calc-section">
           <h3>Initial Fuel Moisture</h3>
           <div class="input-row">
-            <label>1-hour fuel (%): <input type="number" id="initial1hr" value="8" min="1" max="30" step="0.1" /></label>
-            <label>10-hour fuel (%): <input type="number" id="initial10hr" value="10" min="1" max="30" step="0.1" /></label>
+            <label>1-hour fuel (%): <input type="number" id="initial1hr" value="8" min="1" max="30" step="0.1"></label>
+            <label>10-hour fuel (%): <input type="number" id="initial10hr" value="10" min="1" max="30" step="0.1"></label>
           </div>
         </div>
 
         <div class="calc-section">
           <h3>Forecast Conditions</h3>
           <div class="forecast-table">
-            <table id="fuelForecastTable">
+            <table>
               <thead>
                 <tr>
-                  <th>Day</th>
-                  <th>Max Temp (°F)</th>
-                  <th>Min RH (%)</th>
-                  <th>Avg Wind (mph)</th>
-                  <th>Drying Hours</th>
+                  <th>Day</th><th>Max Temp (°F)</th><th>Min RH (%)</th><th>Avg Wind (mph)</th><th>Drying Hours</th>
                 </tr>
               </thead>
               <tbody id="forecastDays"></tbody>
@@ -119,13 +103,22 @@
         </div>
 
         <div class="calc-section">
-          <button id="runModelBtn" class="btn-primary" type="button">Run Fuel Moisture Model</button>
+          <button id="runModelBtn" class="btn-primary">Run Fuel Moisture Model</button>
         </div>
 
         <div id="resultsSection" class="calc-section" style="display:none;">
           <h3>Model Results</h3>
           <div id="resultsTable"></div>
           <div id="warningMessage" class="warning-box" style="display:none;"></div>
-s
         </div>
-      </d
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="fuel-calculator.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
