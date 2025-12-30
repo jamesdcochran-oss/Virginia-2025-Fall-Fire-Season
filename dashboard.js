@@ -1,54 +1,53 @@
 // Five Forks Fire Weather Dashboard - Main Script
 
-// County data with centroids for NWS API
+// County data with centroids for map markers
 const COUNTIES = [
   { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
   { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
   { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
-  { name: 'Amelia', lat: 37.3500, lon: -77.9700 },
+  { name: 'Amelia', lat: 37.35, lon: -77.97 },
   { name: 'Prince George', lat: 37.1835, lon: -77.2831 },
-  { name: 'Nottoway', lat: 37.1000, lon: -78.0700 }
+  { name: 'Nottoway', lat: 37.1, lon: -78.07 }
 ];
 
-// Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initMap();
-  loadCountyData();
 
-  // Event listeners
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('refreshBtn').addEventListener('click', refreshData);
-  document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
-  document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
-  
-  // Close modal when clicking backdrop
-  document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFuelCalcModal();
+  // Load everything that is JSON-driven
+  loadCountyData();
+  loadForecastData();
+
+  // UI events
+  document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+  document.getElementById('refreshBtn')?.addEventListener('click', refreshData);
+
+  document.getElementById('fuelCalcBtn')?.addEventListener('click', openFuelCalcModal);
+  document.getElementById('modalCloseBtn')?.addEventListener('click', closeFuelCalcModal);
+
+  document.getElementById('fuelCalcModal')?.addEventListener('click', (e) => {
+    if (e.target?.id === 'fuelCalcModal') closeFuelCalcModal();
   });
-  
-  // Run Model button
-  document.getElementById('runModelBtn').addEventListener('click', runModelFromUI);
+
+  document.getElementById('runModelBtn')?.addEventListener('click', runModelFromUI);
 });
 
-// Theme Management
+// ------------------ Theme ------------------
 function initTheme() {
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.body.setAttribute('data-color-scheme', savedTheme);
 }
 
 function toggleTheme() {
-  const currentTheme = document.body.getAttribute('data-color-scheme');
-  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-  document.body.setAttribute('data-color-scheme', newTheme);
-  localStorage.setItem('theme', newTheme);
+  const current = document.body.getAttribute('data-color-scheme');
+  const next = current === 'light' ? 'dark' : 'light';
+  document.body.setAttribute('data-color-scheme', next);
+  localStorage.setItem('theme', next);
 }
 
-// Map Initialization
+// ------------------ Map ------------------
 let map;
 let countyLayerGroup;
-let heatLayer = null;
-let heatmapEnabled = false;
 
 function initMap() {
   map = L.map('map').setView([37.2, -77.7], 8);
@@ -64,24 +63,20 @@ function initMap() {
 function getDangerColor(dangerClass) {
   const rootStyles = getComputedStyle(document.documentElement);
   const varName = `--class-${dangerClass}-bg`;
-  let color = rootStyles.getPropertyValue(varName).trim();
+  const cssVar = rootStyles.getPropertyValue(varName).trim();
 
-  if (!color) {
-    switch (dangerClass) {
-      case 1: color = '#4ECDC4'; break;
-      case 2: color = '#FFA726'; break;
-      case 3: color = '#EF5350'; break;
-      case 4: color = '#B71C1C'; break;
-      default: color = '#4ECDC4';
-    }
+  if (cssVar) return cssVar;
+
+  switch (dangerClass) {
+    case 1: return '#4ECDC4';
+    case 2: return '#FFA726';
+    case 3: return '#EF5350';
+    case 4: return '#B71C1C';
+    default: return '#4ECDC4';
   }
-  return color;
 }
 
 function addCountyMarkers(counties) {
-  if (!countyLayerGroup) {
-    countyLayerGroup = L.layerGroup().addTo(map);
-  }
   countyLayerGroup.clearLayers();
 
   counties.forEach(county => {
@@ -91,173 +86,28 @@ function addCountyMarkers(counties) {
       radius: 8,
       color: '#000',
       weight: 1,
-      fillColor: fillColor,
+      fillColor,
       fillOpacity: 0.85
     });
 
-    const popupContent = `
+    const popup = `
       <strong>${county.name} County</strong><br>
       Temp: ${county.temp ?? 'N/A'}°F<br>
       RH: ${county.rh ?? 'N/A'}%<br>
       Dew Pt: ${county.dewPoint ?? 'N/A'}°F<br>
       Wind: ${county.wind ?? 'N/A'} mph<br>
       Gust: ${county.gust ?? 'N/A'} mph<br>
-      Danger: ${['Low','Moderate','High','Extreme'][Math.max(0, county.dangerClass - 1)]}
+      Danger: ${['Low','Moderate','High','Extreme'][Math.max(0, (county.dangerClass ?? 1) - 1)]}
     `;
 
-    marker.bindPopup(popupContent);
+    marker.bindPopup(popup);
     marker.addTo(countyLayerGroup);
   });
 }
 
-// Load County Weather Data from pre-generated JSON
-async function loadCountyData() {
-  const countyGrid = document.getElementById('countyGrid');
-  countyGrid.innerHTML = '<div class="loading">Loading county data...</div>';
-  
-  try {
-    const response = await fetch('county_data.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    
-    renderCountyCards(data.counties);
-    updateTimestamp(data.lastUpdated);
-    
-    const countiesWithCoords = data.counties.map(county => ({
-      ...county,
-      lat: COUNTIES.find(c => c.name === county.name).lat,
-      lon: COUNTIES.find(c => c.name === county.name).lon
-    }));
-    addCountyMarkers(countiesWithCoords);
-    
-    loadFIRMSData();
-    
-  } catch (error) {
-    console.error('Error loading county data:', error);
-    countyGrid.inner
-          loadForecastData();HTML = '<div class="error">⚠️ Unable to load county data. Please refresh.</div>';
-  }
-}
-
-// Load FIRMS fire hotspot data from pre-generated JSON
-// Load FIRMS fire hotspot data with enhanced satellite info and color coding
-async function loadFIRMSData() {
-    try {
-        const response = await fetch('firms_data.json');
-        if (!response.ok) {
-            console.warn('FIRMS data unavailable');
-            return;
-        }
-        const data = await response.json();
-
-          // Create heatmap from FIRMS data
-    createHeatmap(data.hotspots || []);
-        
-        // Display statistics if available
-        if (data.statistics) {
-            console.log('🔥 FIRMS Data Statistics:', data.statistics);
-            const totalDetections = Object.values(data.statistics).reduce((a, b) => a + b, 0);
-            console.log(`📊 Total detections: ${totalDetections} (${data.count} unique after deduplication)`);
-        }
-        
-        if (data.hotspots && data.hotspots.length > 0) {
-            data.hotspots.forEach(hotspot => {
-                // Color code by satellite source
-                let color = '#ff4444';
-                let satelliteName = 'Unknown';
-                
-                if (hotspot.satellite) {
-                    if (hotspot.satellite.includes('MODIS')) {
-                        color = '#ff6600'; // Orange for MODIS
-                        satelliteName = 'MODIS (Terra/Aqua)';
-                    } else if (hotspot.satellite.includes('SNPP')) {
-                        color = '#ff0000'; // Bright red for VIIRS SNPP
-                        satelliteName = 'VIIRS S-NPP';
-                    } else if (hotspot.satellite.includes('NOAA20')) {
-                        color = '#cc0000'; // Dark red for VIIRS NOAA-20
-                        satelliteName = 'VIIRS NOAA-20';
-                    }
-                }
-                
-                // Create fire marker with enhanced popup
-                L.circleMarker([hotspot.latitude, hotspot.longitude], {
-                    radius: 6,
-                    color: color,
-                    fillColor: color,
-                    fillOpacity: 0.7,
-                    weight: 2
-                }).bindPopup(`
-                    <div style="min-width: 200px;">
-                        <strong style="font-size: 14px;">🔥 Fire Detection</strong><br><br>
-                        <b>Satellite:</b> ${satelliteName}<br>
-                        <b>Confidence:</b> <span style="color: ${hotspot.confidence === 'high' ? '#00aa00' : hotspot.confidence === 'nominal' ? '#ffaa00' : '#ff6600'}">${hotspot.confidence || 'Unknown'}</span><br>
-                        <b>Brightness:</b> ${hotspot.brightness}K<br>
-                        <b>FRP:</b> ${hotspot.frp || 'N/A'} MW<br>
-                        <b>Location:</b> ${hotspot.latitude.toFixed(4)}°N, ${Math.abs(hotspot.longitude).toFixed(4)}°W<br>
-                        <b>Detected:</b> ${hotspot.acq_date} ${hotspot.acq_time} UTC
-                    </div>
-                `).addTo(map);
-            });
-            
-            console.log(`✅ Loaded ${data.hotspots.length} fire hotspots on map`);
-        } else {
-            console.log('✓ No active fire hotspots detected in Virginia');
-        }
-    } catch (error) {
-        console.warn('Could not load FIRMS data:', error);
-    }
-}
-
-
+// ------------------ Danger Class ------------------
 function calculateDangerClass(temp, rh, wind) {
   let score = 0;
-
-  // Load and display forecast data from JSON
-async function loadForecastData() {
-  try {
-    const response = await fetch('forecasts/forecast_data.json');
-    if (!response.ok) {
-      console.warn('Forecast data not available');
-      return;
-    }
-    const data = await response.json();
-    
-    // Display dates
-    const datesEl = document.getElementById('forecastDates');
-    if (datesEl && data.dates) {
-      datesEl.textContent = `Forecast Period: ${data.dates}`;
-    }
-    
-    // Display overview
-    const overviewEl = document.getElementById('forecastOverview');
-    if (overviewEl && data.overview) {
-      overviewEl.innerHTML = `<p>${data.overview}</p>`;
-    }
-    
-    // Build forecast table
-    const tableEl = document.getElementById('forecastTable');
-    if (tableEl && data.classes && data.classes.length > 0) {
-      const headers = ['County', 'Day 1 Local', 'Day 1 DOF', 'Day 2 Local', 'Day 2 DOF', 'Day 3 Local', 'Day 3 DOF'];
-      const rows = data.classes.map(c => [
-        c.county,
-        c.day1Local,
-        c.day1DOF,
-        c.day2Local,
-        c.day2DOF,
-        c.day3Local,
-        c.day3DOF
-      ]);
-      buildForecastTable('forecastTable', headers, rows);
-    }
-    
-    console.log('✅ Forecast data loaded successfully');
-  } catch (error) {
-    console.warn('Could not load forecast data:', error);
-  }
-}
-
 
   if (temp >= 80) score += 2;
   else if (temp >= 70) score += 1;
@@ -275,363 +125,282 @@ async function loadForecastData() {
   return 4;
 }
 
+// ------------------ County Data ------------------
+async function loadCountyData() {
+  const countyGrid = document.getElementById('countyGrid');
+  if (countyGrid) countyGrid.innerHTML = '<div class="loading">Loading county data...</div>';
+
+  try {
+    const response = await fetch('county_data.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`county_data.json HTTP ${response.status}`);
+
+    const data = await response.json();
+    if (!data?.counties?.length) throw new Error('county_data.json missing counties[]');
+
+    renderCountyCards(data.counties);
+    updateTimestamp(data.lastUpdated);
+
+    const countiesWithCoords = data.counties.map(c => {
+      const ref = COUNTIES.find(x => x.name === c.name);
+      return { ...c, lat: ref?.lat, lon: ref?.lon };
+    }).filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lon));
+
+    addCountyMarkers(countiesWithCoords);
+    loadFIRMSData();
+
+  } catch (err) {
+    console.error('Error loading county data:', err);
+    if (countyGrid) countyGrid.innerHTML = '<div class="error">⚠️ Unable to load county data. Check county_data.json and workflow.</div>';
+  }
+}
+
 function renderCountyCards(counties) {
   const countyGrid = document.getElementById('countyGrid');
-  countyGrid.innerHTML = '';
+  if (!countyGrid) return;
 
-  const dangerLabels = ['Low', 'Moderate', 'High', 'Extreme'];
+  countyGrid.innerHTML = '';
+  const labels = ['Low', 'Moderate', 'High', 'Extreme'];
 
   counties.forEach(county => {
-    const rawClass = county.dangerClass || calculateDangerClass(county.temp, county.rh, county.wind);
-    const dangerClass = Math.max(1, Math.min(rawClass, dangerLabels.length));
-    const label = dangerLabels[dangerClass - 1] || 'N/A';
+    const derived = calculateDangerClass(county.temp, county.rh, county.wind);
+    const dangerClass = Math.max(1, Math.min(county.dangerClass ?? derived, 4));
+    const label = labels[dangerClass - 1] || 'N/A';
 
     const card = document.createElement('div');
     card.className = 'county-card';
     card.innerHTML = `
-      <div class="danger-bubble class-${dangerClass}" title="${label}">
-        ${dangerClass}
-      </div>
+      <div class="danger-bubble class-${dangerClass}" title="${label}">${dangerClass}</div>
       <div class="county-name">${county.name} County</div>
       <div class="county-data">
-        <div class="data-row">
-          <span class="data-label">Temp</span>
-          <span class="data-value">${county.temp ?? 'N/A'}°F</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">RH</span>
-          <span class="data-value">${county.rh ?? 'N/A'}%</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Dew Pt</span>
-          <span class="data-value">${county.dewPoint ?? 'N/A'}°F</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Wind</span>
-          <span class="data-value">${county.wind ?? 'N/A'} mph</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Gust</span>
-          <span class="data-value">${county.gust ?? 'N/A'} mph</span>
-        </div>
-        <div class="data-row">
-          <span class="data-label">Danger</span>
-          <span class="data-value">${label}</span>
-        </div>
+        <div class="data-row"><span class="data-label">Temp</span><span class="data-value">${county.temp ?? 'N/A'}°F</span></div>
+        <div class="data-row"><span class="data-label">RH</span><span class="data-value">${county.rh ?? 'N/A'}%</span></div>
+        <div class="data-row"><span class="data-label">Dew Pt</span><span class="data-value">${county.dewPoint ?? 'N/A'}°F</span></div>
+        <div class="data-row"><span class="data-label">Wind</span><span class="data-value">${county.wind ?? 'N/A'} mph</span></div>
+        <div class="data-row"><span class="data-label">Gust</span><span class="data-value">${county.gust ?? 'N/A'} mph</span></div>
+        <div class="data-row"><span class="data-label">Danger</span><span class="data-value">${label}</span></div>
       </div>
     `;
     countyGrid.appendChild(card);
   });
 }
 
-function updateTimestamp(timestamp) {
-  const lastUpdate = document.getElementById('lastUpdate');
-  const date = new Date(timestamp);
-  lastUpdate.textContent = date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+function updateTimestamp(ts) {
+  const el = document.getElementById('lastUpdate');
+  if (!el) return;
+
+  const d = new Date(ts);
+  el.textContent = isNaN(d.getTime())
+    ? 'Unknown'
+    : d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
 async function refreshData() {
-  const refreshBtn = document.getElementById('refreshBtn');
-  refreshBtn.style.animation = 'spin 1s linear';
-  await loadCountyData();
+  const btn = document.getElementById('refreshBtn');
+  if (btn) btn.style.animation = 'spin 1s linear';
+
+  await Promise.all([loadCountyData(), loadForecastData()]);
+
   setTimeout(() => {
-    refreshBtn.style.animation = '';
+    if (btn) btn.style.animation = '';
   }, 1000);
 }
 
-// Fuel Calculator Modal Controls
+// ------------------ Forecast Data ------------------
+async function loadForecastData() {
+  try {
+    const response = await fetch('forecasts/forecast_data.json', { cache: 'no-store' });
+    if (!response.ok) {
+      console.warn('Forecast data not available:', response.status);
+      return;
+    }
+    const data = await response.json();
+
+    const datesEl = document.getElementById('forecastDates');
+    if (datesEl) datesEl.textContent = data.dates ? `Forecast Period: ${data.dates}` : '';
+
+    const overviewEl = document.getElementById('forecastOverview');
+    if (overviewEl) overviewEl.innerHTML = data.overview ? `<p>${data.overview}</p>` : '';
+
+    const wrap = document.getElementById('forecastTableWrap');
+    if (wrap) {
+      wrap.innerHTML = '<table id="forecastTable" class="forecast-table"></table>';
+      const headers = ['County', 'Day 1 Local', 'Day 1 DOF', 'Day 2 Local', 'Day 2 DOF', 'Day 3 Local', 'Day 3 DOF'];
+      const rows = (data.classes || []).map(c => [
+        c.county, c.day1Local, c.day1DOF, c.day2Local, c.day2DOF, c.day3Local, c.day3DOF
+      ]);
+      buildTable('forecastTable', headers, rows);
+    }
+
+    console.log('✅ Forecast loaded');
+  } catch (err) {
+    console.warn('Could not load forecast data:', err);
+  }
+}
+
+function buildTable(tableId, headers, rows) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+
+  table.innerHTML = '';
+
+  const thead = document.createElement('thead');
+  const trh = document.createElement('tr');
+  headers.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    r.forEach(cell => {
+      const td = document.createElement('td');
+      td.textContent = cell ?? '';
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+}
+
+// ------------------ FIRMS ------------------
+async function loadFIRMSData() {
+  try {
+    const response = await fetch('firms_data.json', { cache: 'no-store' });
+    if (!response.ok) {
+      console.warn('FIRMS data unavailable');
+      return;
+    }
+    const data = await response.json();
+
+    if (!Array.isArray(data.hotspots) || data.hotspots.length === 0) {
+      console.log('✓ No active fire hotspots detected');
+      return;
+    }
+
+    data.hotspots.forEach(h => {
+      let color = '#ff4444';
+      let satelliteName = 'Unknown';
+
+      if (h.satellite?.includes('MODIS')) { color = '#ff6600'; satelliteName = 'MODIS (Terra/Aqua)'; }
+      else if (h.satellite?.includes('SNPP')) { color = '#ff0000'; satelliteName = 'VIIRS S-NPP'; }
+      else if (h.satellite?.includes('NOAA20')) { color = '#cc0000'; satelliteName = 'VIIRS NOAA-20'; }
+
+      L.circleMarker([h.latitude, h.longitude], {
+        radius: 6,
+        color,
+        fillColor: color,
+        fillOpacity: 0.7,
+        weight: 2
+      }).bindPopup(`
+        <div style="min-width: 200px;">
+          <strong style="font-size: 14px;">🔥 Fire Detection</strong><br><br>
+          <b>Satellite:</b> ${satelliteName}<br>
+          <b>Confidence:</b> ${h.confidence || 'Unknown'}<br>
+          <b>Brightness:</b> ${h.brightness ?? 'N/A'}K<br>
+          <b>FRP:</b> ${h.frp ?? 'N/A'} MW<br>
+          <b>Detected:</b> ${h.acq_date ?? ''} ${h.acq_time ?? ''} UTC
+        </div>
+      `).addTo(map);
+    });
+
+    console.log(`✅ Loaded ${data.hotspots.length} hotspots`);
+  } catch (err) {
+    console.warn('Could not load FIRMS:', err);
+  }
+}
+
+// ------------------ Fuel Calculator Modal ------------------
 function openFuelCalcModal() {
   const modal = document.getElementById('fuelCalcModal');
+  if (!modal) return;
   modal.style.display = 'flex';
   buildFuelCalcForecastTable();
 }
 
 function closeFuelCalcModal() {
   const modal = document.getElementById('fuelCalcModal');
+  if (!modal) return;
   modal.style.display = 'none';
 }
 
-// Build forecast table rows (5 days)
 function buildFuelCalcForecastTable() {
   const tbody = document.getElementById('forecastDays');
-  tbody.innerHTML = '';
+  if (!tbody) return;
 
+  tbody.innerHTML = '';
   for (let i = 1; i <= 5; i++) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
       <td>Day ${i}</td>
       <td><input type="number" id="temp_${i}" value="75" min="0" max="120"></td>
       <td><input type="number" id="rh_${i}" value="30" min="0" max="100"></td>
       <td><input type="number" id="wind_${i}" value="5" min="0" max="50"></td>
       <td><input type="number" id="hours_${i}" value="10" min="0" max="24" step="0.5"></td>
     `;
-    tbody.appendChild(row);
+    tbody.appendChild(tr);
   }
 }
 
-// Run Model from UI
 function runModelFromUI() {
-  // Get initial conditions
-  const initial1Hr = parseFloat(document.getElementById('initial1hr').value);
-  const initial10Hr = parseFloat(document.getElementById('initial10hr').value);
+  const initial1Hr = parseFloat(document.getElementById('initial1hr')?.value);
+  const initial10Hr = parseFloat(document.getElementById('initial10hr')?.value);
 
-  // Collect forecast data
   const forecast = [];
   for (let i = 1; i <= 5; i++) {
     forecast.push({
       label: `Day ${i}`,
-      temp: parseFloat(document.getElementById(`temp_${i}`).value),
-      rh: parseFloat(document.getElementById(`rh_${i}`).value),
-      wind: parseFloat(document.getElementById(`wind_${i}`).value),
-      dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
+      temp: parseFloat(document.getElementById(`temp_${i}`)?.value),
+      rh: parseFloat(document.getElementById(`rh_${i}`)?.value),
+      wind: parseFloat(document.getElementById(`wind_${i}`)?.value),
+      dryingHours: parseFloat(document.getElementById(`hours_${i}`)?.value)
     });
   }
 
-  // Run the fuel moisture model
+  // Provided by fuel-calculator.js
   const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
-
-  // Display results
   displayResults(results);
 }
 
-// Display calculation results
 function displayResults(results) {
   const resultsSection = document.getElementById('resultsSection');
   const resultsTable = document.getElementById('resultsTable');
   const warningBox = document.getElementById('warningMessage');
+  if (!resultsSection || !resultsTable || !warningBox) return;
 
-  // Build results table
   let html = '<table style="width:100%; border-collapse: collapse;">';
   html += '<tr><th>Day</th><th>1-hr FM (%)</th><th>10-hr FM (%)</th><th>Status</th></tr>';
 
-  let criticalDays = [];
-  results.dailyResults.forEach((day, i) => {
-    const status1hr = day.moisture1Hr <= 6 ? '⚠️ Critical' : day.moisture1Hr <= 8 ? '⚡ Elevated' : '✓ Normal';
-    const status10hr = day.moisture10Hr <= 8 ? '⚠️ Critical' : day.moisture10Hr <= 10 ? '⚡ Elevated' : '✓ Normal';
-    const worstStatus = (day.moisture1Hr <= 6 || day.moisture10Hr <= 8) ? 'Critical' : 'Normal';
-    if (worstStatus === 'Critical') criticalDays.push(i + 1);
+  const criticalDays = [];
+  results.dailyResults.forEach((day, idx) => {
+    const critical = (day.moisture1Hr <= 6 || day.moisture10Hr <= 8);
+    if (critical) criticalDays.push(idx + 1);
 
-    html += `<tr>`;
-    html += `<td>${day.label}</td>`;
-    html += `<td>${day.moisture1Hr}% ${status1hr}</td>`;
-    html += `<td>${day.moisture10Hr}% ${status10hr}</td>`;
-    html += `<td>${worstStatus}</td>`;
-    html += `</tr>`;
+    html += `<tr>
+      <td>${day.label}</td>
+      <td>${day.moisture1Hr}%</td>
+      <td>${day.moisture10Hr}%</td>
+      <td>${critical ? 'Critical' : 'Normal'}</td>
+    </tr>`;
   });
+
   html += '</table>';
   resultsTable.innerHTML = html;
 
-  // Show warning if critical
-  if (criticalDays.length > 0) {
-    warningBox.innerHTML = `⚠️ CRITICAL FIRE WEATHER: Extremely low fuel moisture on Day${criticalDays.length > 1 ? 's' : ''} ${criticalDays.join(', ')}. Increased fire danger expected.`;
+  if (criticalDays.length) {
+    warningBox.textContent = `⚠️ CRITICAL FIRE WEATHER: Extremely low fuel moisture on Day(s) ${criticalDays.join(', ')}.`;
     warningBox.style.display = 'block';
   } else {
     warningBox.style.display = 'none';
   }
 
-  // Show results section
   resultsSection.style.display = 'block';
 }
 
-// Add spin animation for refresh button
+// Spin animation
 const style = document.createElement('style');
-style.textContent = `
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
+style.textContent = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
 document.head.appendChild(style);
-
-
-// Five Forks Fire Weather Forecast Data
-const fiveForksForecast = {
-  dates: "December 18–20, 2025",
-  counties: ["Amelia","Brunswick","Dinwiddie","Greensville","Nottoway","Prince George"],
-  overview: "A strong cold front brings rain and gusty winds tonight into Friday, followed by drier, seasonable high pressure through the weekend. Fire danger remains low to moderate with some short-term wind concerns as fuels dry after frontal passage.",
-  csiNote: "CSI coverage note: The Farmville (Central Region) CSI 231–235 (Class 2) applies to areas including Nottoway and Amelia Counties, while the Petersburg (Five Forks District) CSI 352 (Class 2) applies to the remainder of the Five Forks service area (Brunswick, Dinwiddie, Greensville, Prince George).",
-  classes: [
-    { county: "Amelia",       thuLocal: 2, thuDOF: "2 (Farmville)",   friLocal: 2, friDOF: "2 (Farmville)",   satLocal: "1–2", satDOF: "2 (Farmville)" },
-    { county: "Brunswick",    thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
-    { county: "Dinwiddie",    thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
-    { county: "Greensville",  thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" },
-    { county: "Nottoway",     thuLocal: 2, thuDOF: "2 (Farmville)",  friLocal: 2, friDOF: "2 (Farmville)",  satLocal: "1–2", satDOF: "2 (Farmville)" },
-    { county: "Prince George",thuLocal: 2, thuDOF: "2 (Petersburg)", friLocal: 2, friDOF: "2 (Petersburg)", satLocal: "1–2", satDOF: "2 (Petersburg)" }
-  ],
-  ros: [
-    { county: "Amelia",        thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
-    { county: "Brunswick",     thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
-    { county: "Dinwiddie",     thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
-    { county: "Greensville",   thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
-    { county: "Nottoway",      thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" },
-    { county: "Prince George", thu: "300–720", fri: "600–1200", sat: "240–600", peakThu: "1300–1600", peakFri: "1200–1700", peakSat: "1300–1600" }
-  ]
-};
-
-// Function to build HTML tables
-function buildFiveForksForecastTable(tableId, headers, rows) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-    table.innerHTML = ''; // Clear existing content
-
-  
-  // Create header
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  headers.forEach(h => {
-    const th = document.createElement('th');
-    th.textContent = h;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-  
-  // Create body
-  const tbody = document.createElement('tbody');
-  rows.forEach(rowData => {
-    const tr = document.createElement('tr');
-    rowData.forEach(cellData => {
-      const td = document.createElement('td');
-      td.textContent = cellData;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-}
-
-// Render Five Forks Forecast
-function renderFiveForksForecast() {
- 
-  
-  function buildForecastTable(tableId, headers, rows) {
-  const table = document.getElementById(tableId);
-  if (!table) return;
-  table.innerHTML = ''; // Clear existing content
-  
-  // Create header
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  headers.forEach(h => {
-    const th = document.createElement('th');
-    th.textContent = h;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-  
-  // Create body
-  const tbody = document.createElement('tbody');
-  rows.forEach(rowData => {
-    const tr = document.createElement('tr');
-    rowData.forEach(cellData => {
-      const td = document.createElement('td');
-      td.textContent = cellData;
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-}// Set text content
-  const datesEl = document.getElementById('ff-dates');
-  const overviewEl = document.getElementById('ff-overview');
-  const csiNoteEl = document.getElementById('ff-csi-note');
-  
-  if (datesEl) datesEl.textContent = `Dates: ${fiveForksForecast.dates}`;
-  if (overviewEl) overviewEl.textContent = fiveForksForecast.overview;
-  if (csiNoteEl) csiNoteEl.textContent = fiveForksForecast.csiNote;
-
-  // Build class table
-  buildForecastTable(
-    'ff-class-table',
-    ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
-    fiveForksForecast.classes.map(c => [
-      c.county, c.thuLocal, c.thuDOF, c.friLocal, c.friDOF, c.satLocal, c.satDOF
-    ])
-  );
-
-  // Build ROS table
-  buildForecastTable(
-    'ff-ros-table',
-    ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
-    fiveForksForecast.ros.map(c => [
-      c.county, c.thu, c.peakThu, c.fri, c.peakFri, c.sat, c.peakSat
-    ])
-  );
-}
-
-// Call render function when page loads
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderFiveForksForecast);
-} else {
-  renderFiveForksForecast();
-}
-
-// ===== HEATMAP INTEGRATION =====
-
-function createHeatmap(hotspots) {
-  // Remove existing heatmap
-  if (heatLayer && map.hasLayer(heatLayer)) {
-    map.removeLayer(heatLayer);
-  }
-  
-  if (!hotspots || hotspots.length === 0) {
-    console.log('No hotspots for heatmap');
-    return;
-  }
-  
-  // Convert to heatmap format [lat, lon, intensity]
-  const heatData = hotspots.map(h => {
-    const intensity = h.brightness ? Math.min(h.brightness / 400, 1) : 0.5;
-    return [h.latitude, h.longitude, intensity];
-  });
-  
-  // Create heatmap layer
-  heatLayer = L.heatLayer(heatData, {
-    radius: 25,
-    blur: 15,
-    maxZoom: 17,
-    max: 1.0,
-    gradient: {
-      0.0: 'blue',
-      0.3: 'cyan',
-      0.5: 'lime',
-      0.7: 'yellow',
-      0.9: 'orange',
-      1.0: 'red'
-    }
-  });
-  
-  if (heatmapEnabled) {
-    heatLayer.addTo(map);
-  }
-  
-  console.log(`✅ Heatmap ready with ${hotspots.length} points`);
-}
-
-function toggleHeatmap() {
-  heatmapEnabled = !heatmapEnabled;
-  
-  if (heatmapEnabled && heatLayer) {
-    heatLayer.addTo(map);
-    console.log('🔥 Heatmap enabled');
-  } else if (heatLayer) {
-    map.removeLayer(heatLayer);
-    console.log('📍 Heatmap disabled');
-  }
-  
-  // Update button text
-  const btn = document.getElementById('heatmapToggle');
-  if (btn) {
-    const label = btn.querySelector('.link-label');
-    if (label) {
-      label.textContent = heatmapEnabled ? 'Hide Heat' : 'Heatmap';
-    }
-  }
-}
