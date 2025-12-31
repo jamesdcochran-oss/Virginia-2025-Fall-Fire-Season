@@ -1,0 +1,69 @@
+{
+  "dates": "December 31\u201302, 2026",
+  "counties": [
+    "Amelia",
+    "Brunswick",
+    "Dinwiddie",
+    "Greensville",
+    "Nottoway",
+    "Prince George"
+  ],
+  "overview": "Three-day fire weather forecast for the Five Forks District. Conditions generated on December 31, 2025.",
+  "csiNote": "CSI coverage note: The Farmville (Central Region) applies to areas including Nottoway and Amelia Counties, while the Petersburg (Five Forks District) applies to the remainder of the Five Forks service area (Brunswick, Dinwiddie, Greensville, Prince George).",
+  "classes": [
+    {
+      "county": "Amelia",
+      "day1Local": 2,
+      "day1DOF": "2 (Farmville)",
+      "day2Local": 2,
+      "day2DOF": "2 (Farmville)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Farmville)"
+    },
+    {
+      "county": "Brunswick",
+      "day1Local": 2,
+      "day1DOF": "2 (Petersburg)",
+      "day2Local": 2,
+      "day2DOF": "2 (Petersburg)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Petersburg)"
+    },
+    {
+      "county": "Dinwiddie",
+      "day1Local": 2,
+      "day1DOF": "2 (Petersburg)",
+      "day2Local": 2,
+      "day2DOF": "2 (Petersburg)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Petersburg)"
+    },
+    {
+      "county": "Greensville",
+      "day1Local": 2,
+      "day1DOF": "2 (Petersburg)",
+      "day2Local": 2,
+      "day2DOF": "2 (Petersburg)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Petersburg)"
+    },
+    {
+      "county": "Nottoway",
+      "day1Local": 2,
+      "day1DOF": "2 (Farmville)",
+      "day2Local": 2,
+      "day2DOF": "2 (Farmville)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Farmville)"
+    },
+    {
+      "county": "Prince George",
+      "day1Local": 2,
+      "day1DOF": "2 (Petersburg)",
+      "day2Local": 2,
+      "day2DOF": "2 (Petersburg)",
+      "day3Local": "1\u20132",
+      "day3DOF": "2 (Petersburg)"
+    }
+  ]
+}
