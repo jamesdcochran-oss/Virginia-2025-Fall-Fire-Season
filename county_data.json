@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-07T06:26:30.472060Z",
+  "lastUpdated": "2026-01-07T06:29:08.440123Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -30,11 +30,11 @@
     },
     {
       "name": "Amelia",
-      "temp": 52,
-      "rh": 89,
-      "dewPoint": 49,
-      "wind": 3,
-      "gust": 4,
+      "temp": 51,
+      "rh": 90,
+      "dewPoint": 48,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 1
     },
     {
@@ -48,11 +48,11 @@
     },
     {
       "name": "Nottoway",
-      "temp": 52,
-      "rh": 89,
-      "dewPoint": 49,
-      "wind": 3,
-      "gust": 4,
+      "temp": 51,
+      "rh": 90,
+      "dewPoint": 48,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 1
     }
   ],
