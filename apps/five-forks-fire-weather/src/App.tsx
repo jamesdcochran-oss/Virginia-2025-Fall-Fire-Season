@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { HomeScreen } from './src/screens/HomeScreen';
-import { MapScreen } from './src/screens/MapScreen';
-import { CountyListScreen } from './src/screens/CountyListScreen';
+import { HomeScreen } from './screens/HomeScreen';
+import { MapScreen } from './screens/MapScreen';
+import { CountyListScreen } from './screens/CountyListScreen';
 
 type RootStackParamList = {
   Home: undefined;

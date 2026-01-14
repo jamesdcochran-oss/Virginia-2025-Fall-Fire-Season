@@ -39,7 +39,8 @@ export function subscribeToHotspots(callback: RealtimeCallback<Hotspot>): Realti
       },
       (payload) => {
         const event = payload.eventType as RealtimeEvent;
-        const hotspot = payload.new as Hotspot;
+        // For DELETE events, use payload.old; for INSERT/UPDATE use payload.new
+        const hotspot = (event === 'DELETE' ? payload.old : payload.new) as Hotspot;
         callback(hotspot, event);
       }
     )
@@ -66,7 +67,8 @@ export function subscribeToCountyMetrics(callback: RealtimeCallback<CountyMetric
       },
       (payload) => {
         const event = payload.eventType as RealtimeEvent;
-        const metric = payload.new as CountyMetric;
+        // For DELETE events, use payload.old; for INSERT/UPDATE use payload.new
+        const metric = (event === 'DELETE' ? payload.old : payload.new) as CountyMetric;
         callback(metric, event);
       }
     )

@@ -95,7 +95,7 @@ export function MapScreen() {
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendColor, { backgroundColor: '#fbc02d' }]} />
-          <Text style={styles.legendText}>Low (&lt;50)</Text>
+          <Text style={styles.legendText}>Low ({'<'}50)</Text>
         </View>
       </View>
 
