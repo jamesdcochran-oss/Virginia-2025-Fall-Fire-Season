@@ -1,7 +1,7 @@
 // Five Forks Fire Weather Dashboard - Main Script
 
-// County data with centroids for NWS API
-const COUNTIES = [
+// County list - will be loaded from data/counties.json with fallback
+let COUNTIES = [
   { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
   { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
   { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
@@ -10,25 +10,50 @@ const COUNTIES = [
   { name: 'Nottoway', lat: 37.1000, lon: -78.0700 }
 ];
 
+// Load county list from JSON with fallback
+async function loadCountyList() {
+  try {
+    const response = await fetch('data/counties.json');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const countyData = await response.json();
+    if (Array.isArray(countyData) && countyData.length > 0) {
+      COUNTIES = countyData;
+      console.log('✅ Loaded counties from data/counties.json:', COUNTIES.length);
+    }
+  } catch (error) {
+    console.warn('⚠️ Failed to load data/counties.json, using fallback:', error.message);
+  }
+}
+
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   initTheme();
+  await loadCountyList();  // Load counties first
   initMap();
   loadCountyData();
 
-  // Event listeners
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('refreshBtn').addEventListener('click', refreshData);
-  document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
-  document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+  // Event listeners - with defensive checks
+  const themeToggle = document.getElementById('themeToggle');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const fuelCalcBtn = document.getElementById('fuelCalcBtn');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const fuelCalcModal = document.getElementById('fuelCalcModal');
+  const runModelBtn = document.getElementById('runModelBtn');
+
+  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+  if (refreshBtn) refreshBtn.addEventListener('click', refreshData);
+  if (fuelCalcBtn) fuelCalcBtn.addEventListener('click', openFuelCalcModal);
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeFuelCalcModal);
   
   // Close modal when clicking backdrop
-  document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFuelCalcModal();
-  });
+  if (fuelCalcModal) {
+    fuelCalcModal.addEventListener('click', function(e) {
+      if (e.target === this) closeFuelCalcModal();
+    });
+  }
   
   // Run Model button
-  document.getElementById('runModelBtn').addEventListener('click', runModelFromUI);
+  if (runModelBtn) runModelBtn.addEventListener('click', runModelFromUI);
 });
 
 // Theme Management
@@ -51,11 +76,25 @@ let countyLayerGroup;
 function initMap() {
   map = L.map('map').setView([37.2, -77.7], 8);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  // Primary tile layer with fallback
+  const primaryTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '© CartoDB',
     maxZoom: 19
-  }).addTo(map);
+  });
 
+  const fallbackTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  });
+
+  // Try primary, use fallback on error
+  primaryTiles.on('tileerror', function() {
+    console.warn('⚠️ CartoDB tiles failed, switching to OpenStreetMap fallback');
+    map.removeLayer(primaryTiles);
+    fallbackTiles.addTo(map);
+  });
+
+  primaryTiles.addTo(map);
   countyLayerGroup = L.layerGroup().addTo(map);
 }
 
@@ -123,11 +162,18 @@ async function loadCountyData() {
     renderCountyCards(data.counties);
     updateTimestamp(data.lastUpdated);
     
-    const countiesWithCoords = data.counties.map(county => ({
-      ...county,
-      lat: COUNTIES.find(c => c.name === county.name).lat,
-      lon: COUNTIES.find(c => c.name === county.name).lon
-    }));
+    const countiesWithCoords = data.counties.map(county => {
+      const countyData = COUNTIES.find(c => c.name === county.name);
+      if (!countyData) {
+        console.warn(`County ${county.name} not found in COUNTIES list, using defaults`);
+        return { ...county, lat: 37.2, lon: -77.7 }; // Default to region center
+      }
+      return {
+        ...county,
+        lat: countyData.lat,
+        lon: countyData.lon
+      };
+    });
     addCountyMarkers(countiesWithCoords);
     
     loadFIRMSData();
@@ -338,12 +384,12 @@ function runModelFromUI() {
       temp: parseFloat(document.getElementById(`temp_${i}`).value),
       rh: parseFloat(document.getElementById(`rh_${i}`).value),
       wind: parseFloat(document.getElementById(`wind_${i}`).value),
-      dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
+      hours: parseFloat(document.getElementById(`hours_${i}`).value)
     });
   }
 
-  // Run the fuel moisture model
-  const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
+  // Run the fuel moisture model (using runModel from fuel-calculator.js)
+  const results = runModel(initial1Hr, initial10Hr, forecast);
 
   // Display results
   displayResults(results);
@@ -467,7 +513,7 @@ function renderFiveForksForecast() {
   if (csiNoteEl) csiNoteEl.textContent = fiveForksForecast.csiNote;
 
   // Build class table
-  buildForecastTable(
+  buildFiveForksForecastTable(
     'ff-class-table',
     ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
     fiveForksForecast.classes.map(c => [
@@ -476,7 +522,7 @@ function renderFiveForksForecast() {
   );
 
   // Build ROS table
-  buildForecastTable(
+  buildFiveForksForecastTable(
     'ff-ros-table',
     ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
     fiveForksForecast.ros.map(c => [

@@ -66,7 +66,131 @@ The system features GitHub Actions workflows:
 
 - **Weather Data**: Fetches NWS observations every 6 hours
 - **Daily Briefs**: Generates DOCX fire weather briefs once per day
+- **CI/Smoke Tests**: Validates code and data integrity on every push
 - **Auto-Deploy**: Updates publish automatically to GitHub Pages
+
+## 🔧 Local Development
+
+### Prerequisites
+
+- Python 3.x
+- Node.js (optional, for syntax checking)
+- Web browser with modern JavaScript support
+
+### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/jamesdcochran-oss/Virginia-2025-Fall-Fire-Season.git
+   cd Virginia-2025-Fall-Fire-Season
+   ```
+
+2. **Install Python dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run local server**
+   ```bash
+   python -m http.server 8000
+   ```
+
+4. **Open in browser**
+   - Dashboard: http://localhost:8000/
+   - Diagnostics: http://localhost:8000/diagnostics.html
+   - Briefs Index: http://localhost:8000/briefs/
+
+### Running Diagnostics
+
+The dashboard includes a comprehensive diagnostics page to verify system health:
+
+```bash
+# Python diagnostics
+python diagnostic_check.py
+
+# Browser diagnostics (after starting local server)
+# Navigate to http://localhost:8000/diagnostics.html
+```
+
+The diagnostics page tests:
+- ✅ Fuel calculator functions (computeEMC, stepMoisture, runModel)
+- ✅ Counties data loading and structure
+- ✅ Map dependencies (Leaflet.js)
+- ✅ Fetch API availability
+
+### Project Structure
+
+```
+Virginia-2025-Fall-Fire-Season/
+├── index.html              # Main dashboard
+├── diagnostics.html        # Diagnostic testing page
+├── fuel-calculator.js      # Fuel moisture calculator
+├── scripts/
+│   └── dashboard.js        # Dashboard logic with county loading
+├── data/
+│   └── counties.json       # County coordinates (6 counties)
+├── briefs/
+│   ├── index.html          # Briefs index page
+│   └── *.docx              # Generated daily briefs
+├── .github/workflows/
+│   ├── ci.yml              # CI smoke tests
+│   ├── update-data.yml     # Weather updates
+│   └── daily-brief.yml     # Brief generation
+├── CONTRIBUTING.md         # Contribution guidelines
+└── README.md               # This file
+```
+
+## 🧪 Testing & CI
+
+### Continuous Integration
+
+The CI workflow runs automatically on push and pull requests:
+
+- File existence checks
+- JSON validation (counties.json, county_data.json, firms_data.json)
+- JavaScript syntax validation
+- County data structure validation
+- Diagnostic script execution
+
+### Manual Testing
+
+```bash
+# Validate JSON files
+python -m json.tool data/counties.json
+
+# Check JavaScript syntax
+node -c fuel-calculator.js
+node -c scripts/dashboard.js
+
+# Run diagnostic checks
+python diagnostic_check.py
+```
+
+## 💧 Fuel Moisture Calculator
+
+The dashboard includes a minimal, robust fuel moisture calculator:
+
+- **computeEMC(tempF, rh)**: Empirical equilibrium moisture content
+- **stepMoisture(initial, emc, hours, timeLag)**: Exponential time-lag model
+- **runModel(initial1hr, initial10hr, forecast)**: Multi-day forecast model
+
+Access via the 💧 **Fuel Calc** button in the dashboard utility bar.
+
+## 🗺️ Map Features
+
+- Interactive county visualization with Leaflet.js
+- Tile provider with automatic fallback (CartoDB → OpenStreetMap)
+- Color-coded fire danger markers
+- NASA FIRMS fire hotspot integration
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
+- Development setup instructions
+- Code style guidelines
+- Testing procedures
+- Pull request process
 
 ## 👨‍🚒 Five Forks VFD
 
@@ -76,5 +200,5 @@ The system features GitHub Actions workflows:
 
 MIT License - feel free to adapt for your local fire department or emergency response team.
 
-**Last Updated**: December 2025  
+**Last Updated**: January 2026  
 **Maintained by**: Five Forks Fire Weather Team

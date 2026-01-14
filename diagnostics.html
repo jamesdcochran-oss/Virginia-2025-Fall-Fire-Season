@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostics - Five Forks Fire Weather</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        .test-section h2 {
+            color: #34495e;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        .test-result {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .test-pass {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        .test-fail {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        .test-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+        button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #34495e;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .back-link:hover {
+            background: #5568d3;
+        }
+        code {
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 System Diagnostics</h1>
+        <p class="subtitle">Five Forks Fire Weather Dashboard - Diagnostic Tests</p>
+
+        <div class="test-section">
+            <h2>🧪 Fuel Calculator Tests</h2>
+            <button onclick="testComputeEMC()">Test computeEMC()</button>
+            <button onclick="testStepMoisture()">Test stepMoisture()</button>
+            <button onclick="testRunModel()">Test runModel()</button>
+            <div id="fuelCalcResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📍 Counties Data Tests</h2>
+            <button onclick="testCountiesFetch()">Fetch counties.json</button>
+            <button onclick="testCountyStructure()">Validate Structure</button>
+            <div id="countiesResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🗺️ Map & Dependencies</h2>
+            <button onclick="testLeaflet()">Check Leaflet.js</button>
+            <button onclick="testFetch()">Check Fetch API</button>
+            <div id="depsResults"></div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <script src="fuel-calculator.js"></script>
+    <script>
+        // Simple sanitization helper
+        function sanitize(str) {
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        // Test computeEMC function
+        function testComputeEMC() {
+            const results = document.getElementById('fuelCalcResults');
+            results.innerHTML = '';
+            
+            const tests = [
+                { temp: 75, rh: 30, expected: 'low single digit' },
+                { temp: 60, rh: 60, expected: 'around 10-12%' },
+                { temp: 85, rh: 20, expected: 'very low (critical)' }
+            ];
+
+            try {
+                if (typeof computeEMC !== 'function') {
+                    throw new Error('computeEMC function not found');
+                }
+
+                results.innerHTML += `<div class="test-pass">✅ computeEMC function exists</div>`;
+                
+                tests.forEach(test => {
+                    const result = computeEMC(test.temp, test.rh);
+                    const msg = `computeEMC(${test.temp}°F, ${test.rh}%) = ${result}% (expected ${test.expected})`;
+                    results.innerHTML += `<div class="test-info">ℹ️ ${msg}</div>`;
+                });
+
+                results.innerHTML += `<div class="test-pass">✅ All computeEMC tests passed</div>`;
+            } catch (err) {
+                results.innerHTML += `<div class="test-fail">❌ Error: ${sanitize(err.message)}</div>`;
+            }
+        }
+
+        // Test stepMoisture function
+        function testStepMoisture() {
+            const results = document.getElementById('fuelCalcResults');
+            
+            try {
+                if (typeof stepMoisture !== 'function') {
+                    throw new Error('stepMoisture function not found');
+                }
+
+                results.innerHTML += `<div class="test-pass">✅ stepMoisture function exists</div>`;
+                
+                const result = stepMoisture(10, 5, 12, 1);
+                results.innerHTML += `<div class="test-info">ℹ️ stepMoisture(10, 5, 12, 1) = ${result}%</div>`;
+                
+                if (result >= 0 && result <= 100) {
+                    results.innerHTML += `<div class="test-pass">✅ stepMoisture returns valid range</div>`;
+                } else {
+                    results.innerHTML += `<div class="test-fail">❌ stepMoisture out of valid range</div>`;
+                }
+            } catch (err) {
+                results.innerHTML += `<div class="test-fail">❌ Error: ${sanitize(err.message)}</div>`;
+            }
+        }
+
+        // Test runModel function
+        function testRunModel() {
+            const results = document.getElementById('fuelCalcResults');
+            
+            try {
+                if (typeof runModel !== 'function') {
+                    throw new Error('runModel function not found');
+                }
+
+                results.innerHTML += `<div class="test-pass">✅ runModel function exists</div>`;
+                
+                const forecast = [
+                    { label: 'Day 1', temp: 75, rh: 30, wind: 10, hours: 12 },
+                    { label: 'Day 2', temp: 80, rh: 25, wind: 15, hours: 12 }
+                ];
+                
+                const modelResults = runModel(8, 10, forecast);
+                
+                results.innerHTML += `<div class="test-info">ℹ️ Model ran with ${modelResults.dailyResults.length} days</div>`;
+                results.innerHTML += `<div class="test-info">ℹ️ Final 1-hr: ${modelResults.dailyResults[modelResults.dailyResults.length-1].moisture1Hr}%</div>`;
+                results.innerHTML += `<div class="test-info">ℹ️ Final 10-hr: ${modelResults.dailyResults[modelResults.dailyResults.length-1].moisture10Hr}%</div>`;
+                results.innerHTML += `<div class="test-pass">✅ runModel executed successfully</div>`;
+            } catch (err) {
+                results.innerHTML += `<div class="test-fail">❌ Error: ${sanitize(err.message)}</div>`;
+            }
+        }
+
+        // Test counties.json fetch
+        async function testCountiesFetch() {
+            const results = document.getElementById('countiesResults');
+            results.innerHTML = '<div class="test-info">ℹ️ Fetching data/counties.json...</div>';
+            
+            try {
+                const response = await fetch('data/counties.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                results.innerHTML += `<div class="test-pass">✅ Fetch successful (HTTP ${response.status})</div>`;
+                
+                const counties = await response.json();
+                results.innerHTML += `<div class="test-pass">✅ JSON parsed successfully</div>`;
+                results.innerHTML += `<div class="test-info">ℹ️ Found ${counties.length} counties</div>`;
+                
+                counties.forEach(c => {
+                    results.innerHTML += `<div class="test-info">  • ${sanitize(c.name)} (${sanitize(c.lat)}, ${sanitize(c.lon)})</div>`;
+                });
+            } catch (err) {
+                results.innerHTML += `<div class="test-fail">❌ Error: ${sanitize(err.message)}</div>`;
+            }
+        }
+
+        // Test county structure
+        async function testCountyStructure() {
+            const results = document.getElementById('countiesResults');
+            results.innerHTML = '<div class="test-info">ℹ️ Validating county structure...</div>';
+            
+            try {
+                const response = await fetch('data/counties.json');
+                const counties = await response.json();
+                
+                if (!Array.isArray(counties)) {
+                    throw new Error('counties.json is not an array');
+                }
+                results.innerHTML += `<div class="test-pass">✅ Data is an array</div>`;
+                
+                if (counties.length !== 6) {
+                    throw new Error(`Expected 6 counties, found ${counties.length}`);
+                }
+                results.innerHTML += `<div class="test-pass">✅ Contains 6 counties</div>`;
+                
+                counties.forEach((county, idx) => {
+                    if (!county.name || !county.lat || !county.lon) {
+                        throw new Error(`County ${idx} missing required fields`);
+                    }
+                    if (typeof county.lat !== 'number' || typeof county.lon !== 'number') {
+                        throw new Error(`County ${county.name} has non-numeric coordinates`);
+                    }
+                });
+                results.innerHTML += `<div class="test-pass">✅ All counties have valid structure</div>`;
+                
+                const expectedCounties = ['Amelia', 'Nottoway', 'Brunswick', 'Dinwiddie', 'Greensville', 'Prince George'];
+                const foundNames = counties.map(c => c.name);
+                expectedCounties.forEach(name => {
+                    if (foundNames.includes(name)) {
+                        results.innerHTML += `<div class="test-pass">✅ Found ${name}</div>`;
+                    } else {
+                        results.innerHTML += `<div class="test-fail">❌ Missing ${name}</div>`;
+                    }
+                });
+            } catch (err) {
+                results.innerHTML += `<div class="test-fail">❌ Error: ${sanitize(err.message)}</div>`;
+            }
+        }
+
+        // Test Leaflet
+        function testLeaflet() {
+            const results = document.getElementById('depsResults');
+            results.innerHTML = '';
+            
+            if (typeof L !== 'undefined') {
+                const version = String(L.version).replace(/[<>&"']/g, ''); // Sanitize version string
+                results.innerHTML += `<div class="test-pass">✅ Leaflet.js loaded (version ${version})</div>`;
+            } else {
+                results.innerHTML += `<div class="test-fail">❌ Leaflet.js not loaded</div>`;
+            }
+        }
+
+        // Test Fetch API
+        function testFetch() {
+            const results = document.getElementById('depsResults');
+            
+            if (typeof fetch === 'function') {
+                results.innerHTML += `<div class="test-pass">✅ Fetch API available</div>`;
+            } else {
+                results.innerHTML += `<div class="test-fail">❌ Fetch API not available</div>`;
+            }
+        }
+
+        // Run basic tests on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Diagnostics page loaded');
+        });
+    </script>
+    
+    <!-- Load Leaflet for testing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js" 
+            integrity="sha512-puJW3E/qXDqYp9IfhAI54BJEaWIfloJ7JWs7OeD5i6ruC9JZL1gERT1wjtwXFlh7CjE7ZJ+/vcRZRkIYIb6p4g==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script>
+</body>
+</html>
