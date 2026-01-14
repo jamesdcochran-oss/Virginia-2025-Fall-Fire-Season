@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Diagnostics — Five Forks Fire Weather</title>
+  <style>body{font-family:system-ui, -apple-system, Roboto, Arial; padding:1rem; max-width:900px; margin:0 auto}</style>
+</head>
+<body>
+  <h1>Diagnostics</h1>
+  <div id="output"><p>Running checks...</p></div>
+  <script>
+    const out = document.getElementById('output');
+    function log(msg, ok=true) {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      p.style.color = ok ? 'green' : 'crimson';
+      out.appendChild(p);
+    }
+
+    // Check for computeEMC
+    if (window.computeEMC && typeof window.computeEMC === 'function') {
+      log('computeEMC() found on window — OK');
+    } else {
+      log('computeEMC() NOT found on window — fuel-calculator.js may be missing', false);
+    }
+
+    // Check counties.json fetch
+    fetch('data/counties.json', {cache: 'no-cache'})
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(j => {
+        log(`Loaded data/counties.json — ${Array.isArray(j) ? j.length + ' entries' : 'unexpected format'}`);
+        // Show first entry
+        if (Array.isArray(j) && j.length) {
+          log(`First county: ${j[0].name} (${j[0].lat}, ${j[0].lon})`);
+        }
+      })
+      .catch(err => {
+        log('Failed to fetch data/counties.json: ' + err, false);
+      });
+
+    // Check for map container
+    if (document.getElementById('map')) {
+      log('#map element present');
+    } else {
+      log('#map element NOT present', false);
+    }
+  </script>
+</body>
+</html>
