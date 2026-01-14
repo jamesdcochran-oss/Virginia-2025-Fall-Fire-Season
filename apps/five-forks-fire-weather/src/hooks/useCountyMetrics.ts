@@ -46,14 +46,26 @@ export function useCountyMetrics() {
         if (payload.eventType === 'INSERT') {
           setMetrics((prev) => [payload.new, ...prev]);
         } else if (payload.eventType === 'UPDATE') {
+          // Use id for matching if available, otherwise fall back to county name
           setMetrics((prev) =>
-            prev.map((metric) =>
-              metric.county === payload.new.county ? payload.new : metric
-            )
+            prev.map((metric) => {
+              if (payload.new.id && metric.id) {
+                return metric.id === payload.new.id ? payload.new : metric;
+              }
+              // Fallback: match by county name (latest record for that county)
+              return metric.county === payload.new.county ? payload.new : metric;
+            })
           );
         } else if (payload.eventType === 'DELETE') {
+          // Use id for matching if available, otherwise fall back to county name
           setMetrics((prev) =>
-            prev.filter((metric) => metric.county !== payload.old.county)
+            prev.filter((metric) => {
+              if (payload.old.id && metric.id) {
+                return metric.id !== payload.old.id;
+              }
+              // Fallback: filter by county name
+              return metric.county !== payload.old.county;
+            })
           );
         }
       });

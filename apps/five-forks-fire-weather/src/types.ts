@@ -18,6 +18,7 @@ export interface Hotspot {
  * County metrics data from Supabase realtime
  */
 export interface CountyMetric {
+  id?: string; // Optional ID field
   county: string;
   temp_c: number;
   rh: number;

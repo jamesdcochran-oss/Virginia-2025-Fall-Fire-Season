@@ -71,7 +71,7 @@ export function CountyListScreen() {
       <FlatList
         data={uniqueMetrics}
         renderItem={renderItem}
-        keyExtractor={(item) => item.county}
+        keyExtractor={(item) => item.id || item.county}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={renderEmpty}
       />
