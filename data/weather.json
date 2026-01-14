@@ -1,0 +1,56 @@
+{
+  "Amelia": {
+    "days_since_rain": 2,
+    "rainfall_inches": 0.12,
+    "temp_f": 52,
+    "min_rh": 38,
+    "wind_mph": 8,
+    "csi": 235,
+    "greenup": "Fall: 75% leaves off"
+  },
+  "Brunswick": {
+    "days_since_rain": 1,
+    "rainfall_inches": 0.50,
+    "temp_f": 54,
+    "min_rh": 40,
+    "wind_mph": 10,
+    "csi": 352,
+    "greenup": "Fall: 75% leaves off"
+  },
+  "Dinwiddie": {
+    "days_since_rain": 1,
+    "rainfall_inches": 0.45,
+    "temp_f": 53,
+    "min_rh": 39,
+    "wind_mph": 9,
+    "csi": 352,
+    "greenup": "Fall: 75% leaves off"
+  },
+  "Greensville": {
+    "days_since_rain": 1,
+    "rainfall_inches": 0.46,
+    "temp_f": 53,
+    "min_rh": 39,
+    "wind_mph": 9,
+    "csi": 352,
+    "greenup": "Fall: 75% leaves off"
+  },
+  "Nottoway": {
+    "days_since_rain": 2,
+    "rainfall_inches": 0.10,
+    "temp_f": 50,
+    "min_rh": 42,
+    "wind_mph": 7,
+    "csi": 231,
+    "greenup": "Fall: 75% leaves off"
+  },
+  "Prince George": {
+    "days_since_rain": 1,
+    "rainfall_inches": 0.47,
+    "temp_f": 54,
+    "min_rh": 39,
+    "wind_mph": 10,
+    "csi": 352,
+    "greenup": "Fall: 75% leaves off"
+  }
+}
