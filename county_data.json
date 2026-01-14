@@ -1,65 +1,63 @@
 {
-  "lastUpdated": "2026-01-13T18:46:08.854861Z",
+  "lastUpdated": "2026-01-14T01:20:30.460294Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 56,
-      "rh": 25,
-      "dewPoint": 21,
-      "wind": 9,
-      "gust": 16,
-      "dangerClass": 3
+      "temp": 49,
+      "rh": 29,
+      "dewPoint": 18,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 58,
-      "rh": 24,
-      "dewPoint": 21,
+      "temp": 45,
+      "rh": 42,
+      "dewPoint": 23,
+      "wind": 7,
+      "gust": 9,
+      "dangerClass": 1
+    },
+    {
+      "name": "Greensville",
+      "temp": 46,
+      "rh": 36,
+      "dewPoint": 20,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 1
+    },
+    {
+      "name": "Amelia",
+      "temp": 51,
+      "rh": 37,
+      "dewPoint": 26,
       "wind": 9,
       "gust": 12,
       "dangerClass": 2
     },
     {
-      "name": "Greensville",
-      "temp": 56,
-      "rh": 29,
-      "dewPoint": 24,
-      "wind": 10,
-      "gust": 13,
-      "dangerClass": 2
-    },
-    {
-      "name": "Amelia",
-      "temp": 60,
-      "rh": 30,
-      "dewPoint": 29,
-      "wind": 10,
-      "gust": 13,
-      "dangerClass": 2
-    },
-    {
       "name": "Prince George",
-      "temp": 56,
-      "rh": 25,
-      "dewPoint": 21,
-      "wind": 9,
-      "gust": 16,
-      "dangerClass": 3
+      "temp": 49,
+      "rh": 29,
+      "dewPoint": 18,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 60,
-      "rh": 30,
-      "dewPoint": 29,
-      "wind": 10,
-      "gust": 13,
+      "temp": 51,
+      "rh": 37,
+      "dewPoint": 26,
+      "wind": 9,
+      "gust": 12,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Dinwiddie: Low humidity (25%)",
-    "Brunswick: Low humidity (24%)",
-    "Greensville: Low humidity (29%)",
-    "Prince George: Low humidity (25%)"
+    "Dinwiddie: Low humidity (29%)",
+    "Prince George: Low humidity (29%)"
   ]
 }
