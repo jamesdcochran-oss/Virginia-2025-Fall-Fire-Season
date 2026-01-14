@@ -162,33 +162,38 @@
     if (config && config.forecast) {
       const results = runModel(config.initial1Hr, config.initial10Hr, config.forecast);
       
-      // Enhance results to match old API expectations
-      results.dailyResults = results.dailyResults.map((day, idx) => {
-        const emc = computeEMC(day.temp, day.rh);
-        const origForecast = config.forecast[idx] || {};
-        return {
-          label: origForecast.label || day.day,
-          temp: day.temp,
-          rh: day.rh,
-          wind: day.wind,
-          emc: Number(emc.toFixed(1)),
-          moisture1Hr: day.moisture1Hr,
-          moisture10Hr: day.moisture10Hr,
-          is1HrCritical: day.moisture1Hr <= 6,
-          is10HrCritical: day.moisture10Hr <= 8
-        };
-      });
+      // Create enhanced results object (non-mutating)
+      const enhancedResults = {
+        initial1hr: results.initial1hr,
+        initial10hr: results.initial10hr,
+        dailyResults: results.dailyResults.map((day, idx) => {
+          const emc = computeEMC(day.temp, day.rh);
+          const origForecast = config.forecast[idx] || {};
+          return {
+            label: origForecast.label || day.day,
+            temp: day.temp,
+            rh: day.rh,
+            wind: day.wind,
+            emc: Number(emc.toFixed(1)),
+            moisture1Hr: day.moisture1Hr,
+            moisture10Hr: day.moisture10Hr,
+            is1HrCritical: day.moisture1Hr <= 6,
+            is10HrCritical: day.moisture10Hr <= 8
+          };
+        }),
+        summary: { ...results.summary }
+      };
       
       // Add missing summary fields
-      const lastDay = results.dailyResults[results.dailyResults.length - 1];
-      results.summary.final1Hr = lastDay ? lastDay.moisture1Hr : 0;
-      results.summary.final10Hr = lastDay ? lastDay.moisture10Hr : 0;
+      const lastDay = enhancedResults.dailyResults[enhancedResults.dailyResults.length - 1];
+      enhancedResults.summary.final1Hr = lastDay ? lastDay.moisture1Hr : 0;
+      enhancedResults.summary.final10Hr = lastDay ? lastDay.moisture10Hr : 0;
       
       // Add firstCritical10HrDay
-      const critIndex10 = results.dailyResults.findIndex(r => r.is10HrCritical);
-      results.summary.firstCritical10HrDay = critIndex10 >= 0 ? results.dailyResults[critIndex10].label : null;
+      const critIndex10 = enhancedResults.dailyResults.findIndex(r => r.is10HrCritical);
+      enhancedResults.summary.firstCritical10HrDay = critIndex10 >= 0 ? enhancedResults.dailyResults[critIndex10].label : null;
       
-      return results;
+      return enhancedResults;
     }
     throw new Error('runFuelMoistureModel requires config with initial1Hr, initial10Hr, and forecast');
   };

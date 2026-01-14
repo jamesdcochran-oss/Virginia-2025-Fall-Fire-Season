@@ -27,11 +27,14 @@ async function loadCountyList() {
 }
 
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   initMap();
-  await loadCountyList();
-  loadCountyData();
+  
+  // Load county list with proper error handling
+  loadCountyList()
+    .then(() => loadCountyData())
+    .catch(err => console.error('Initialization error:', err));
 
   // Event listeners
   document.getElementById('themeToggle').addEventListener('click', toggleTheme);
