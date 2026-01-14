@@ -291,7 +291,8 @@
             results.innerHTML = '';
             
             if (typeof L !== 'undefined') {
-                results.innerHTML += `<div class="test-pass">✅ Leaflet.js loaded (version ${L.version})</div>`;
+                const version = String(L.version).replace(/[<>&"']/g, ''); // Sanitize version string
+                results.innerHTML += `<div class="test-pass">✅ Leaflet.js loaded (version ${version})</div>`;
             } else {
                 results.innerHTML += `<div class="test-fail">❌ Leaflet.js not loaded</div>`;
             }

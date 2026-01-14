@@ -162,11 +162,18 @@ async function loadCountyData() {
     renderCountyCards(data.counties);
     updateTimestamp(data.lastUpdated);
     
-    const countiesWithCoords = data.counties.map(county => ({
-      ...county,
-      lat: COUNTIES.find(c => c.name === county.name).lat,
-      lon: COUNTIES.find(c => c.name === county.name).lon
-    }));
+    const countiesWithCoords = data.counties.map(county => {
+      const countyData = COUNTIES.find(c => c.name === county.name);
+      if (!countyData) {
+        console.warn(`County ${county.name} not found in COUNTIES list, using defaults`);
+        return { ...county, lat: 37.2, lon: -77.7 }; // Default to region center
+      }
+      return {
+        ...county,
+        lat: countyData.lat,
+        lon: countyData.lon
+      };
+    });
     addCountyMarkers(countiesWithCoords);
     
     loadFIRMSData();
@@ -377,12 +384,12 @@ function runModelFromUI() {
       temp: parseFloat(document.getElementById(`temp_${i}`).value),
       rh: parseFloat(document.getElementById(`rh_${i}`).value),
       wind: parseFloat(document.getElementById(`wind_${i}`).value),
-      dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
+      hours: parseFloat(document.getElementById(`hours_${i}`).value)
     });
   }
 
-  // Run the fuel moisture model
-  const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
+  // Run the fuel moisture model (using runModel from fuel-calculator.js)
+  const results = runModel(initial1Hr, initial10Hr, forecast);
 
   // Display results
   displayResults(results);
@@ -506,7 +513,7 @@ function renderFiveForksForecast() {
   if (csiNoteEl) csiNoteEl.textContent = fiveForksForecast.csiNote;
 
   // Build class table
-  buildForecastTable(
+  buildFiveForksForecastTable(
     'ff-class-table',
     ['County','Thu 18 Local','Thu 18 DOF','Fri 19 Local','Fri 19 DOF','Sat 20 Local','Sat 20 DOF'],
     fiveForksForecast.classes.map(c => [
@@ -515,7 +522,7 @@ function renderFiveForksForecast() {
   );
 
   // Build ROS table
-  buildForecastTable(
+  buildFiveForksForecastTable(
     'ff-ros-table',
     ['County','Thu ROS (ft/hr)','Thu Peak','Fri ROS (ft/hr)','Fri Peak','Sat ROS (ft/hr)','Sat Peak'],
     fiveForksForecast.ros.map(c => [
