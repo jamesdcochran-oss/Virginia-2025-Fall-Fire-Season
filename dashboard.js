@@ -1,34 +1,69 @@
 // Five Forks Fire Weather Dashboard - Main Script
 
-// County data with centroids for NWS API
-const COUNTIES = [
+// County list loader (load data/counties.json with fallback to embedded list)
+let COUNTIES = [
   { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
-  { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
+  { name: 'Brunswick', lat: 36.7168, lon: -77.85 },
   { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
-  { name: 'Amelia', lat: 37.3500, lon: -77.9700 },
+  { name: 'Amelia', lat: 37.35, lon: -77.97 },
   { name: 'Prince George', lat: 37.1835, lon: -77.2831 },
-  { name: 'Nottoway', lat: 37.1000, lon: -78.0700 }
+  { name: 'Nottoway', lat: 37.1, lon: -78.07 }
 ];
 
-// Initialize on DOM ready
+function loadCountyList(retries = 0) {
+  return fetch('data/counties.json', { cache: 'no-cache' })
+    .then(r => {
+      if (!r.ok) throw new Error('Failed to fetch counties.json');
+      return r.json();
+    })
+    .then(json => {
+      if (Array.isArray(json) && json.length) {
+        COUNTIES = json;
+      }
+      return COUNTIES;
+    })
+    .catch(err => {
+      console.warn('Could not load counties.json, using fallback list:', err);
+      // exponential backoff retry (up to 3 attempts)
+      if (retries < 3) {
+        const delay = Math.pow(2, retries) * 1000;
+        return new Promise(resolve => setTimeout(resolve, delay))
+          .then(() => loadCountyList(retries + 1));
+      }
+      return COUNTIES;
+    });
+}
+
+// Example init: ensure counties are loaded before calling loadCountyData
 document.addEventListener('DOMContentLoaded', function() {
   initTheme();
   initMap();
-  loadCountyData();
+  loadCountyList().then(() => {
+    loadCountyData();
+  });
 
-  // Event listeners
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('refreshBtn').addEventListener('click', refreshData);
-  document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
-  document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) refreshBtn.addEventListener('click', refreshData);
+  
+  // Fuel calculator modal controls
+  const fuelCalcBtn = document.getElementById('fuelCalcBtn');
+  if (fuelCalcBtn) fuelCalcBtn.addEventListener('click', openFuelCalcModal);
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeFuelCalcModal);
   
   // Close modal when clicking backdrop
-  document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFuelCalcModal();
-  });
+  const fuelCalcModal = document.getElementById('fuelCalcModal');
+  if (fuelCalcModal) {
+    fuelCalcModal.addEventListener('click', function(e) {
+      if (e.target === this) closeFuelCalcModal();
+    });
+  }
   
   // Run Model button
-  document.getElementById('runModelBtn').addEventListener('click', runModelFromUI);
+  const runModelBtn = document.getElementById('runModelBtn');
+  if (runModelBtn) runModelBtn.addEventListener('click', runModelFromUI);
 });
 
 // Theme Management
@@ -48,13 +83,32 @@ function toggleTheme() {
 let map;
 let countyLayerGroup;
 
+// Tile fallback logic (attach to map creation; example placeholder - keep existing tile code but add error handler)
+function attachTileFallback(tileLayer) {
+  let failedTiles = 0;
+  tileLayer.on('tileerror', function() {
+    failedTiles++;
+    if (failedTiles > 10) {
+      console.warn('Primary tiles failing, switching to fallback provider');
+      // replace tile layer with fallback
+      const fallback = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      });
+      tileLayer._map.eachLayer(layer => { if (layer === tileLayer) tileLayer._map.removeLayer(layer); });
+      fallback.addTo(tileLayer._map);
+    }
+  });
+}
+
 function initMap() {
   map = L.map('map').setView([37.2, -77.7], 8);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '© CartoDB',
     maxZoom: 19
   }).addTo(map);
+  
+  attachTileFallback(tileLayer);
 
   countyLayerGroup = L.layerGroup().addTo(map);
 }

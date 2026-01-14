@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Diagnostics - Five Forks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .check-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-left: 4px solid #ccc;
+            border-radius: 4px;
+        }
+        .check-item.success {
+            border-left-color: #4caf50;
+            background: #f1f8e9;
+        }
+        .check-item.error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .check-item.warning {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+        .check-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .check-result {
+            font-size: 0.95em;
+            color: #666;
+        }
+        .run-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        .run-btn:hover {
+            background: #1565c0;
+        }
+        .run-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .back-link {
+            margin-top: 30px;
+            display: inline-block;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Dashboard Diagnostics</h1>
+        <p class="subtitle">Five Forks Fire Weather Dashboard - System Checks</p>
+        
+        <button class="run-btn" id="runChecks">Run Diagnostics</button>
+        
+        <div id="results"></div>
+
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <script src="fuel-calculator.js"></script>
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const runBtn = document.getElementById('runChecks');
+
+        function addCheck(name, status, message) {
+            const checkItem = document.createElement('div');
+            checkItem.className = `check-item ${status}`;
+            checkItem.innerHTML = `
+                <div class="check-name">${status === 'success' ? '✅' : status === 'error' ? '❌' : '⚠️'} ${name}</div>
+                <div class="check-result">${message}</div>
+            `;
+            resultsDiv.appendChild(checkItem);
+        }
+
+        async function runDiagnostics() {
+            resultsDiv.innerHTML = '';
+            runBtn.disabled = true;
+            runBtn.textContent = 'Running...';
+
+            // Check 1: Fuel Calculator Functions
+            try {
+                if (typeof window.computeEMC === 'function') {
+                    const testEMC = window.computeEMC(75, 30);
+                    if (typeof testEMC === 'number' && testEMC > 0) {
+                        addCheck('Fuel Calculator - computeEMC', 'success', `Function available and working. Test result: ${testEMC}%`);
+                    } else {
+                        addCheck('Fuel Calculator - computeEMC', 'warning', 'Function exists but returned unexpected value');
+                    }
+                } else {
+                    addCheck('Fuel Calculator - computeEMC', 'error', 'window.computeEMC function not found');
+                }
+            } catch (err) {
+                addCheck('Fuel Calculator - computeEMC', 'error', `Error: ${err.message}`);
+            }
+
+            try {
+                if (typeof window.stepMoisture === 'function') {
+                    const testStep = window.stepMoisture(10, 6, 12, 1);
+                    if (typeof testStep === 'number') {
+                        addCheck('Fuel Calculator - stepMoisture', 'success', `Function available and working. Test result: ${testStep}%`);
+                    } else {
+                        addCheck('Fuel Calculator - stepMoisture', 'warning', 'Function exists but returned unexpected value');
+                    }
+                } else {
+                    addCheck('Fuel Calculator - stepMoisture', 'error', 'window.stepMoisture function not found');
+                }
+            } catch (err) {
+                addCheck('Fuel Calculator - stepMoisture', 'error', `Error: ${err.message}`);
+            }
+
+            try {
+                if (typeof window.runModel === 'function') {
+                    const testModel = window.runModel(8, 10, [{temp: 75, rh: 30, wind: 10, hours: 12}]);
+                    if (testModel && testModel.dailyResults && Array.isArray(testModel.dailyResults)) {
+                        addCheck('Fuel Calculator - runModel', 'success', `Function available and working. Generated ${testModel.dailyResults.length} day(s) of results`);
+                    } else {
+                        addCheck('Fuel Calculator - runModel', 'warning', 'Function exists but returned unexpected structure');
+                    }
+                } else {
+                    addCheck('Fuel Calculator - runModel', 'error', 'window.runModel function not found');
+                }
+            } catch (err) {
+                addCheck('Fuel Calculator - runModel', 'error', `Error: ${err.message}`);
+            }
+
+            // Check 2: Counties Data
+            try {
+                const response = await fetch('data/counties.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                        const hasRequiredFields = data.every(c => c.name && typeof c.lat === 'number' && typeof c.lon === 'number');
+                        if (hasRequiredFields) {
+                            addCheck('Counties Data', 'success', `Successfully loaded ${data.length} counties with valid structure`);
+                        } else {
+                            addCheck('Counties Data', 'warning', 'Counties data loaded but some entries are missing required fields');
+                        }
+                    } else {
+                        addCheck('Counties Data', 'error', 'counties.json loaded but is empty or not an array');
+                    }
+                } else {
+                    addCheck('Counties Data', 'error', `Failed to fetch counties.json (HTTP ${response.status})`);
+                }
+            } catch (err) {
+                addCheck('Counties Data', 'error', `Error fetching counties.json: ${err.message}`);
+            }
+
+            // Check 3: County Weather Data
+            try {
+                const response = await fetch('county_data.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data && data.counties && Array.isArray(data.counties)) {
+                        addCheck('County Weather Data', 'success', `Successfully loaded weather data for ${data.counties.length} counties. Last updated: ${data.lastUpdated || 'N/A'}`);
+                    } else {
+                        addCheck('County Weather Data', 'warning', 'county_data.json loaded but has unexpected structure');
+                    }
+                } else {
+                    addCheck('County Weather Data', 'warning', `county_data.json not available (HTTP ${response.status}). This is expected if data hasn't been generated yet.`);
+                }
+            } catch (err) {
+                addCheck('County Weather Data', 'warning', `county_data.json not available: ${err.message}`);
+            }
+
+            // Check 4: Dashboard Script
+            try {
+                const response = await fetch('dashboard.js');
+                if (response.ok) {
+                    const content = await response.text();
+                    const hasLoadCountyList = content.includes('loadCountyList');
+                    const hasTileFallback = content.includes('attachTileFallback');
+                    if (hasLoadCountyList && hasTileFallback) {
+                        addCheck('Dashboard Script', 'success', 'dashboard.js includes county loader and tile fallback logic');
+                    } else {
+                        addCheck('Dashboard Script', 'warning', `dashboard.js loaded but missing some features (loadCountyList: ${hasLoadCountyList}, tileFallback: ${hasTileFallback})`);
+                    }
+                } else {
+                    addCheck('Dashboard Script', 'error', `Failed to load dashboard.js (HTTP ${response.status})`);
+                }
+            } catch (err) {
+                addCheck('Dashboard Script', 'error', `Error loading dashboard.js: ${err.message}`);
+            }
+
+            // Check 5: Required HTML files
+            const htmlFiles = ['index.html', 'briefs/index.html'];
+            for (const file of htmlFiles) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        addCheck(`HTML File - ${file}`, 'success', 'File exists and is accessible');
+                    } else {
+                        addCheck(`HTML File - ${file}`, 'error', `HTTP ${response.status}`);
+                    }
+                } catch (err) {
+                    addCheck(`HTML File - ${file}`, 'error', `Error: ${err.message}`);
+                }
+            }
+
+            runBtn.disabled = false;
+            runBtn.textContent = 'Run Diagnostics';
+        }
+
+        runBtn.addEventListener('click', runDiagnostics);
+
+        // Auto-run on page load
+        window.addEventListener('load', () => {
+            setTimeout(runDiagnostics, 500);
+        });
+    </script>
+</body>
+</html>
