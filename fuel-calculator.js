@@ -200,9 +200,19 @@ function estimateInitialMoisture(currentRH, currentTemp) {
   };
 }
 
-// Export functions for use in main dashboard
+// Export functions for use in main dashboard and test pages
+// Expose to window object for browser environment (required by fuel-calculator-test.html)
+if (typeof window !== 'undefined') {
+  window.computeEMC = computeEMC;
+  window.stepMoisture = stepMoisture;
+  window.runModel = runFuelMoistureModel; // Alias for test page compatibility
+  window.runFuelMoistureModel = runFuelMoistureModel;
+  window.effectiveDryingHours = effectiveDryingHours;
+  window.estimateInitialMoisture = estimateInitialMoisture;
+}
+
+// Export functions for Node.js environment (for testing)
 if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment (for testing)
   module.exports = {
     computeEMC,
     stepMoisture,

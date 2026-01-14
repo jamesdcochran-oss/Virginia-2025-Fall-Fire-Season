@@ -1,7 +1,7 @@
 // Five Forks Fire Weather Dashboard - Main Script
 
-// County data with centroids for NWS API
-const COUNTIES = [
+// Default fallback county data (minimal Five Forks area counties)
+const FALLBACK_COUNTIES = [
   { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
   { name: 'Brunswick', lat: 36.7168, lon: -77.8500 },
   { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
@@ -10,25 +10,115 @@ const COUNTIES = [
   { name: 'Nottoway', lat: 37.1000, lon: -78.0700 }
 ];
 
+// Global county list (loaded from data/counties.json or falls back to FALLBACK_COUNTIES)
+let COUNTIES = [];
+
+// Configuration
+const CONFIG = {
+  COUNTY_JSON_URL: 'data/counties.json',
+  MAX_RETRY_ATTEMPTS: 3,
+  RETRY_DELAY_MS: 1000,
+  PRIMARY_TILE_URL: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  PRIMARY_TILE_ATTRIBUTION: '© CartoDB',
+  FALLBACK_TILE_URL: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  FALLBACK_TILE_ATTRIBUTION: '© OpenStreetMap contributors'
+};
+
+/**
+ * Load county list from data/counties.json
+ * Falls back to FALLBACK_COUNTIES if fetch fails
+ * @returns {Promise<Array>} County list
+ */
+async function loadCountyList() {
+  try {
+    console.log('Loading county list from data/counties.json...');
+    const response = await fetch(CONFIG.COUNTY_JSON_URL);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.counties || !Array.isArray(data.counties)) {
+      throw new Error('Invalid counties.json format: missing counties array');
+    }
+    
+    COUNTIES = data.counties;
+    console.log(`✓ Loaded ${COUNTIES.length} counties from data/counties.json`);
+    return COUNTIES;
+    
+  } catch (error) {
+    console.warn('⚠️ Failed to load data/counties.json:', error.message);
+    console.log('→ Using fallback county list');
+    COUNTIES = FALLBACK_COUNTIES;
+    
+    // Show user-friendly warning
+    const countyGrid = document.getElementById('countyGrid');
+    if (countyGrid) {
+      const warning = document.createElement('div');
+      warning.className = 'info-message';
+      warning.innerHTML = '⚠️ Using limited county list. <button id="retryCountiesBtn" class="btn-link">Retry</button>';
+      countyGrid.parentNode.insertBefore(warning, countyGrid);
+      
+      // Add retry handler
+      const retryBtn = document.getElementById('retryCountiesBtn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', async () => {
+          warning.remove();
+          await loadCountyList();
+          await loadCountyData();
+        });
+      }
+    }
+    
+    return COUNTIES;
+  }
+}
+
 // Initialize on DOM ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   initTheme();
   initMap();
-  loadCountyData();
+  
+  // Load county list first, then load county data
+  await loadCountyList();
+  await loadCountyData();
 
-  // Event listeners
-  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-  document.getElementById('refreshBtn').addEventListener('click', refreshData);
-  document.getElementById('fuelCalcBtn').addEventListener('click', openFuelCalcModal);
-  document.getElementById('modalCloseBtn').addEventListener('click', closeFuelCalcModal);
+  // Event listeners with defensive null-checks
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+  
+  const refreshBtn = document.getElementById('refreshBtn');
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', refreshData);
+  }
+  
+  const fuelCalcBtn = document.getElementById('fuelCalcBtn');
+  if (fuelCalcBtn) {
+    fuelCalcBtn.addEventListener('click', openFuelCalcModal);
+  }
+  
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeFuelCalcModal);
+  }
   
   // Close modal when clicking backdrop
-  document.getElementById('fuelCalcModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFuelCalcModal();
-  });
+  const fuelCalcModal = document.getElementById('fuelCalcModal');
+  if (fuelCalcModal) {
+    fuelCalcModal.addEventListener('click', function(e) {
+      if (e.target === this) closeFuelCalcModal();
+    });
+  }
   
   // Run Model button
-  document.getElementById('runModelBtn').addEventListener('click', runModelFromUI);
+  const runModelBtn = document.getElementById('runModelBtn');
+  if (runModelBtn) {
+    runModelBtn.addEventListener('click', runModelFromUI);
+  }
 });
 
 // Theme Management
@@ -47,16 +137,50 @@ function toggleTheme() {
 // Map Initialization
 let map;
 let countyLayerGroup;
+let currentTileLayer;
+let usingFallbackTiles = false;
 
 function initMap() {
   map = L.map('map').setView([37.2, -77.7], 8);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© CartoDB',
+  // Initialize primary tile layer
+  currentTileLayer = L.tileLayer(CONFIG.PRIMARY_TILE_URL, {
+    attribution: CONFIG.PRIMARY_TILE_ATTRIBUTION,
+    maxZoom: 19
+  });
+  
+  // Handle tile loading errors and switch to fallback
+  currentTileLayer.on('tileerror', function(error) {
+    if (!usingFallbackTiles) {
+      console.warn('⚠️ Primary tile provider failed, switching to fallback');
+      switchToFallbackTiles();
+    }
+  });
+  
+  currentTileLayer.addTo(map);
+  countyLayerGroup = L.layerGroup().addTo(map);
+}
+
+/**
+ * Switch map to fallback tile provider
+ */
+function switchToFallbackTiles() {
+  if (usingFallbackTiles) return;
+  
+  usingFallbackTiles = true;
+  
+  // Remove current tile layer
+  if (currentTileLayer) {
+    map.removeLayer(currentTileLayer);
+  }
+  
+  // Add fallback tile layer
+  currentTileLayer = L.tileLayer(CONFIG.FALLBACK_TILE_URL, {
+    attribution: CONFIG.FALLBACK_TILE_ATTRIBUTION,
     maxZoom: 19
   }).addTo(map);
-
-  countyLayerGroup = L.layerGroup().addTo(map);
+  
+  console.log('✓ Switched to fallback tile provider');
 }
 
 function getDangerColor(dangerClass) {
@@ -111,6 +235,11 @@ function addCountyMarkers(counties) {
 // Load County Weather Data from pre-generated JSON
 async function loadCountyData() {
   const countyGrid = document.getElementById('countyGrid');
+  if (!countyGrid) {
+    console.error('County grid element not found');
+    return;
+  }
+  
   countyGrid.innerHTML = '<div class="loading">Loading county data...</div>';
   
   try {
@@ -123,28 +252,46 @@ async function loadCountyData() {
     renderCountyCards(data.counties);
     updateTimestamp(data.lastUpdated);
     
-    const countiesWithCoords = data.counties.map(county => ({
-      ...county,
-      lat: COUNTIES.find(c => c.name === county.name).lat,
-      lon: COUNTIES.find(c => c.name === county.name).lon
-    }));
+    // Match counties with coordinates from COUNTIES list
+    const countiesWithCoords = data.counties.map(county => {
+      const countyInfo = COUNTIES.find(c => c.name === county.name);
+      if (!countyInfo) {
+        console.warn(`⚠️ No coordinates found for ${county.name}`);
+        return null;
+      }
+      return {
+        ...county,
+        lat: countyInfo.lat,
+        lon: countyInfo.lon
+      };
+    }).filter(c => c !== null);
+    
     addCountyMarkers(countiesWithCoords);
     
     loadFIRMSData();
     
   } catch (error) {
     console.error('Error loading county data:', error);
-    countyGrid.innerHTML = '<div class="error">⚠️ Unable to load county data. Please refresh.</div>';
+    countyGrid.innerHTML = `
+      <div class="error">
+        ⚠️ Unable to load county data. 
+        <button id="retryDataBtn" class="btn-link">Retry</button>
+      </div>`;
+    
+    // Add retry button handler
+    const retryBtn = document.getElementById('retryDataBtn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', () => loadCountyData());
+    }
   }
 }
 
 // Load FIRMS fire hotspot data from pre-generated JSON
-// Load FIRMS fire hotspot data with enhanced satellite info and color coding
 async function loadFIRMSData() {
     try {
         const response = await fetch('firms_data.json');
         if (!response.ok) {
-            console.warn('FIRMS data unavailable');
+            console.warn('⚠️ FIRMS data unavailable (HTTP ' + response.status + ')');
             return;
         }
         const data = await response.json();
@@ -200,7 +347,7 @@ async function loadFIRMSData() {
             console.log('✓ No active fire hotspots detected in Virginia');
         }
     } catch (error) {
-        console.warn('Could not load FIRMS data:', error);
+        console.warn('⚠️ Could not load FIRMS data:', error.message);
     }
 }
 
@@ -285,30 +432,66 @@ function updateTimestamp(timestamp) {
   });
 }
 
+/**
+ * Refresh county data with exponential backoff on failure
+ */
 async function refreshData() {
   const refreshBtn = document.getElementById('refreshBtn');
-  refreshBtn.style.animation = 'spin 1s linear';
-  await loadCountyData();
-  setTimeout(() => {
-    refreshBtn.style.animation = '';
-  }, 1000);
+  if (refreshBtn) {
+    refreshBtn.style.animation = 'spin 1s linear';
+  }
+  
+  let attempts = 0;
+  const maxAttempts = CONFIG.MAX_RETRY_ATTEMPTS;
+  
+  while (attempts < maxAttempts) {
+    try {
+      await loadCountyData();
+      break; // Success, exit retry loop
+    } catch (error) {
+      attempts++;
+      console.warn(`⚠️ Refresh attempt ${attempts}/${maxAttempts} failed:`, error.message);
+      
+      if (attempts < maxAttempts) {
+        // Exponential backoff: 1s, 2s, 4s, etc.
+        const delay = CONFIG.RETRY_DELAY_MS * Math.pow(2, attempts - 1);
+        console.log(`→ Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  
+  if (refreshBtn) {
+    setTimeout(() => {
+      refreshBtn.style.animation = '';
+    }, 1000);
+  }
 }
 
 // Fuel Calculator Modal Controls
 function openFuelCalcModal() {
   const modal = document.getElementById('fuelCalcModal');
-  modal.style.display = 'flex';
-  buildFuelCalcForecastTable();
+  if (modal) {
+    modal.style.display = 'flex';
+    buildFuelCalcForecastTable();
+  }
 }
 
 function closeFuelCalcModal() {
   const modal = document.getElementById('fuelCalcModal');
-  modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+  }
 }
 
 // Build forecast table rows (5 days)
 function buildFuelCalcForecastTable() {
   const tbody = document.getElementById('forecastDays');
+  if (!tbody) {
+    console.warn('Forecast table body not found');
+    return;
+  }
+  
   tbody.innerHTML = '';
 
   for (let i = 1; i <= 5; i++) {
@@ -326,27 +509,57 @@ function buildFuelCalcForecastTable() {
 
 // Run Model from UI
 function runModelFromUI() {
-  // Get initial conditions
-  const initial1Hr = parseFloat(document.getElementById('initial1hr').value);
-  const initial10Hr = parseFloat(document.getElementById('initial10hr').value);
+  try {
+    // Check if fuel calculator functions are available
+    if (typeof runFuelMoistureModel !== 'function') {
+      console.error('Fuel calculator not loaded');
+      alert('Error: Fuel calculator module not loaded. Please refresh the page.');
+      return;
+    }
+    
+    // Get initial conditions
+    const initial1HrInput = document.getElementById('initial1hr');
+    const initial10HrInput = document.getElementById('initial10hr');
+    
+    if (!initial1HrInput || !initial10HrInput) {
+      console.error('Initial moisture inputs not found');
+      return;
+    }
+    
+    const initial1Hr = parseFloat(initial1HrInput.value);
+    const initial10Hr = parseFloat(initial10HrInput.value);
 
-  // Collect forecast data
-  const forecast = [];
-  for (let i = 1; i <= 5; i++) {
-    forecast.push({
-      label: `Day ${i}`,
-      temp: parseFloat(document.getElementById(`temp_${i}`).value),
-      rh: parseFloat(document.getElementById(`rh_${i}`).value),
-      wind: parseFloat(document.getElementById(`wind_${i}`).value),
-      dryingHours: parseFloat(document.getElementById(`hours_${i}`).value)
-    });
+    // Collect forecast data
+    const forecast = [];
+    for (let i = 1; i <= 5; i++) {
+      const tempInput = document.getElementById(`temp_${i}`);
+      const rhInput = document.getElementById(`rh_${i}`);
+      const windInput = document.getElementById(`wind_${i}`);
+      const hoursInput = document.getElementById(`hours_${i}`);
+      
+      if (!tempInput || !rhInput || !windInput || !hoursInput) {
+        console.warn(`Missing input for day ${i}`);
+        continue;
+      }
+      
+      forecast.push({
+        label: `Day ${i}`,
+        temp: parseFloat(tempInput.value),
+        rh: parseFloat(rhInput.value),
+        wind: parseFloat(windInput.value),
+        dryingHours: parseFloat(hoursInput.value)
+      });
+    }
+
+    // Run the fuel moisture model
+    const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
+
+    // Display results
+    displayResults(results);
+  } catch (error) {
+    console.error('Error running fuel moisture model:', error);
+    alert('Error calculating fuel moisture. Please check your inputs and try again.');
   }
-
-  // Run the fuel moisture model
-  const results = runFuelMoistureModel({ initial1Hr, initial10Hr, forecast });
-
-  // Display results
-  displayResults(results);
 }
 
 // Display calculation results
@@ -354,25 +567,34 @@ function displayResults(results) {
   const resultsSection = document.getElementById('resultsSection');
   const resultsTable = document.getElementById('resultsTable');
   const warningBox = document.getElementById('warningMessage');
+  
+  if (!resultsSection || !resultsTable || !warningBox) {
+    console.error('Results display elements not found');
+    return;
+  }
 
   // Build results table
   let html = '<table style="width:100%; border-collapse: collapse;">';
   html += '<tr><th>Day</th><th>1-hr FM (%)</th><th>10-hr FM (%)</th><th>Status</th></tr>';
 
   let criticalDays = [];
-  results.dailyResults.forEach((day, i) => {
-    const status1hr = day.moisture1Hr <= 6 ? '⚠️ Critical' : day.moisture1Hr <= 8 ? '⚡ Elevated' : '✓ Normal';
-    const status10hr = day.moisture10Hr <= 8 ? '⚠️ Critical' : day.moisture10Hr <= 10 ? '⚡ Elevated' : '✓ Normal';
-    const worstStatus = (day.moisture1Hr <= 6 || day.moisture10Hr <= 8) ? 'Critical' : 'Normal';
-    if (worstStatus === 'Critical') criticalDays.push(i + 1);
+  
+  if (results.dailyResults && Array.isArray(results.dailyResults)) {
+    results.dailyResults.forEach((day, i) => {
+      const status1hr = day.moisture1Hr <= 6 ? '⚠️ Critical' : day.moisture1Hr <= 8 ? '⚡ Elevated' : '✓ Normal';
+      const status10hr = day.moisture10Hr <= 8 ? '⚠️ Critical' : day.moisture10Hr <= 10 ? '⚡ Elevated' : '✓ Normal';
+      const worstStatus = (day.moisture1Hr <= 6 || day.moisture10Hr <= 8) ? 'Critical' : 'Normal';
+      if (worstStatus === 'Critical') criticalDays.push(i + 1);
 
-    html += `<tr>`;
-    html += `<td>${day.label}</td>`;
-    html += `<td>${day.moisture1Hr}% ${status1hr}</td>`;
-    html += `<td>${day.moisture10Hr}% ${status10hr}</td>`;
-    html += `<td>${worstStatus}</td>`;
-    html += `</tr>`;
-  });
+      html += `<tr>`;
+      html += `<td>${day.label}</td>`;
+      html += `<td>${day.moisture1Hr}% ${status1hr}</td>`;
+      html += `<td>${day.moisture10Hr}% ${status10hr}</td>`;
+      html += `<td>${worstStatus}</td>`;
+      html += `</tr>`;
+    });
+  }
+  
   html += '</table>';
   resultsTable.innerHTML = html;
 

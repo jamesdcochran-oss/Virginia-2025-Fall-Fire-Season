@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Diagnostics - Five Forks Fire Weather</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #4ECDC4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #999;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+        
+        .check-section {
+            background: #333;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid #3a3a3a;
+        }
+        
+        .check-section h2 {
+            color: #FFA726;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        
+        .status-icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+        
+        .status-pass { color: #4CAF50; }
+        .status-fail { color: #F44336; }
+        .status-warn { color: #FFA726; }
+        .status-loading { color: #999; }
+        
+        .check-label {
+            flex: 1;
+            font-weight: 500;
+        }
+        
+        .check-detail {
+            color: #999;
+            font-size: 0.9em;
+            margin-left: 45px;
+            margin-top: 5px;
+        }
+        
+        .run-btn {
+            background: #4ECDC4;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .run-btn:hover {
+            background: #44B3AA;
+            transform: translateY(-2px);
+        }
+        
+        .run-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #4ECDC4;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .summary {
+            background: #1e1e1e;
+            border-left: 4px solid #4ECDC4;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 6px;
+        }
+        
+        .summary h3 {
+            color: #4ECDC4;
+            margin-bottom: 10px;
+        }
+        
+        code {
+            background: #1a1a1a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #4ECDC4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Dashboard Diagnostics</h1>
+        <p class="subtitle">System health check for Five Forks Fire Weather Dashboard</p>
+        
+        <button class="run-btn" id="runDiagnostics">Run All Checks</button>
+        
+        <div class="check-section">
+            <h2>Core Assets</h2>
+            <div id="assetChecks">
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">fuel-calculator.js loaded</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">data/counties.json accessible</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">dashboard.js loaded</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">Leaflet.js (mapping library)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="check-section">
+            <h2>Fuel Calculator Functions</h2>
+            <div id="calculatorChecks">
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">window.computeEMC() available</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">window.stepMoisture() available</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">window.runFuelMoistureModel() available</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="check-section">
+            <h2>Data Sources</h2>
+            <div id="dataChecks">
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">county_data.json</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">firms_data.json</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="check-section">
+            <h2>Map Tile Providers</h2>
+            <div id="tileChecks">
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">Primary tile provider (CartoDB)</span>
+                </div>
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">Fallback tile provider (OpenStreetMap)</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="check-section">
+            <h2>File Timestamps</h2>
+            <div id="timestampChecks">
+                <div class="check-item">
+                    <span class="status-icon status-loading">⏳</span>
+                    <span class="check-label">Last data update</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary" id="diagnosticSummary" style="display: none;">
+            <h3>Summary</h3>
+            <p id="summaryText"></p>
+        </div>
+        
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <script src="fuel-calculator.js"></script>
+    <script>
+        let checksRun = false;
+        
+        document.getElementById('runDiagnostics').addEventListener('click', runAllChecks);
+        
+        async function runAllChecks() {
+            const btn = document.getElementById('runDiagnostics');
+            btn.disabled = true;
+            btn.textContent = 'Running...';
+            
+            let passCount = 0;
+            let failCount = 0;
+            let warnCount = 0;
+            
+            // Check 1: Fuel Calculator Script
+            const calcLoaded = typeof window.computeEMC === 'function';
+            updateCheck('assetChecks', 0, calcLoaded, 
+                'fuel-calculator.js loaded', 
+                calcLoaded ? 'Functions exported to window' : 'Missing or not exported');
+            if (calcLoaded) passCount++; else failCount++;
+            
+            // Check 2: Counties JSON
+            const countiesResult = await checkFile('data/counties.json');
+            updateCheck('assetChecks', 1, countiesResult.ok, 
+                'data/counties.json accessible',
+                countiesResult.message);
+            if (countiesResult.ok) passCount++; else failCount++;
+            
+            // Check 3: Dashboard.js
+            const dashboardLoaded = typeof window.loadCountyList === 'function' || document.querySelector('script[src="dashboard.js"]') !== null;
+            updateCheck('assetChecks', 2, dashboardLoaded,
+                'dashboard.js loaded',
+                dashboardLoaded ? 'Script present' : 'Script not found');
+            if (dashboardLoaded) passCount++; else failCount++;
+            
+            // Check 4: Leaflet
+            const leafletLoaded = typeof L !== 'undefined';
+            updateCheck('assetChecks', 3, leafletLoaded,
+                'Leaflet.js (mapping library)',
+                leafletLoaded ? 'Version ' + (L.version || 'unknown') : 'Not loaded');
+            if (leafletLoaded) passCount++; else failCount++;
+            
+            // Check 5-7: Calculator functions
+            updateCheck('calculatorChecks', 0, typeof window.computeEMC === 'function',
+                'window.computeEMC() available',
+                typeof window.computeEMC === 'function' ? 'Ready' : 'Not found');
+            if (typeof window.computeEMC === 'function') passCount++; else failCount++;
+            
+            updateCheck('calculatorChecks', 1, typeof window.stepMoisture === 'function',
+                'window.stepMoisture() available',
+                typeof window.stepMoisture === 'function' ? 'Ready' : 'Not found');
+            if (typeof window.stepMoisture === 'function') passCount++; else failCount++;
+            
+            updateCheck('calculatorChecks', 2, typeof window.runFuelMoistureModel === 'function',
+                'window.runFuelMoistureModel() available',
+                typeof window.runFuelMoistureModel === 'function' ? 'Ready' : 'Not found');
+            if (typeof window.runFuelMoistureModel === 'function') passCount++; else failCount++;
+            
+            // Check 8-9: Data files
+            const countyDataResult = await checkFile('county_data.json');
+            updateCheck('dataChecks', 0, countyDataResult.ok,
+                'county_data.json',
+                countyDataResult.message);
+            if (countyDataResult.ok) passCount++; else warnCount++;
+            
+            const firmsDataResult = await checkFile('firms_data.json');
+            updateCheck('dataChecks', 1, firmsDataResult.ok,
+                'firms_data.json',
+                firmsDataResult.message);
+            if (firmsDataResult.ok) passCount++; else warnCount++;
+            
+            // Check 10-11: Tile providers
+            const primaryTileResult = await checkTileProvider('https://a.basemaps.cartocdn.com/light_all/0/0/0.png');
+            updateCheck('tileChecks', 0, primaryTileResult.ok,
+                'Primary tile provider (CartoDB)',
+                primaryTileResult.message);
+            if (primaryTileResult.ok) passCount++; else warnCount++;
+            
+            const fallbackTileResult = await checkTileProvider('https://a.tile.openstreetmap.org/0/0/0.png');
+            updateCheck('tileChecks', 1, fallbackTileResult.ok,
+                'Fallback tile provider (OpenStreetMap)',
+                fallbackTileResult.message);
+            if (fallbackTileResult.ok) passCount++; else warnCount++;
+            
+            // Check 12: Timestamps
+            const lastModified = countiesResult.lastModified || 'Unknown';
+            updateCheck('timestampChecks', 0, true,
+                'Last data update',
+                `Counties data: ${lastModified}`, true);
+            passCount++;
+            
+            // Show summary
+            const summary = document.getElementById('diagnosticSummary');
+            const summaryText = document.getElementById('summaryText');
+            summary.style.display = 'block';
+            
+            const totalChecks = passCount + failCount + warnCount;
+            summaryText.innerHTML = `
+                <strong>${passCount}/${totalChecks}</strong> checks passed<br>
+                ${failCount > 0 ? `<span style="color: #F44336;">❌ ${failCount} critical failures</span><br>` : ''}
+                ${warnCount > 0 ? `<span style="color: #FFA726;">⚠️ ${warnCount} warnings</span><br>` : ''}
+                ${failCount === 0 ? '<span style="color: #4CAF50;">✅ All critical checks passed!</span>' : ''}
+            `;
+            
+            btn.disabled = false;
+            btn.textContent = 'Run Again';
+            checksRun = true;
+        }
+        
+        function updateCheck(sectionId, index, passed, label, detail, isInfo = false) {
+            const section = document.getElementById(sectionId);
+            const items = section.querySelectorAll('.check-item');
+            const item = items[index];
+            
+            const icon = item.querySelector('.status-icon');
+            const labelEl = item.querySelector('.check-label');
+            
+            if (isInfo) {
+                icon.className = 'status-icon status-pass';
+                icon.textContent = 'ℹ️';
+            } else if (passed) {
+                icon.className = 'status-icon status-pass';
+                icon.textContent = '✅';
+            } else {
+                icon.className = 'status-icon status-fail';
+                icon.textContent = '❌';
+            }
+            
+            labelEl.textContent = label;
+            
+            // Add or update detail
+            let detailEl = item.querySelector('.check-detail');
+            if (!detailEl) {
+                detailEl = document.createElement('div');
+                detailEl.className = 'check-detail';
+                item.appendChild(detailEl);
+            }
+            detailEl.textContent = detail;
+        }
+        
+        async function checkFile(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                if (response.ok) {
+                    const lastModified = response.headers.get('Last-Modified') || 'Unknown';
+                    return { 
+                        ok: true, 
+                        message: `Available (${response.status})`,
+                        lastModified: lastModified
+                    };
+                } else {
+                    return { ok: false, message: `HTTP ${response.status}` };
+                }
+            } catch (error) {
+                return { ok: false, message: error.message };
+            }
+        }
+        
+        async function checkTileProvider(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve({ ok: true, message: 'Accessible' });
+                img.onerror = () => resolve({ ok: false, message: 'Failed to load tile' });
+                img.src = url + '?t=' + Date.now(); // Cache bust
+                
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    if (!img.complete) {
+                        resolve({ ok: false, message: 'Timeout' });
+                    }
+                }, 5000);
+            });
+        }
+        
+        // Auto-run on load
+        window.addEventListener('load', () => {
+            setTimeout(runAllChecks, 500);
+        });
+    </script>
+</body>
+</html>

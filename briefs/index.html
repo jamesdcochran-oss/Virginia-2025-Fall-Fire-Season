@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Weather Briefs - Five Forks VFD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            color: #4ECDC4;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #999;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+        
+        .current-brief {
+            background: linear-gradient(135deg, #4ECDC4 0%, #44B3AA 100%);
+            color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .current-brief h2 {
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .current-brief p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .btn-download {
+            display: inline-block;
+            background: #fff;
+            color: #4ECDC4;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section-title {
+            color: #FFA726;
+            font-size: 1.5em;
+            margin: 30px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFA726;
+        }
+        
+        .brief-list {
+            list-style: none;
+        }
+        
+        .brief-item {
+            background: #333;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .brief-item:hover {
+            background: #3a3a3a;
+            transform: translateX(5px);
+        }
+        
+        .brief-date {
+            font-weight: 600;
+            color: #4ECDC4;
+        }
+        
+        .brief-link {
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 20px;
+            background: #4ECDC4;
+            border-radius: 6px;
+            font-size: 0.9em;
+            transition: background 0.2s ease;
+        }
+        
+        .brief-link:hover {
+            background: #44B3AA;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #4ECDC4;
+            text-decoration: none;
+            font-size: 1.1em;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .info-box {
+            background: #1e1e1e;
+            border-left: 4px solid #FFA726;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+        
+        .info-box p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Fire Weather Briefs</h1>
+        <p class="subtitle">Five Forks Volunteer Fire Department - Virginia</p>
+        
+        <div class="current-brief">
+            <h2>📄 Latest Brief</h2>
+            <p>Download the most recent fire weather briefing for Central Virginia counties</p>
+            <a href="Five_Forks_Brief_20260114_062938.docx" class="btn-download" download>
+                📥 Download Current Brief (Jan 14, 2026)
+            </a>
+        </div>
+        
+        <div class="info-box">
+            <p><strong>About These Briefs:</strong></p>
+            <p>Daily fire weather briefings are automatically generated using real-time National Weather Service data. Each brief includes current conditions, fire danger assessments, and weather forecasts for our monitored counties.</p>
+            <p><strong>Coverage Area:</strong> Amelia, Brunswick, Dinwiddie, Greensville, Nottoway, and Prince George Counties</p>
+        </div>
+        
+        <h2 class="section-title">Recent Briefs</h2>
+        <ul class="brief-list">
+            <li class="brief-item">
+                <span class="brief-date">January 14, 2026</span>
+                <a href="Five_Forks_Brief_20260114_062938.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 13, 2026</span>
+                <a href="Five_Forks_Brief_20260113_062915.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 12, 2026</span>
+                <a href="Five_Forks_Brief_20260112_063157.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 11, 2026</span>
+                <a href="Five_Forks_Brief_20260111_062748.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 10, 2026</span>
+                <a href="Five_Forks_Brief_20260110_062624.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 09, 2026</span>
+                <a href="Five_Forks_Brief_20260109_062905.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 08, 2026</span>
+                <a href="Five_Forks_Brief_20260108_062943.docx" class="brief-link" download>Download</a>
+            </li>
+            <li class="brief-item">
+                <span class="brief-date">January 07, 2026</span>
+                <a href="Five_Forks_Brief_20260107_062908.docx" class="brief-link" download>Download</a>
+            </li>
+        </ul>
+        
+        <a href="../index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+</body>
+</html>
