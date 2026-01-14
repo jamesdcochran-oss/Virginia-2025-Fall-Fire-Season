@@ -1,128 +1,40 @@
-/* ===== Mobile / small-screen responsive improvements (append this) ===== */
-@media (max-width: 768px) {
-  /* Page padding & typography */
-  body {
-    padding: 12px;
-    font-size: 15px;
-  }
+/* Minimal site styles + mobile responsiveness */
 
-  /* Header: stack title and controls, use smaller spacing */
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    padding-bottom: 8px;
-  }
-  .location-info h1 {
-    font-size: 1.8rem; /* make title smaller on phones */
-  }
-  .subtitle {
-    font-size: 0.95rem;
-  }
+:root{
+  --bg:#111;
+  --surface:#1f1f1f;
+  --text:#e9e9e9;
+  --accent:#ff6f3c;
+  --muted:#bdbdbd;
+}
 
-  /* Make header controls row wrap and be touch-friendly */
-  .header-controls {
-    width: 100%;
-    justify-content: flex-start;
-    gap: 12px;
-  }
-  .header-controls button,
-  .header-controls .icon-btn {
-    min-width: 44px;
-    min-height: 44px;
-    padding: 8px 10px;
-    font-size: 16px;
-  }
+html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Arial,Helvetica,sans-serif}
+a{color:var(--accent);text-decoration:none}
+.container{max-width:1100px;margin:0 auto;padding:20px}
 
-  /* Convert county grid to single column vertical list so each card is full width */
-  #countyGrid,
-  .county-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
-    margin: 0;
-  }
-  .county-card {
-    padding: 12px;
-    border-radius: 10px;
-    background: var(--color-surface, #1f1f1f);
-    box-shadow: none;
-    min-height: 110px;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .county-card h3 {
-    margin: 6px 0 4px;
-    font-size: 1.05rem;
-  }
-  .county-card .status {
-    font-size: 0.92rem;
-    opacity: 0.9;
-  }
+/* Header */
+header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+header h1{margin:0;font-size:2rem}
+.subtitle{color:var(--muted);margin-top:4px}
 
-  /* Quick-links / large cards area: reduce height and spacing */
-  .quick-links, .link-card, .link-btn {
-    min-height: 90px;
-    padding: 10px;
-  }
+/* County cards grid (desktop) */
+#countyGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+.county-card{background:var(--surface);padding:14px;border-radius:10px;min-height:120px;box-shadow:0 1px 0 rgba(0,0,0,0.5)}
+.county-card h3{margin:0 0 8px 0;font-size:1.05rem}
+.county-card .small{color:var(--muted);font-size:0.95rem}
 
-  /* Map section: full width, taller and centered */
-  .map-section,
-  #map {
-    width: 100% !important;
-    height: 360px !important; /* taller for touch and readability */
-    margin: 12px 0;
-  }
+/* Map */
+#map{width:100%;height:420px;border-radius:10px;overflow:hidden;margin-top:18px}
 
-  /* Forecast card and side columns stack below map */
-  .forecast-card,
-  .counties-section,
-  .briefs-section {
-    width: 100%;
-    margin-top: 12px;
-  }
+/* Buttons and controls */
+button, .link-btn{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:8px}
 
-  /* Adjust the small column labels and CTA spacing */
-  .link-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    font-size: 0.95rem;
-  }
-
-  /* Fuel calculator modal: fluid width on mobile */
-  .modal-content {
-    width: calc(100% - 32px);
-    max-width: 720px;
-    margin: 0 auto;
-  }
-
-  /* Footer and data-note spacing */
-  footer {
-    padding: 16px 0;
-    font-size: 0.9rem;
-    text-align: center;
-  }
-
-  /* Ensure icons and buttons are tap-friendly */
-  button, .icon-btn, .link-btn {
-    -webkit-tap-highlight-color: rgba(0,0,0,0.12);
-    touch-action: manipulation;
-  }
-
-  /* Reduce header hero whitespace so content appears above the fold */
-  .container {
-    padding-top: 6px;
-  }
-
-  /* Hide or compress elements that overcrowd layout on very small screens */
-  @media (max-width: 420px) {
-    .location-info h1 { font-size: 1.6rem; }
-    .subtitle { font-size: 0.9rem; }
-    .county-card { min-height: 96px; padding: 10px; }
-    #map { height: 300px !important; }
-  }
+/* Mobile adjustments */
+@media (max-width:768px){
+  header{flex-direction:column;align-items:flex-start}
+  header h1{font-size:1.5rem}
+  #countyGrid{grid-template-columns:1fr}
+  .county-card{min-height:100px;padding:12px}
+  #map{height:320px}
+  .container{padding:12px}
 }
