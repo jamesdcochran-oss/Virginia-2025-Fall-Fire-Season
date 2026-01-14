@@ -30,11 +30,14 @@ VIRGINIA_COUNTIES = {
 
 def check_dashboard_js():
     """Check dashboard.js for county and color logic issues"""
-    dashboard_path = Path('dashboard.js')
+    dashboard_path = Path('scripts/dashboard.js')
     
     if not dashboard_path.exists():
-        print("❌ ERROR: dashboard.js not found")
-        return False
+        # Try fallback to root location
+        dashboard_path = Path('dashboard.js')
+        if not dashboard_path.exists():
+            print("❌ ERROR: dashboard.js not found in scripts/ or root")
+            return False
     
     content = dashboard_path.read_text()
     issues = []
