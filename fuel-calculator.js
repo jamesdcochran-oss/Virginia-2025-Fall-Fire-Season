@@ -1,213 +1,168 @@
-/**
- * Fuel Moisture Calculator - Core Calculation Engine
- * 
- * @author James D. Cochran (jamesdcochran-oss)
- * @project Five Forks Fire Weather Dashboard
- * @repository https://github.com/jamesdcochran-oss/Virginia-2025-Fall-Fire-Season
- * @created December 2025
- * @license MIT
- * 
- * This calculator was conceptualized and developed by James D. Cochran
- * for the Virginia 2025 Fall Fire Season monitoring application.
- * Development assisted by AI (Perplexity) for implementation.
- * 
- * Based on:
- * - NFDRS (National Fire Danger Rating System) methodology
- * - Nelson (2000) fuel moisture modeling research
- * - Fire behavior prediction standards used in wildland firefighting
- * 
- * Purpose: Forecast fine dead fuel moisture content over multi-day periods
- * to support operational fire weather decision-making.
- */
+/* fuel-calculator.js
+   Minimal, robust fuel moisture calculator used by index.html and fuel-calculator-test.html
+   - computeEMC(tempF, rh): empirical approximation used in many fire-weather tools
+   - stepMoisture(initial, emc, hours, timeLag): exponential time-lag model
+   - runModel(...) + DOM wiring to populate forecast rows and run the model
+   Defensive: only runs UI wiring when expected elements exist.
+*/
 
-// Fuel Moisture Calculator - Core Calculation Engine
-// Fine dead fuel drying model with EMC and time-lag classes
-// Based on NFDRS (National Fire Danger Rating System) methodology
+(function(global){
+  'use strict';
 
-/**
- * Equilibrium Moisture Content (EMC) Calculation
- * Piecewise function used in fire behavior modeling
- * Based on Nelson (2000) and NFDRS standards
- * 
- * @param {number} tempF - Temperature in Fahrenheit
- * @param {number} rh - Relative humidity percentage (0-100)
- * @returns {number} EMC percentage
- */
-function computeEMC(tempF, rh) {
-  const T = tempF;
-  const H = Math.min(100, Math.max(0, rh)); // Clamp RH to 0-100%
-  
-  let emc;
-  
-  // Piecewise EMC function based on RH ranges
-  if (H < 10) {
-    emc = 0.03229 + 0.281073 * H - 0.000578 * H * T;
-  } else if (H < 50) {
-    emc = 2.22749 + 0.160107 * H - 0.014784 * T;
-  } else {
-    emc = 21.0606 + 0.005565 * H * H - 0.00035 * H * T;
+  // Compute Equilibrium Moisture Content (EMC) %
+  // Empirical approximation (commonly used form)
+  function computeEMC(tempF, rh) {
+    const T = Number(tempF);
+    const RH = Math.max(0, Math.min(100, Number(rh)));
+    // Empirical approximation (common form used in many tools)
+    const emc = 0.942 * Math.pow(RH, 0.679) +
+                11 * Math.exp((RH - 100) / 10) +
+                0.18 * (21.1 - T) * (1 - Math.exp(-0.115 * RH));
+    return Math.max(0.1, Number(emc.toFixed(1)));
   }
-  
-  // Clamp to reasonable fuel moisture range
-  return Math.min(60, Math.max(0, emc));
-}
 
-/**
- * Time-lag fuel moisture drying/wetting model
- * Uses exponential decay toward EMC
- * Formula: m(t) = EMC + (m₀ - EMC) × e^(-t/τ)
- * 
- * @param {number} currentMoisture - Current fuel moisture %
- * @param {number} emc - Equilibrium moisture content %
- * @param {number} hours - Time period in hours
- * @param {number} timelagHours - Fuel timelag constant (1 for 1-hr fuels, 10 for 10-hr)
- * @returns {number} New fuel moisture %
- */
-function stepMoisture(currentMoisture, emc, hours, timelagHours) {
-  const dt = Math.max(0, hours);
-  const k = Math.exp(-dt / timelagHours);
-  return emc + (currentMoisture - emc) * k;
-}
+  // Time-lag drying/wetting model:
+  // m_t = EMC + (m0 - EMC) * exp(-hours / timeLag)
+  function stepMoisture(initial, emc, hours, timeLag) {
+    const k = Math.exp(-hours / Math.max(0.0001, timeLag));
+    return Number((emc + (initial - emc) * k).toFixed(1));
+  }
 
-/**
- * Calculate effective drying hours per day
- * Accounts for wind and humidity effects on drying rate
- * 
- * @param {number} rh - Relative humidity %
- * @param {number} wind - Wind speed in mph
- * @returns {number} Effective drying hours
- */
-function effectiveDryingHours(rh, wind) {
-  // Base 6 hours of effective drying per day
-  let hours = 6;
-  
-  // Wind increases drying rate
-  hours += (wind || 0) / 4; // Every 4 mph wind adds ~1 hour
-  
-  // High humidity reduces drying
-  if (rh > 60) hours -= 2;
-  if (rh > 80) hours -= 2; // Very humid conditions
-  
-  // Clamp to reasonable range (1-14 hours per day)
-  return Math.min(14, Math.max(1, hours));
-}
+  // Run model over forecast days (forecastEntries: [{temp, rh, wind, hours}])
+  function runModel(initial1hr, initial10hr, forecastEntries) {
+    const results = {
+      initial1hr: Number(initial1hr),
+      initial10hr: Number(initial10hr),
+      dailyResults: [],
+      summary: {}
+    };
 
-/**
- * Run multi-day fuel moisture forecast
- * 
- * @param {Object} config - Configuration object
- * @param {number} config.initial1Hr - Starting 1-hour fuel moisture %
- * @param {number} config.initial10Hr - Starting 10-hour fuel moisture %
- * @param {Array} config.forecast - Array of forecast day objects
- * @returns {Object} Results with daily progression and summary
- */
-function runFuelMoistureModel(config) {
-  const { initial1Hr, initial10Hr, forecast } = config;
-  
-  let m1 = Number(initial1Hr) || 0;
-  let m10 = Number(initial10Hr) || 0;
-  
-  const dailyResults = [];
-  let firstCritical1Hr = null;
-  let firstCritical10Hr = null;
-  
-  forecast.forEach((day, index) => {
-    const temp = Number(day.temp) || 0;
-    const rh = Number(day.rh) || 0;
-    const wind = Number(day.wind) || 0;
-    
-    // Calculate EMC for current conditions
-    const emc = computeEMC(temp, rh);
-    
-    // Effective drying hours
-    const hours = effectiveDryingHours(rh, wind);
-    
-    // Drying delay: Sharp RH drops cause temporary lag in drying
-    let delay = 0;
-    if (index > 0) {
-      const prevRh = Number(forecast[index - 1].rh) || rh;
-      if (prevRh > 70 && rh < 40) {
-        delay = 1; // 1 hour delay when conditions change rapidly
+    let prev1 = Number(initial1hr);
+    let prev10 = Number(initial10hr);
+
+    forecastEntries.forEach((day, i) => {
+      const emc = computeEMC(day.temp, day.rh);
+      const hours = day.hours || 12;
+      const m1 = stepMoisture(prev1, emc, hours, 1);
+      const m10 = stepMoisture(prev10, emc, hours, 10);
+
+      results.dailyResults.push({
+        day: day.label || (`Day ${i+1}`),
+        temp: day.temp,
+        rh: day.rh,
+        wind: day.wind || 0,
+        hours: hours,
+        moisture1Hr: m1,
+        moisture10Hr: m10
+      });
+
+      prev1 = m1;
+      prev10 = m10;
+    });
+
+    const critIndex = results.dailyResults.findIndex(r => r.moisture1Hr <= 6);
+    results.summary.firstCritical1HrDay = critIndex >= 0 ? results.dailyResults[critIndex].day : null;
+
+    return results;
+  }
+
+  /* UI helpers: these will run only if the page contains the expected elements.
+     Keeps the file safe to include everywhere.
+  */
+  function populateDefaultForecastTable(rows = 5) {
+    const tbody = document.getElementById('forecastDays');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    for (let i = 0; i < rows; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>Day ${i+1}</td>
+        <td><input type="number" class="fc-temp" value="${60 + i}" step="1" min="-20" max="130"></td>
+        <td><input type="number" class="fc-rh" value="${60 - i*5}" step="1" min="0" max="100"></td>
+        <td><input type="number" class="fc-wind" value="${5 + i}" step="1" min="0" max="100"></td>
+        <td><input type="number" class="fc-hours" value="12" step="1" min="0" max="24"></td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  function readForecastTable() {
+    const tbody = document.getElementById('forecastDays');
+    if (!tbody) return [];
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    return rows.map((tr, idx) => {
+      const temp = Number(tr.querySelector('.fc-temp')?.value || 70);
+      const rh = Number(tr.querySelector('.fc-rh')?.value || 50);
+      const wind = Number(tr.querySelector('.fc-wind')?.value || 5);
+      const hours = Number(tr.querySelector('.fc-hours')?.value || 12);
+      return { label: `Day ${idx+1}`, temp, rh, wind, hours };
+    });
+  }
+
+  function showResults(results) {
+    const resultsSection = document.getElementById('resultsSection');
+    const resultsTable = document.getElementById('resultsTable');
+    const warningMessage = document.getElementById('warningMessage');
+    if (!resultsSection || !resultsTable) return;
+
+    resultsSection.style.display = 'block';
+    let html = '<table><thead><tr><th>Day</th><th>Temp°F</th><th>Min RH%</th><th>1-hr%</th><th>10-hr%</th></tr></thead><tbody>';
+    results.dailyResults.forEach(r => {
+      html += `<tr>
+        <td>${r.day}</td><td>${r.temp}</td><td>${r.rh}</td>
+        <td>${r.moisture1Hr}%</td><td>${r.moisture10Hr}%</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    resultsTable.innerHTML = html;
+
+    if (warningMessage) {
+      if (results.summary.firstCritical1HrDay) {
+        warningMessage.style.display = 'block';
+        warningMessage.textContent = `⚠️ Critical drying detected first on ${results.summary.firstCritical1HrDay}`;
+      } else {
+        warningMessage.style.display = 'none';
+        warningMessage.textContent = '';
       }
     }
-    
-    const netHours = Math.max(0, hours - delay);
-    
-    // Update fuel moisture for both timelag classes
-    const newM1 = stepMoisture(m1, emc, netHours, 1);   // 1-hour fuels
-    const newM10 = stepMoisture(m10, emc, netHours, 10); // 10-hour fuels
-    
-    m1 = newM1;
-    m10 = newM10;
-    
-    // Track first day fuels become critically dry
-    if (firstCritical1Hr === null && m1 <= 6) {
-      firstCritical1Hr = day.label || `Day ${index + 1}`;
+  }
+
+  function wireUI() {
+    populateDefaultForecastTable(5);
+
+    const runBtn = document.getElementById('runModelBtn');
+    if (runBtn) {
+      runBtn.addEventListener('click', () => {
+        const initial1 = Number(document.getElementById('initial1hr')?.value || 8);
+        const initial10 = Number(document.getElementById('initial10hr')?.value || 10);
+        const forecast = readForecastTable();
+        try {
+          const results = runModel(initial1, initial10, forecast);
+          showResults(results);
+          console.log('Fuel model results:', results);
+        } catch (err) {
+          console.error('Fuel model error', err);
+        }
+      });
     }
-    if (firstCritical10Hr === null && m10 <= 8) {
-      firstCritical10Hr = day.label || `Day ${index + 1}`;
-    }
-    
-    // Store daily results
-    dailyResults.push({
-      label: day.label || `Day ${index + 1}`,
-      temp,
-      rh,
-      wind,
-      emc: Number(emc.toFixed(1)),
-      effectiveHours: Number(hours.toFixed(1)),
-      delay,
-      moisture1Hr: Number(newM1.toFixed(1)),
-      moisture10Hr: Number(newM10.toFixed(1)),
-      // Flag critical conditions
-      is1HrCritical: newM1 <= 6,
-      is10HrCritical: newM10 <= 8
+
+    const modalClose = document.getElementById('modalCloseBtn');
+    if (modalClose) modalClose.addEventListener('click', () => {
+      const modal = document.getElementById('fuelCalcModal');
+      if (modal) modal.style.display = 'none';
     });
-  });
-  
-  return {
-    dailyResults,
-    summary: {
-      final1Hr: Number(m1.toFixed(1)),
-      final10Hr: Number(m10.toFixed(1)),
-      firstCritical1HrDay: firstCritical1Hr,
-      firstCritical10HrDay: firstCritical10Hr
-    }
-  };
-}
+  }
 
-/**
- * Estimate initial fuel moisture from current weather conditions
- * Used when actual fuel moisture measurements aren't available
- * 
- * @param {number} currentRH - Current relative humidity %
- * @param {number} currentTemp - Current temperature F
- * @returns {Object} Estimated fuel moistures
- */
-function estimateInitialMoisture(currentRH, currentTemp) {
-  // Use EMC as baseline estimate
-  const baseEMC = computeEMC(currentTemp, currentRH);
-  
-  // 1-hr fuels equilibrate quickly, close to EMC
-  const est1Hr = Math.max(5, baseEMC + 2);
-  
-  // 10-hr fuels lag behind, typically 3-5% higher
-  const est10Hr = Math.max(8, baseEMC + 5);
-  
-  return {
-    initial1Hr: Number(est1Hr.toFixed(1)),
-    initial10Hr: Number(est10Hr.toFixed(1))
-  };
-}
+  // Expose API for tests/pages
+  global.computeEMC = computeEMC;
+  global.stepMoisture = stepMoisture;
+  global.runModel = runModel;
 
-// Export functions for use in main dashboard
-if (typeof module !== 'undefined' && module.exports) {
-  // Node.js environment (for testing)
-  module.exports = {
-    computeEMC,
-    stepMoisture,
-    effectiveDryingHours,
-    runFuelMoistureModel,
-    estimateInitialMoisture
-  };
-}
+  // On DOM ready, wire UI (safe-guarded)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wireUI);
+  } else {
+    wireUI();
+  }
+
+})(window);
