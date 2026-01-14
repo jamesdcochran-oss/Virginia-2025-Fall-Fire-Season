@@ -1,0 +1,85 @@
+name: CI - Smoke Tests & Diagnostics
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  smoke-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Check critical files exist
+        run: |
+          echo "Checking for critical files..."
+          test -f index.html || { echo "❌ index.html missing"; exit 1; }
+          test -f fuel-calculator.js || { echo "❌ fuel-calculator.js missing"; exit 1; }
+          test -f scripts/dashboard.js || { echo "❌ scripts/dashboard.js missing"; exit 1; }
+          test -f data/counties.json || { echo "❌ data/counties.json missing"; exit 1; }
+          test -f diagnostic_check.py || { echo "❌ diagnostic_check.py missing"; exit 1; }
+          echo "✅ All critical files present"
+      
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          python3 -m json.tool data/counties.json > /dev/null || { echo "❌ data/counties.json is invalid JSON"; exit 1; }
+          python3 -m json.tool county_data.json > /dev/null || { echo "❌ county_data.json is invalid JSON"; exit 1; }
+          python3 -m json.tool firms_data.json > /dev/null || { echo "❌ firms_data.json is invalid JSON"; exit 1; }
+          echo "✅ All JSON files valid"
+      
+      - name: Check counties.json structure
+        run: |
+          echo "Checking counties.json structure..."
+          python3 << 'EOF'
+          import json
+          with open('data/counties.json', 'r') as f:
+              counties = json.load(f)
+          assert isinstance(counties, list), "counties.json must be an array"
+          assert len(counties) == 6, f"Expected 6 counties, found {len(counties)}"
+          for county in counties:
+              assert 'name' in county, f"County missing 'name' field: {county}"
+              assert 'lat' in county, f"County missing 'lat' field: {county}"
+              assert 'lon' in county, f"County missing 'lon' field: {county}"
+          print(f"✅ counties.json structure valid: {len(counties)} counties")
+          EOF
+      
+      - name: Run diagnostic check
+        run: |
+          python3 diagnostic_check.py
+        continue-on-error: true
+      
+      - name: Verify fuel-calculator.js syntax
+        run: |
+          echo "Checking fuel-calculator.js for basic syntax..."
+          node -c fuel-calculator.js || { echo "❌ fuel-calculator.js has syntax errors"; exit 1; }
+          echo "✅ fuel-calculator.js syntax valid"
+      
+      - name: Verify dashboard.js syntax
+        run: |
+          echo "Checking scripts/dashboard.js for basic syntax..."
+          node -c scripts/dashboard.js || { echo "❌ scripts/dashboard.js has syntax errors"; exit 1; }
+          echo "✅ scripts/dashboard.js syntax valid"
+      
+      - name: Check for computeEMC function
+        run: |
+          echo "Verifying computeEMC function exists..."
+          grep -q "function computeEMC" fuel-calculator.js || { echo "❌ computeEMC function not found"; exit 1; }
+          echo "✅ computeEMC function found"
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "================================"
+          echo "CI Smoke Tests Complete"
+          echo "================================"

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Weather Briefs - Five Forks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+        .info-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        .info-box h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .brief-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        .brief-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .brief-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+        }
+        .brief-link {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 500;
+            display: block;
+        }
+        .brief-date {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .back-link:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Fire Weather Briefs</h1>
+        <p class="subtitle">Five Forks Fire District - Central Virginia</p>
+        
+        <div class="info-box">
+            <h2>📋 About Daily Briefs</h2>
+            <p>
+                Automated fire weather briefings are generated daily for the Five Forks Fire District 
+                coverage area, including Amelia, Brunswick, Dinwiddie, Greensville, Nottoway, and 
+                Prince George counties.
+            </p>
+            <p style="margin-top: 1rem;">
+                Each brief contains current fire weather conditions, temperature, humidity, wind data, 
+                and fire danger classifications for all monitored counties.
+            </p>
+        </div>
+
+        <div class="info-box">
+            <h2>📁 Latest Briefs</h2>
+            <p>Briefs are stored as .docx files in this directory. Most recent briefs are listed below:</p>
+            <ul class="brief-list" id="briefsList">
+                <li class="brief-item">Loading briefs...</li>
+            </ul>
+        </div>
+
+        <a href="../index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <script>
+        // Auto-populate briefs list from directory
+        // Note: This requires a server-side directory listing or pre-generated list
+        // For static hosting, briefs need to be manually added or generated via CI
+        
+        // Sample briefs (in production, this would be populated dynamically)
+        const sampleBriefs = [
+            { name: 'Five_Forks_Brief_20260114_062938.docx', date: 'January 14, 2026' },
+            { name: 'Five_Forks_Brief_20260113_062915.docx', date: 'January 13, 2026' },
+            { name: 'Five_Forks_Brief_20260112_063157.docx', date: 'January 12, 2026' },
+            { name: 'Five_Forks_Brief_20260111_062748.docx', date: 'January 11, 2026' },
+            { name: 'Five_Forks_Brief_20260110_062624.docx', date: 'January 10, 2026' }
+        ];
+
+        const briefsList = document.getElementById('briefsList');
+        briefsList.innerHTML = '';
+        
+        sampleBriefs.forEach(brief => {
+            const li = document.createElement('li');
+            li.className = 'brief-item';
+            li.innerHTML = `
+                <a href="${brief.name}" class="brief-link" download>${brief.name}</a>
+                <div class="brief-date">${brief.date}</div>
+            `;
+            briefsList.appendChild(li);
+        });
+
+        // Alternative: fetch from GitHub API if needed
+        console.log('Brief index loaded');
+    </script>
+</body>
+</html>
