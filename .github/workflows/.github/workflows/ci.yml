@@ -1,0 +1,63 @@
+name: CI - Smoke Tests
+
+on:
+  push:
+    branches: [ main, 'add/*' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure required files exist
+        run: |
+          required=(index.html dashboard.js fuel-calculator.js data/counties.json)
+          for f in "${required[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ Missing required file: $f"
+              exit 1
+            fi
+          done
+          echo "✅ All required files present"
+
+      - name: Verify fuel-calculator exports
+        run: |
+          if ! grep -q "function computeEMC" fuel-calculator.js && ! grep -q "computeEMC =" fuel-calculator.js; then
+            echo "❌ computeEMC not found in fuel-calculator.js"
+            exit 1
+          fi
+          if ! grep -q "function stepMoisture" fuel-calculator.js && ! grep -q "stepMoisture =" fuel-calculator.js; then
+            echo "❌ stepMoisture not found in fuel-calculator.js"
+            exit 1
+          fi
+          if ! grep -q "runModel" fuel-calculator.js; then
+            echo "❌ runModel not found in fuel-calculator.js"
+            exit 1
+          fi
+          echo "✅ fuel-calculator.js exports present"
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install python-docx || true
+
+      - name: Run diagnostic_check.py (capture output)
+        run: |
+          set -o pipefail
+          python diagnostic_check.py 2>&1 | tee diag.log || true
+          cat diag.log
+
+      - name: Upload diagnostic log
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostic-log
+          path: diag.log
