@@ -163,11 +163,17 @@
       const results = runModel(config.initial1Hr, config.initial10Hr, config.forecast);
       
       // Enhance results to match old API expectations
-      results.dailyResults = results.dailyResults.map(day => {
+      results.dailyResults = results.dailyResults.map((day, idx) => {
         const emc = computeEMC(day.temp, day.rh);
+        const origForecast = config.forecast[idx] || {};
         return {
-          ...day,
+          label: origForecast.label || day.day,
+          temp: day.temp,
+          rh: day.rh,
+          wind: day.wind,
           emc: Number(emc.toFixed(1)),
+          moisture1Hr: day.moisture1Hr,
+          moisture10Hr: day.moisture10Hr,
           is1HrCritical: day.moisture1Hr <= 6,
           is10HrCritical: day.moisture10Hr <= 8
         };
@@ -180,7 +186,7 @@
       
       // Add firstCritical10HrDay
       const critIndex10 = results.dailyResults.findIndex(r => r.is10HrCritical);
-      results.summary.firstCritical10HrDay = critIndex10 >= 0 ? results.dailyResults[critIndex10].day : null;
+      results.summary.firstCritical10HrDay = critIndex10 >= 0 ? results.dailyResults[critIndex10].label : null;
       
       return results;
     }
