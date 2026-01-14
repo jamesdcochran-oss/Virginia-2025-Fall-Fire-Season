@@ -76,6 +76,8 @@ Data updates in real-time via Supabase Realtime subscriptions. No authentication
    - **Web**: Press `w` in the terminal or run `npm run web`
    - **Physical device**: Scan the QR code with Expo Go app
 
+**Note on Assets**: The app references icon.png, splash.png, adaptive-icon.png, and favicon.png in `src/assets/`. These are optional for development with Expo Go but required for standalone builds. Expo will use default icons during development if these are not provided.
+
 ## Supabase Configuration
 
 ### Required Tables Schema
