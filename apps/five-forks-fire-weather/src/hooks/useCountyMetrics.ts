@@ -67,10 +67,12 @@ export function useCountyMetrics(): UseCountyMetricsResult {
       },
       onUpdate: (updatedMetric) => {
         setMetrics((prev) =>
+          // Update by county since we only keep the latest metric per county
           prev.map((m) => (m.county === updatedMetric.county ? updatedMetric : m))
         );
       },
       onDelete: (deletedMetric) => {
+        // Only remove if the deleted metric is the one we're currently displaying
         setMetrics((prev) => prev.filter((m) => m.county !== deletedMetric.county));
       },
     });

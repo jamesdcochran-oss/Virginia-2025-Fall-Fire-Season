@@ -32,8 +32,8 @@ export function computeDewPoint(tempC: number, rh: number): number {
   const b = 17.27;
   const c = 237.7;
 
-  // Clamp RH to valid range
-  const rhClamped = Math.max(0.1, Math.min(100, rh));
+  // Clamp RH to valid range (minimum 1% to avoid unrealistic dew point values)
+  const rhClamped = Math.max(1, Math.min(100, rh));
 
   const alpha = Math.log(rhClamped / 100) + (b * tempC) / (c + tempC);
   const dewPoint = (c * alpha) / (b - alpha);
