@@ -1,0 +1,46 @@
+name: Mobile App Tests
+
+on:
+  push:
+    paths:
+      - 'apps/five-forks-fire-weather/**'
+  pull_request:
+    paths:
+      - 'apps/five-forks-fire-weather/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        working-directory: apps/five-forks-fire-weather
+        run: npm ci || npm install
+      
+      - name: Run TypeScript check
+        working-directory: apps/five-forks-fire-weather
+        run: npx tsc --noEmit
+      
+      - name: Run tests
+        working-directory: apps/five-forks-fire-weather
+        run: npm test -- --passWithNoTests
+      
+      - name: Check package structure
+        working-directory: apps/five-forks-fire-weather
+        run: |
+          echo "Checking required files..."
+          test -f package.json && echo "✓ package.json" || (echo "✗ package.json missing" && exit 1)
+          test -f app.json && echo "✓ app.json" || (echo "✗ app.json missing" && exit 1)
+          test -f tsconfig.json && echo "✓ tsconfig.json" || (echo "✗ tsconfig.json missing" && exit 1)
+          test -f src/App.tsx && echo "✓ src/App.tsx" || (echo "✗ src/App.tsx missing" && exit 1)
+          test -f README.md && echo "✓ README.md" || (echo "✗ README.md missing" && exit 1)
+          echo "All required files present!"
