@@ -70,7 +70,7 @@ export function MapScreen() {
         </View>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: '#388e3c' }]} />
-          <Text style={styles.legendText}>Low (&lt;300)</Text>
+          <Text style={styles.legendText}>Low {'(<300)'}</Text>
         </View>
       </View>
 
