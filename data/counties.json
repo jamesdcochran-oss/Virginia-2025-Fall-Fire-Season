@@ -2,7 +2,7 @@
   "version": "1.0",
   "description": "Virginia counties and independent cities with centroid coordinates",
   "note": "Coordinates are approximate centroids. Some may need refinement for precise NWS grid lookups.",
-  "lastUpdated": "2026-01-14",
+  "lastUpdated": "2025-01-14",
   "counties": [
     { "name": "Accomack", "lat": 37.7671, "lon": -75.6327 },
     { "name": "Albemarle", "lat": 38.0293, "lon": -78.5539 },
