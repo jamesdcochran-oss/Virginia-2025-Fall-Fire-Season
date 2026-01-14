@@ -5,9 +5,9 @@ let COUNTIES = [
   { name: 'Dinwiddie', lat: 37.0751, lon: -77.5831 },
   { name: 'Brunswick', lat: 36.7168, lon: -77.85 },
   { name: 'Greensville', lat: 36.6835, lon: -77.5664 },
-  { name: 'Amelia', lat: 37.35, lon: -77.97 },
+  { name: 'Amelia', lat: 37.328, lon: -77.990 },
   { name: 'Prince George', lat: 37.1835, lon: -77.2831 },
-  { name: 'Nottoway', lat: 37.1, lon: -78.07 }
+  { name: 'Nottoway', lat: 37.099, lon: -78.062 }
 ];
 
 function loadCountyList(retries = 0) {
@@ -94,8 +94,8 @@ function attachTileFallback(tileLayer) {
       const fallback = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
       });
-      tileLayer._map.eachLayer(layer => { if (layer === tileLayer) tileLayer._map.removeLayer(layer); });
-      fallback.addTo(tileLayer._map);
+      map.removeLayer(tileLayer);
+      fallback.addTo(map);
     }
   });
 }

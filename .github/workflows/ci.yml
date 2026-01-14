@@ -15,7 +15,7 @@ jobs:
 
       - name: Ensure required files exist
         run: |
-          required=(index.html scripts/dashboard.js fuel-calculator.js data/counties.json)
+          required=(index.html dashboard.js fuel-calculator.js data/counties.json)
           for f in "${required[@]}"; do
             if [ ! -f "$f" ]; then
               echo "❌ Missing required file: $f"

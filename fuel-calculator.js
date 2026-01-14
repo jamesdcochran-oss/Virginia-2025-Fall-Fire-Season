@@ -11,6 +11,9 @@
 
   // Compute Equilibrium Moisture Content (EMC) %
   // Empirical approximation (commonly used form)
+  // Based on Simard (1968) and used in National Fire Danger Rating System (NFDRS)
+  // Valid for typical fire weather conditions (temp: 20-100°F, RH: 10-90%)
+  // Formula: EMC = 0.942*RH^0.679 + 11*e^((RH-100)/10) + 0.18*(21.1-T)*(1-e^(-0.115*RH))
   function computeEMC(tempF, rh) {
     const T = Number(tempF);
     const RH = Math.max(0, Math.min(100, Number(rh)));
@@ -105,11 +108,19 @@
     if (!resultsSection || !resultsTable) return;
 
     resultsSection.style.display = 'block';
+    
+    // Helper to escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
     let html = '<table><thead><tr><th>Day</th><th>Temp°F</th><th>Min RH%</th><th>1-hr%</th><th>10-hr%</th></tr></thead><tbody>';
     results.dailyResults.forEach(r => {
       html += `<tr>
-        <td>${r.day}</td><td>${r.temp}</td><td>${r.rh}</td>
-        <td>${r.moisture1Hr}%</td><td>${r.moisture10Hr}%</td>
+        <td>${escapeHtml(String(r.day))}</td><td>${escapeHtml(String(r.temp))}</td><td>${escapeHtml(String(r.rh))}</td>
+        <td>${escapeHtml(String(r.moisture1Hr))}%</td><td>${escapeHtml(String(r.moisture10Hr))}%</td>
       </tr>`;
     });
     html += '</tbody></table>';
