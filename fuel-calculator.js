@@ -92,8 +92,9 @@
     results.summary.firstCritical1HrDay = critIndex >= 0 ? results.dailyResults[critIndex].day : null;
 
     // also expose final values for convenience
-    results.summary.final1Hr = results.dailyResults.length ? results.dailyResults[results.dailyResults.length - 1].moisture1Hr : prev1;
-    results.summary.final10Hr = results.dailyResults.length ? results.dailyResults[results.dailyResults.length - 1].moisture10Hr : prev10;
+    const lastResult = results.dailyResults.length ? results.dailyResults[results.dailyResults.length - 1] : null;
+    results.summary.final1Hr = lastResult ? lastResult.moisture1Hr : prev1;
+    results.summary.final10Hr = lastResult ? lastResult.moisture10Hr : prev10;
 
     return results;
   }
