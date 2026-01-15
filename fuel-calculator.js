@@ -12,6 +12,19 @@
   // Constants
   const MIN_TIME_LAG = 0.0001; // Minimum time lag to prevent division by zero
   const CRITICAL_MOISTURE_THRESHOLD = 6; // 1-hour fuel moisture threshold (%)
+  
+  // Default values for fallbacks
+  const DEFAULT_TEMP = 70; // Default temperature (°F)
+  const DEFAULT_RH = 50; // Default relative humidity (%)
+  const DEFAULT_WIND = 5; // Default wind speed (mph)
+  const DEFAULT_HOURS = 12; // Default drying hours
+  const DEFAULT_INITIAL_1HR = 8; // Default 1-hour fuel moisture (%)
+  const DEFAULT_INITIAL_10HR = 10; // Default 10-hour fuel moisture (%)
+  
+  // Default values for forecast table generation
+  const FORECAST_BASE_TEMP = 60; // Base temperature for forecast table (°F)
+  const FORECAST_BASE_RH = 60; // Base RH for forecast table (%)
+  const FORECAST_BASE_WIND = 5; // Base wind for forecast table (mph)
 
   // Helper: robustly parse a numeric input (strings from inputs, etc.)
   // If parsing fails, return the fallback (which must be a finite number).
@@ -24,8 +37,8 @@
   // Empirical approximation (commonly used form)
   function computeEMC(tempF, rh) {
     // sensible defaults: 70°F and 50% rh when inputs are invalid
-    const T = safeParse(tempF, 70);
-    let RH = safeParse(rh, 50);
+    const T = safeParse(tempF, DEFAULT_TEMP);
+    let RH = safeParse(rh, DEFAULT_RH);
     RH = Math.max(0, Math.min(100, RH)); // clamp 0..100
 
     // Empirical approximation (common form used in many tools)
@@ -51,8 +64,8 @@
 
   // Run model over forecast days (forecastEntries: [{temp, rh, wind, hours}])
   function runModel(initial1hr, initial10hr, forecastEntries) {
-    const i1 = safeParse(initial1hr, 8);
-    const i10 = safeParse(initial10hr, 10);
+    const i1 = safeParse(initial1hr, DEFAULT_INITIAL_1HR);
+    const i10 = safeParse(initial10hr, DEFAULT_INITIAL_10HR);
 
     const results = {
       initial1hr: i1,
@@ -68,10 +81,10 @@
 
     entries.forEach((day, i) => {
       // defensive per-day parsing with sensible defaults
-      const temp = safeParse(day.temp, 70);
-      const rh = safeParse(day.rh, 50);
+      const temp = safeParse(day.temp, DEFAULT_TEMP);
+      const rh = safeParse(day.rh, DEFAULT_RH);
       const wind = safeParse(day.wind, 0);
-      const hours = Math.max(0, safeParse(day.hours, 12));
+      const hours = Math.max(0, safeParse(day.hours, DEFAULT_HOURS));
 
       const emc = computeEMC(temp, rh);
 
@@ -110,16 +123,16 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     for (let i = 0; i < rows; i++) {
-      const tempVal = 60 + i;
-      const rhVal = 60 - i * 5;
-      const windVal = 5 + i;
+      const tempVal = FORECAST_BASE_TEMP + i;
+      const rhVal = FORECAST_BASE_RH - i * 5;
+      const windVal = FORECAST_BASE_WIND + i;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>Day ${i+1}</td>
         <td><input type="number" class="fc-temp" value="${tempVal}" step="1" min="-20" max="130"></td>
         <td><input type="number" class="fc-rh" value="${rhVal}" step="1" min="0" max="100"></td>
         <td><input type="number" class="fc-wind" value="${windVal}" step="1" min="0" max="100"></td>
-        <td><input type="number" class="fc-hours" value="12" step="1" min="0" max="24"></td>
+        <td><input type="number" class="fc-hours" value="${DEFAULT_HOURS}" step="1" min="0" max="24"></td>
       `;
       tbody.appendChild(tr);
     }
@@ -136,10 +149,10 @@
       const windInput = tr.querySelector('.fc-wind')?.value ?? '';
       const hoursInput = tr.querySelector('.fc-hours')?.value ?? '';
 
-      const temp = safeParse(tempInput, 70);
-      const rh = safeParse(rhInput, 50);
-      const wind = safeParse(windInput, 5);
-      const hours = Math.max(0, safeParse(hoursInput, 12));
+      const temp = safeParse(tempInput, DEFAULT_TEMP);
+      const rh = safeParse(rhInput, DEFAULT_RH);
+      const wind = safeParse(windInput, DEFAULT_WIND);
+      const hours = Math.max(0, safeParse(hoursInput, DEFAULT_HOURS));
 
       return { label: `Day ${idx+1}`, temp, rh, wind, hours };
     });
@@ -182,8 +195,8 @@
         // use safeParse so a value of "0" is preserved and empty/invalid become defaults
         const initial1Input = document.getElementById('initial1hr')?.value ?? '';
         const initial10Input = document.getElementById('initial10hr')?.value ?? '';
-        const initial1 = safeParse(initial1Input, 8);
-        const initial10 = safeParse(initial10Input, 10);
+        const initial1 = safeParse(initial1Input, DEFAULT_INITIAL_1HR);
+        const initial10 = safeParse(initial10Input, DEFAULT_INITIAL_10HR);
 
         const forecast = readForecastTable();
         try {
