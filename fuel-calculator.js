@@ -9,48 +9,93 @@
 (function(global){
   'use strict';
 
+  // Constants
+  const MIN_TIME_LAG = 0.0001; // Minimum time lag to prevent division by zero
+  const CRITICAL_MOISTURE_THRESHOLD = 6; // 1-hour fuel moisture threshold (%)
+  
+  // Default values for fallbacks
+  const DEFAULT_TEMP = 70; // Default temperature (°F)
+  const DEFAULT_RH = 50; // Default relative humidity (%)
+  const DEFAULT_WIND = 5; // Default wind speed (mph)
+  const DEFAULT_HOURS = 12; // Default drying hours
+  const DEFAULT_INITIAL_1HR = 8; // Default 1-hour fuel moisture (%)
+  const DEFAULT_INITIAL_10HR = 10; // Default 10-hour fuel moisture (%)
+  
+  // Default values for forecast table generation
+  const FORECAST_BASE_TEMP = 60; // Base temperature for forecast table (°F)
+  const FORECAST_BASE_RH = 60; // Base RH for forecast table (%)
+  const FORECAST_BASE_WIND = 5; // Base wind for forecast table (mph)
+
+  // Helper: robustly parse a numeric input (strings from inputs, etc.)
+  // If parsing fails, return the fallback (which must be a finite number).
+  function safeParse(value, fallback) {
+    const n = parseFloat(value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
   // Compute Equilibrium Moisture Content (EMC) %
   // Empirical approximation (commonly used form)
   function computeEMC(tempF, rh) {
-    const T = Number(tempF);
-    const RH = Math.max(0, Math.min(100, Number(rh)));
+    // sensible defaults: 70°F and 50% rh when inputs are invalid
+    const T = safeParse(tempF, DEFAULT_TEMP);
+    let RH = safeParse(rh, DEFAULT_RH);
+    RH = Math.max(0, Math.min(100, RH)); // clamp 0..100
+
     // Empirical approximation (common form used in many tools)
     const emc = 0.942 * Math.pow(RH, 0.679) +
                 11 * Math.exp((RH - 100) / 10) +
                 0.18 * (21.1 - T) * (1 - Math.exp(-0.115 * RH));
+
+    // Keep one decimal and a sensible minimum (0.1%) to avoid zero/negative artifacts
     return Math.max(0.1, Number(emc.toFixed(1)));
   }
 
   // Time-lag drying/wetting model:
   // m_t = EMC + (m0 - EMC) * exp(-hours / timeLag)
   function stepMoisture(initial, emc, hours, timeLag) {
-    const k = Math.exp(-hours / Math.max(0.0001, timeLag));
-    return Number((emc + (initial - emc) * k).toFixed(1));
+    const m0 = safeParse(initial, emc); // if initial invalid, assume starting at emc
+    const e = safeParse(emc, 5); // fallback emc if invalid (shouldn't happen)
+    const h = safeParse(hours, 0);
+    // protect against zero/negative timeLag by ensuring a very small positive value
+    const lag = Math.max(MIN_TIME_LAG, safeParse(timeLag, 1));
+    const k = Math.exp(-h / lag);
+    return Number((e + (m0 - e) * k).toFixed(1));
   }
 
   // Run model over forecast days (forecastEntries: [{temp, rh, wind, hours}])
   function runModel(initial1hr, initial10hr, forecastEntries) {
+    const i1 = safeParse(initial1hr, DEFAULT_INITIAL_1HR);
+    const i10 = safeParse(initial10hr, DEFAULT_INITIAL_10HR);
+
     const results = {
-      initial1hr: Number(initial1hr),
-      initial10hr: Number(initial10hr),
+      initial1hr: i1,
+      initial10hr: i10,
       dailyResults: [],
       summary: {}
     };
 
-    let prev1 = Number(initial1hr);
-    let prev10 = Number(initial10hr);
+    let prev1 = i1;
+    let prev10 = i10;
 
-    forecastEntries.forEach((day, i) => {
-      const emc = computeEMC(day.temp, day.rh);
-      const hours = day.hours || 12;
+    const entries = Array.isArray(forecastEntries) ? forecastEntries : [];
+
+    entries.forEach((day, i) => {
+      // defensive per-day parsing with sensible defaults
+      const temp = safeParse(day.temp, DEFAULT_TEMP);
+      const rh = safeParse(day.rh, DEFAULT_RH);
+      const wind = safeParse(day.wind, 0);
+      const hours = Math.max(0, safeParse(day.hours, DEFAULT_HOURS));
+
+      const emc = computeEMC(temp, rh);
+
       const m1 = stepMoisture(prev1, emc, hours, 1);
       const m10 = stepMoisture(prev10, emc, hours, 10);
 
       results.dailyResults.push({
         day: day.label || (`Day ${i+1}`),
-        temp: day.temp,
-        rh: day.rh,
-        wind: day.wind || 0,
+        temp: temp,
+        rh: rh,
+        wind: wind,
         hours: hours,
         moisture1Hr: m1,
         moisture10Hr: m10
@@ -60,8 +105,12 @@
       prev10 = m10;
     });
 
-    const critIndex = results.dailyResults.findIndex(r => r.moisture1Hr <= 6);
+    const critIndex = results.dailyResults.findIndex(r => Number.isFinite(r.moisture1Hr) && r.moisture1Hr <= CRITICAL_MOISTURE_THRESHOLD);
     results.summary.firstCritical1HrDay = critIndex >= 0 ? results.dailyResults[critIndex].day : null;
+
+    // also expose final values for convenience
+    results.summary.final1Hr = results.dailyResults.length ? results.dailyResults[results.dailyResults.length - 1].moisture1Hr : prev1;
+    results.summary.final10Hr = results.dailyResults.length ? results.dailyResults[results.dailyResults.length - 1].moisture10Hr : prev10;
 
     return results;
   }
@@ -74,13 +123,16 @@
     if (!tbody) return;
     tbody.innerHTML = '';
     for (let i = 0; i < rows; i++) {
+      const tempVal = FORECAST_BASE_TEMP + i;
+      const rhVal = FORECAST_BASE_RH - i * 5;
+      const windVal = FORECAST_BASE_WIND + i;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>Day ${i+1}</td>
-        <td><input type="number" class="fc-temp" value="${60 + i}" step="1" min="-20" max="130"></td>
-        <td><input type="number" class="fc-rh" value="${60 - i*5}" step="1" min="0" max="100"></td>
-        <td><input type="number" class="fc-wind" value="${5 + i}" step="1" min="0" max="100"></td>
-        <td><input type="number" class="fc-hours" value="12" step="1" min="0" max="24"></td>
+        <td><input type="number" class="fc-temp" value="${tempVal}" step="1" min="-20" max="130"></td>
+        <td><input type="number" class="fc-rh" value="${rhVal}" step="1" min="0" max="100"></td>
+        <td><input type="number" class="fc-wind" value="${windVal}" step="1" min="0" max="100"></td>
+        <td><input type="number" class="fc-hours" value="${DEFAULT_HOURS}" step="1" min="0" max="24"></td>
       `;
       tbody.appendChild(tr);
     }
@@ -91,10 +143,17 @@
     if (!tbody) return [];
     const rows = Array.from(tbody.querySelectorAll('tr'));
     return rows.map((tr, idx) => {
-      const temp = Number(tr.querySelector('.fc-temp')?.value || 70);
-      const rh = Number(tr.querySelector('.fc-rh')?.value || 50);
-      const wind = Number(tr.querySelector('.fc-wind')?.value || 5);
-      const hours = Number(tr.querySelector('.fc-hours')?.value || 12);
+      // use safeParse to allow 0 values and avoid mistaken defaults
+      const tempInput = tr.querySelector('.fc-temp')?.value ?? '';
+      const rhInput = tr.querySelector('.fc-rh')?.value ?? '';
+      const windInput = tr.querySelector('.fc-wind')?.value ?? '';
+      const hoursInput = tr.querySelector('.fc-hours')?.value ?? '';
+
+      const temp = safeParse(tempInput, DEFAULT_TEMP);
+      const rh = safeParse(rhInput, DEFAULT_RH);
+      const wind = safeParse(windInput, DEFAULT_WIND);
+      const hours = Math.max(0, safeParse(hoursInput, DEFAULT_HOURS));
+
       return { label: `Day ${idx+1}`, temp, rh, wind, hours };
     });
   }
@@ -133,8 +192,12 @@
     const runBtn = document.getElementById('runModelBtn');
     if (runBtn) {
       runBtn.addEventListener('click', () => {
-        const initial1 = Number(document.getElementById('initial1hr')?.value || 8);
-        const initial10 = Number(document.getElementById('initial10hr')?.value || 10);
+        // use safeParse so a value of "0" is preserved and empty/invalid become defaults
+        const initial1Input = document.getElementById('initial1hr')?.value ?? '';
+        const initial10Input = document.getElementById('initial10hr')?.value ?? '';
+        const initial1 = safeParse(initial1Input, DEFAULT_INITIAL_1HR);
+        const initial10 = safeParse(initial10Input, DEFAULT_INITIAL_10HR);
+
         const forecast = readForecastTable();
         try {
           const results = runModel(initial1, initial10, forecast);
@@ -159,10 +222,12 @@
   global.runModel = runModel;
 
   // On DOM ready, wire UI (safe-guarded)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', wireUI);
-  } else {
-    wireUI();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', wireUI);
+    } else {
+      wireUI();
+    }
   }
 
-})(window);
+})(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : {}));
