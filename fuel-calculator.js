@@ -36,8 +36,8 @@
   // Time-lag drying/wetting model:
   // m_t = EMC + (m0 - EMC) * exp(-hours / timeLag)
   function stepMoisture(initial, emc, hours, timeLag) {
-    const m0 = safeParse(initial, emc); // if initial invalid, assume starting at emc
     const e = safeParse(emc, 5); // fallback emc if invalid (shouldn't happen)
+    const m0 = safeParse(initial, e); // if initial invalid, assume starting at emc
     const h = safeParse(hours, 0);
     // protect against zero/negative timeLag by ensuring a very small positive value
     const lag = Math.max(0.0001, safeParse(timeLag, 1));
