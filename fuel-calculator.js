@@ -9,6 +9,10 @@
 (function(global){
   'use strict';
 
+  // Constants
+  const MIN_TIME_LAG = 0.0001; // Minimum time lag to prevent division by zero
+  const CRITICAL_MOISTURE_THRESHOLD = 6; // 1-hour fuel moisture threshold (%)
+
   // Helper: robustly parse a numeric input (strings from inputs, etc.)
   // If parsing fails, return the fallback (which must be a finite number).
   function safeParse(value, fallback) {
@@ -40,7 +44,7 @@
     const e = safeParse(emc, 5); // fallback emc if invalid (shouldn't happen)
     const h = safeParse(hours, 0);
     // protect against zero/negative timeLag by ensuring a very small positive value
-    const lag = Math.max(0.0001, safeParse(timeLag, 1));
+    const lag = Math.max(MIN_TIME_LAG, safeParse(timeLag, 1));
     const k = Math.exp(-h / lag);
     return Number((e + (m0 - e) * k).toFixed(1));
   }
@@ -88,7 +92,7 @@
       prev10 = m10;
     });
 
-    const critIndex = results.dailyResults.findIndex(r => Number.isFinite(r.moisture1Hr) && r.moisture1Hr <= 6);
+    const critIndex = results.dailyResults.findIndex(r => Number.isFinite(r.moisture1Hr) && r.moisture1Hr <= CRITICAL_MOISTURE_THRESHOLD);
     results.summary.firstCritical1HrDay = critIndex >= 0 ? results.dailyResults[critIndex].day : null;
 
     // also expose final values for convenience
@@ -213,4 +217,4 @@
     }
   }
 
-})(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : this));
+})(typeof window !== 'undefined' ? window : (typeof global !== 'undefined' ? global : {}));
