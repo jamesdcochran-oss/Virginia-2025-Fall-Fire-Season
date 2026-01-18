@@ -1,64 +1,60 @@
 {
-  "lastUpdated": "2026-01-17T18:40:15.761219Z",
+  "lastUpdated": "2026-01-18T01:23:31.465561Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 46,
-      "rh": 40,
-      "dewPoint": 23,
-      "wind": 7,
-      "gust": 9,
+      "temp": 38,
+      "rh": 77,
+      "dewPoint": 32,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     },
     {
       "name": "Brunswick",
-      "temp": 48,
-      "rh": 42,
-      "dewPoint": 26,
+      "temp": 40,
+      "rh": 81,
+      "dewPoint": 35,
       "wind": 0,
-      "gust": 21,
-      "dangerClass": 2
+      "gust": 0,
+      "dangerClass": 1
     },
     {
       "name": "Greensville",
-      "temp": 52,
-      "rh": 27,
-      "dewPoint": 19,
-      "wind": 11,
-      "gust": 20,
-      "dangerClass": 3
+      "temp": 42,
+      "rh": 68,
+      "dewPoint": 32,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 1
     },
     {
       "name": "Amelia",
-      "temp": 49,
-      "rh": 62,
+      "temp": 41,
+      "rh": 82,
       "dewPoint": 36,
-      "wind": 9,
-      "gust": 17,
-      "dangerClass": 2
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 46,
-      "rh": 40,
-      "dewPoint": 23,
-      "wind": 7,
-      "gust": 9,
+      "temp": 38,
+      "rh": 77,
+      "dewPoint": 32,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     },
     {
       "name": "Nottoway",
-      "temp": 49,
-      "rh": 62,
+      "temp": 41,
+      "rh": 82,
       "dewPoint": 36,
-      "wind": 9,
-      "gust": 17,
-      "dangerClass": 2
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 1
     }
   ],
-  "alerts": [
-    "Brunswick: High gusts (21 mph)",
-    "Greensville: High gusts (20 mph)",
-    "Greensville: Low humidity (27%)"
-  ]
+  "alerts": []
 }
