@@ -1,60 +1,67 @@
 {
-  "lastUpdated": "2026-01-21T13:10:01.710739Z",
+  "lastUpdated": "2026-01-21T18:36:16.548014Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 14,
-      "rh": 85,
-      "dewPoint": 11,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 42,
+      "rh": 21,
+      "dewPoint": 5,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 17,
-      "rh": 82,
-      "dewPoint": 12,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 45,
+      "rh": 23,
+      "dewPoint": 10,
+      "wind": 10,
+      "gust": 13,
+      "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 12,
-      "rh": 85,
-      "dewPoint": 9,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 44,
+      "rh": 25,
+      "dewPoint": 11,
+      "wind": 9,
+      "gust": 12,
+      "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 14,
-      "rh": 91,
-      "dewPoint": 12,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 46,
+      "rh": 27,
+      "dewPoint": 14,
+      "wind": 14,
+      "gust": 17,
+      "dangerClass": 3
     },
     {
       "name": "Prince George",
-      "temp": 14,
-      "rh": 85,
-      "dewPoint": 11,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 42,
+      "rh": 21,
+      "dewPoint": 5,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 14,
-      "rh": 91,
-      "dewPoint": 12,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 46,
+      "rh": 27,
+      "dewPoint": 14,
+      "wind": 14,
+      "gust": 17,
+      "dangerClass": 3
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Dinwiddie: Low humidity (21%)",
+    "Brunswick: Low humidity (23%)",
+    "Greensville: Low humidity (25%)",
+    "Amelia: Low humidity (27%)",
+    "Prince George: Low humidity (21%)",
+    "Nottoway: Low humidity (27%)"
+  ]
 }
