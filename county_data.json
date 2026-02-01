@@ -1,67 +1,65 @@
 {
-  "lastUpdated": "2026-02-01T03:25:25.539063Z",
+  "lastUpdated": "2026-02-01T06:42:11.925628Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 21,
-      "rh": 52,
-      "dewPoint": 6,
-      "wind": 11,
-      "gust": 26,
+      "temp": 20,
+      "rh": 50,
+      "dewPoint": 4,
+      "wind": 0,
+      "gust": 30,
       "dangerClass": 2
     },
     {
       "name": "Brunswick",
       "temp": 19,
-      "rh": 70,
-      "dewPoint": 11,
-      "wind": 13,
-      "gust": 20,
+      "rh": 58,
+      "dewPoint": 7,
+      "wind": 0,
+      "gust": 33,
       "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 18,
-      "rh": 84,
-      "dewPoint": 14,
-      "wind": 13,
-      "gust": 21,
+      "temp": 19,
+      "rh": 63,
+      "dewPoint": 9,
+      "wind": 0,
+      "gust": 28,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 22,
+      "temp": 21,
       "rh": 53,
-      "dewPoint": 8,
-      "wind": 10,
-      "gust": 21,
-      "dangerClass": 2
+      "dewPoint": 7,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 21,
-      "rh": 52,
-      "dewPoint": 6,
-      "wind": 11,
-      "gust": 26,
+      "temp": 20,
+      "rh": 50,
+      "dewPoint": 4,
+      "wind": 0,
+      "gust": 30,
       "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 22,
+      "temp": 21,
       "rh": 53,
-      "dewPoint": 8,
-      "wind": 10,
-      "gust": 21,
-      "dangerClass": 2
+      "dewPoint": 7,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 1
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (26 mph)",
-    "Brunswick: High gusts (20 mph)",
-    "Greensville: High gusts (21 mph)",
-    "Amelia: High gusts (21 mph)",
-    "Prince George: High gusts (26 mph)",
-    "Nottoway: High gusts (21 mph)"
+    "Dinwiddie: High gusts (30 mph)",
+    "Brunswick: High gusts (33 mph)",
+    "Greensville: High gusts (28 mph)",
+    "Prince George: High gusts (30 mph)"
   ]
 }
