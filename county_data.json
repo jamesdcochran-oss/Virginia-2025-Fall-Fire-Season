@@ -1,62 +1,65 @@
 {
-  "lastUpdated": "2026-01-31T18:47:56.741391Z",
+  "lastUpdated": "2026-02-01T01:53:27.169157Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 18,
+      "temp": 21,
       "rh": 51,
-      "dewPoint": 3,
+      "dewPoint": 6,
       "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "gust": 26,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 17,
-      "rh": 71,
-      "dewPoint": 9,
-      "wind": 11,
-      "gust": 15,
-      "dangerClass": 2
+      "temp": 18,
+      "rh": 84,
+      "dewPoint": 14,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 1
     },
     {
       "name": "Greensville",
-      "temp": 18,
-      "rh": 55,
-      "dewPoint": 4,
-      "wind": 11,
-      "gust": 21,
-      "dangerClass": 2
+      "temp": 17,
+      "rh": 85,
+      "dewPoint": 14,
+      "wind": 10,
+      "gust": 13,
+      "dangerClass": 1
     },
     {
       "name": "Amelia",
       "temp": 23,
-      "rh": 46,
-      "dewPoint": 5,
-      "wind": 13,
-      "gust": 18,
+      "rh": 52,
+      "dewPoint": 8,
+      "wind": 14,
+      "gust": 23,
       "dangerClass": 2
     },
     {
       "name": "Prince George",
-      "temp": 18,
+      "temp": 21,
       "rh": 51,
-      "dewPoint": 3,
+      "dewPoint": 6,
       "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "gust": 26,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
       "temp": 23,
-      "rh": 46,
-      "dewPoint": 5,
-      "wind": 13,
-      "gust": 18,
+      "rh": 52,
+      "dewPoint": 8,
+      "wind": 14,
+      "gust": 23,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Greensville: High gusts (21 mph)"
+    "Dinwiddie: High gusts (26 mph)",
+    "Amelia: High gusts (23 mph)",
+    "Prince George: High gusts (26 mph)",
+    "Nottoway: High gusts (23 mph)"
   ]
 }
