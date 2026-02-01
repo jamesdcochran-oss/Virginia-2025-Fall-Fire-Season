@@ -1,64 +1,68 @@
 {
-  "lastUpdated": "2026-02-01T13:10:06.771989Z",
+  "lastUpdated": "2026-02-01T18:51:07.086109Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 18,
-      "rh": 53,
-      "dewPoint": 4,
-      "wind": 13,
-      "gust": 25,
-      "dangerClass": 2
+      "temp": 31,
+      "rh": 28,
+      "dewPoint": 2,
+      "wind": 0,
+      "gust": 23,
+      "dangerClass": 3
     },
     {
       "name": "Brunswick",
-      "temp": 18,
-      "rh": 57,
-      "dewPoint": 5,
-      "wind": 6,
-      "gust": 8,
-      "dangerClass": 1
+      "temp": 33,
+      "rh": 33,
+      "dewPoint": 7,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 17,
-      "rh": 58,
-      "dewPoint": 5,
-      "wind": 13,
-      "gust": 24,
-      "dangerClass": 2
+      "temp": 29,
+      "rh": 34,
+      "dewPoint": 4,
+      "wind": 16,
+      "gust": 20,
+      "dangerClass": 3
     },
     {
       "name": "Amelia",
-      "temp": 19,
-      "rh": 55,
-      "dewPoint": 6,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 35,
+      "rh": 26,
+      "dewPoint": 4,
+      "wind": 8,
+      "gust": 17,
+      "dangerClass": 3
     },
     {
       "name": "Prince George",
-      "temp": 18,
-      "rh": 53,
-      "dewPoint": 4,
-      "wind": 13,
-      "gust": 25,
-      "dangerClass": 2
+      "temp": 31,
+      "rh": 28,
+      "dewPoint": 2,
+      "wind": 0,
+      "gust": 23,
+      "dangerClass": 3
     },
     {
       "name": "Nottoway",
-      "temp": 19,
-      "rh": 55,
-      "dewPoint": 6,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 35,
+      "rh": 26,
+      "dewPoint": 4,
+      "wind": 8,
+      "gust": 17,
+      "dangerClass": 3
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (25 mph)",
-    "Greensville: High gusts (24 mph)",
-    "Prince George: High gusts (25 mph)"
+    "Dinwiddie: High gusts (23 mph)",
+    "Dinwiddie: Low humidity (28%)",
+    "Greensville: High gusts (20 mph)",
+    "Amelia: Low humidity (26%)",
+    "Prince George: High gusts (23 mph)",
+    "Prince George: Low humidity (28%)",
+    "Nottoway: Low humidity (26%)"
   ]
 }
