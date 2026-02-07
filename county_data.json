@@ -1,62 +1,68 @@
 {
-  "lastUpdated": "2026-02-07T13:09:38.034553Z",
+  "lastUpdated": "2026-02-07T18:27:44.209307Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 28,
-      "rh": 77,
-      "dewPoint": 21,
-      "wind": 5,
-      "gust": 6,
-      "dangerClass": 1
+      "temp": 29,
+      "rh": 30,
+      "dewPoint": 2,
+      "wind": 15,
+      "gust": 32,
+      "dangerClass": 3
     },
     {
       "name": "Brunswick",
-      "temp": null,
-      "rh": 48,
-      "dewPoint": 15,
-      "wind": 9,
-      "gust": 20,
-      "dangerClass": 2
+      "temp": 33,
+      "rh": 27,
+      "dewPoint": 2,
+      "wind": 18,
+      "gust": 30,
+      "dangerClass": 3
     },
     {
       "name": "Greensville",
-      "temp": 28,
-      "rh": 72,
-      "dewPoint": 20,
-      "wind": 10,
-      "gust": 13,
-      "dangerClass": 1
+      "temp": 30,
+      "rh": 33,
+      "dewPoint": 4,
+      "wind": 0,
+      "gust": 37,
+      "dangerClass": 3
     },
     {
       "name": "Amelia",
-      "temp": null,
-      "rh": 36,
-      "dewPoint": 8,
+      "temp": 32,
+      "rh": 24,
+      "dewPoint": 0,
       "wind": 7,
       "gust": 9,
       "dangerClass": 2
     },
     {
       "name": "Prince George",
-      "temp": 28,
-      "rh": 77,
-      "dewPoint": 21,
-      "wind": 5,
-      "gust": 6,
-      "dangerClass": 1
+      "temp": 29,
+      "rh": 30,
+      "dewPoint": 2,
+      "wind": 15,
+      "gust": 32,
+      "dangerClass": 3
     },
     {
       "name": "Nottoway",
-      "temp": null,
-      "rh": 36,
-      "dewPoint": 8,
+      "temp": 32,
+      "rh": 24,
+      "dewPoint": 0,
       "wind": 7,
       "gust": 9,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Brunswick: High gusts (20 mph)"
+    "Dinwiddie: High gusts (32 mph)",
+    "Brunswick: High gusts (30 mph)",
+    "Brunswick: Low humidity (27%)",
+    "Greensville: High gusts (37 mph)",
+    "Amelia: Low humidity (24%)",
+    "Prince George: High gusts (32 mph)",
+    "Nottoway: Low humidity (24%)"
   ]
 }
