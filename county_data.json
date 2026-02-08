@@ -1,70 +1,64 @@
 {
-  "lastUpdated": "2026-02-07T18:51:15.813030Z",
+  "lastUpdated": "2026-02-08T02:05:19.784851Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 29,
+      "temp": 25,
       "rh": 26,
-      "dewPoint": -1,
+      "dewPoint": -5,
       "wind": 0,
-      "gust": 31,
+      "gust": 18,
       "dangerClass": 3
     },
     {
       "name": "Brunswick",
-      "temp": 34,
-      "rh": 23,
-      "dewPoint": 0,
-      "wind": 13,
-      "gust": 21,
-      "dangerClass": 3
+      "temp": 26,
+      "rh": 29,
+      "dewPoint": -2,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 30,
+      "temp": 24,
       "rh": 31,
-      "dewPoint": 3,
-      "wind": 0,
-      "gust": 32,
-      "dangerClass": 3
-    },
-    {
-      "name": "Amelia",
-      "temp": 33,
-      "rh": 25,
-      "dewPoint": 1,
+      "dewPoint": -2,
       "wind": 9,
       "gust": 12,
       "dangerClass": 2
     },
     {
-      "name": "Prince George",
-      "temp": 29,
-      "rh": 26,
+      "name": "Amelia",
+      "temp": 26,
+      "rh": 31,
       "dewPoint": -1,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 1
+    },
+    {
+      "name": "Prince George",
+      "temp": 25,
+      "rh": 26,
+      "dewPoint": -5,
       "wind": 0,
-      "gust": 31,
+      "gust": 18,
       "dangerClass": 3
     },
     {
       "name": "Nottoway",
-      "temp": 33,
-      "rh": 25,
-      "dewPoint": 1,
-      "wind": 9,
-      "gust": 12,
-      "dangerClass": 2
+      "temp": 26,
+      "rh": 31,
+      "dewPoint": -1,
+      "wind": 5,
+      "gust": 6,
+      "dangerClass": 1
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (31 mph)",
     "Dinwiddie: Low humidity (26%)",
-    "Brunswick: High gusts (21 mph)",
-    "Brunswick: Low humidity (23%)",
-    "Greensville: High gusts (32 mph)",
-    "Amelia: Low humidity (25%)",
-    "Prince George: High gusts (31 mph)",
-    "Prince George: Low humidity (26%)",
-    "Nottoway: Low humidity (25%)"
+    "Brunswick: Low humidity (29%)",
+    "Prince George: Low humidity (26%)"
   ]
 }
