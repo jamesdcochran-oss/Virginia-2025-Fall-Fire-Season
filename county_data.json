@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-11T18:55:54.650226Z",
+  "lastUpdated": "2026-02-11T19:16:41.072478Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -15,18 +15,18 @@
       "temp": 64,
       "rh": null,
       "dewPoint": null,
-      "wind": 9,
-      "gust": 12,
+      "wind": 13,
+      "gust": 22,
       "dangerClass": 2
     },
     {
       "name": "Greensville",
       "temp": 63,
-      "rh": 28,
-      "dewPoint": 29,
-      "wind": 11,
-      "gust": 15,
-      "dangerClass": 3
+      "rh": 26,
+      "dewPoint": 28,
+      "wind": 10,
+      "gust": 13,
+      "dangerClass": 2
     },
     {
       "name": "Amelia",
@@ -57,7 +57,8 @@
     }
   ],
   "alerts": [
-    "Greensville: Low humidity (28%)",
+    "Brunswick: High gusts (22 mph)",
+    "Greensville: Low humidity (26%)",
     "Amelia: Low humidity (23%)",
     "Nottoway: Low humidity (23%)"
   ]
