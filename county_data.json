@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-11T06:55:37.728712Z",
+  "lastUpdated": "2026-02-11T06:57:13.199045Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -23,7 +23,7 @@
       "name": "Greensville",
       "temp": null,
       "rh": null,
-      "dewPoint": 36,
+      "dewPoint": null,
       "wind": 0,
       "gust": 0,
       "dangerClass": 2
