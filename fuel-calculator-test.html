@@ -112,6 +112,29 @@
         '<pre>' + consoleOutput.join('\n') + '</pre>';
     }
 
+    // Wrapper function to adapt config-style API to actual runModel API
+    // and enrich results with EMC and critical flags
+    function runFuelMoistureModel(config) {
+      const results = runModel(config.initial1Hr, config.initial10Hr, config.forecast);
+      
+      // Enrich dailyResults with emc and critical flags
+      results.dailyResults = results.dailyResults.map(day => {
+        const emc = computeEMC(day.temp, day.rh);
+        return {
+          ...day,
+          emc: emc,
+          is1HrCritical: day.moisture1Hr <= 6,
+          is10HrCritical: day.moisture10Hr <= 8
+        };
+      });
+      
+      // Add firstCritical10HrDay to summary
+      const crit10Index = results.dailyResults.findIndex(r => r.is10HrCritical);
+      results.summary.firstCritical10HrDay = crit10Index >= 0 ? results.dailyResults[crit10Index].day : null;
+      
+      return results;
+    }
+
     // Test 1: EMC Validation
     function testEMC() {
       const tests = [
@@ -189,19 +212,19 @@
       
       let html = '<table><tr><th>Day</th><th>Temp</th><th>RH</th><th>Wind</th><th>EMC</th><th>1-Hr %</th><th>10-Hr %</th><th>Status</th></tr>';
       
-      results.dailyResults.forEach(day => {
-        const critical = day.is1HrCritical || day.is10HrCritical;
+      results.dailyResults.forEach(dayResult => {
+        const critical = dayResult.is1HrCritical || dayResult.is10HrCritical;
         const statusText = critical ? '🔥 CRITICAL' : '✓ Safe';
         const rowClass = critical ? 'critical' : '';
         
         html += `<tr class="${rowClass}">
-          <td><strong>${day.label}</strong></td>
-          <td>${day.temp}°F</td>
-          <td>${day.rh}%</td>
-          <td>${day.wind}mph</td>
-          <td>${day.emc}%</td>
-          <td>${day.moisture1Hr}%</td>
-          <td>${day.moisture10Hr}%</td>
+          <td><strong>${dayResult.day}</strong></td>
+          <td>${dayResult.temp}°F</td>
+          <td>${dayResult.rh}%</td>
+          <td>${dayResult.wind}mph</td>
+          <td>${dayResult.emc}%</td>
+          <td>${dayResult.moisture1Hr}%</td>
+          <td>${dayResult.moisture10Hr}%</td>
           <td>${statusText}</td>
         </tr>`;
       });
