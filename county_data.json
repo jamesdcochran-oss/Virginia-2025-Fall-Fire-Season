@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-17T06:54:55.649246Z",
+  "lastUpdated": "2026-02-17T07:12:07.591901Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -31,7 +31,7 @@
     {
       "name": "Amelia",
       "temp": 34,
-      "rh": 99,
+      "rh": 100,
       "dewPoint": 34,
       "wind": 0,
       "gust": 0,
@@ -49,7 +49,7 @@
     {
       "name": "Nottoway",
       "temp": 34,
-      "rh": 99,
+      "rh": 100,
       "dewPoint": 34,
       "wind": 0,
       "gust": 0,
