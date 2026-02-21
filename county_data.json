@@ -1,56 +1,56 @@
 {
-  "lastUpdated": "2026-02-21T02:44:30.709388Z",
+  "lastUpdated": "2026-02-21T06:35:29.223241Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 54,
-      "rh": 78,
-      "dewPoint": 47,
+      "temp": 44,
+      "rh": 74,
+      "dewPoint": 36,
       "wind": 5,
       "gust": 6,
       "dangerClass": 1
     },
     {
       "name": "Brunswick",
-      "temp": 62,
-      "rh": 45,
-      "dewPoint": 40,
-      "wind": 7,
-      "gust": 9,
+      "temp": 54,
+      "rh": 43,
+      "dewPoint": null,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 1
     },
     {
       "name": "Greensville",
       "temp": null,
       "rh": null,
-      "dewPoint": null,
+      "dewPoint": 35,
       "wind": 0,
       "gust": 0,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 57,
-      "rh": 53,
-      "dewPoint": 40,
+      "temp": 55,
+      "rh": 41,
+      "dewPoint": null,
       "wind": 0,
       "gust": 0,
       "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 54,
-      "rh": 78,
-      "dewPoint": 47,
+      "temp": 44,
+      "rh": 74,
+      "dewPoint": 36,
       "wind": 5,
       "gust": 6,
       "dangerClass": 1
     },
     {
       "name": "Nottoway",
-      "temp": 57,
-      "rh": 53,
-      "dewPoint": 40,
+      "temp": 55,
+      "rh": 41,
+      "dewPoint": null,
       "wind": 0,
       "gust": 0,
       "dangerClass": 1
