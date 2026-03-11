@@ -1,60 +1,67 @@
 {
-  "lastUpdated": "2026-03-11T12:25:07.336126Z",
+  "lastUpdated": "2026-03-11T18:18:12.096458Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 58,
-      "rh": 81,
-      "dewPoint": 52,
+      "temp": 85,
+      "rh": 44,
+      "dewPoint": 60,
       "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "gust": 26,
+      "dangerClass": 4
     },
     {
       "name": "Brunswick",
-      "temp": 60,
-      "rh": 87,
-      "dewPoint": 56,
-      "wind": 3,
-      "gust": 4,
-      "dangerClass": 1
+      "temp": 87,
+      "rh": 45,
+      "dewPoint": 63,
+      "wind": 9,
+      "gust": 22,
+      "dangerClass": 4
     },
     {
       "name": "Greensville",
-      "temp": 55,
-      "rh": 97,
-      "dewPoint": 54,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 86,
+      "rh": 46,
+      "dewPoint": 63,
+      "wind": 15,
+      "gust": 23,
+      "dangerClass": 4
     },
     {
       "name": "Amelia",
-      "temp": 62,
-      "rh": 83,
-      "dewPoint": 56,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 88,
+      "rh": 49,
+      "dewPoint": 66,
+      "wind": 11,
+      "gust": 20,
+      "dangerClass": 4
     },
     {
       "name": "Prince George",
-      "temp": 58,
-      "rh": 81,
-      "dewPoint": 52,
+      "temp": 85,
+      "rh": 44,
+      "dewPoint": 60,
       "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "gust": 26,
+      "dangerClass": 4
     },
     {
       "name": "Nottoway",
-      "temp": 62,
-      "rh": 83,
-      "dewPoint": 56,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 88,
+      "rh": 49,
+      "dewPoint": 66,
+      "wind": 11,
+      "gust": 20,
+      "dangerClass": 4
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Dinwiddie: High gusts (26 mph)",
+    "Brunswick: High gusts (22 mph)",
+    "Greensville: High gusts (23 mph)",
+    "Amelia: High gusts (20 mph)",
+    "Prince George: High gusts (26 mph)",
+    "Nottoway: High gusts (20 mph)"
+  ]
 }
