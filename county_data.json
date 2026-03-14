@@ -1,67 +1,63 @@
 {
-  "lastUpdated": "2026-03-13T18:20:55.231622Z",
+  "lastUpdated": "2026-03-14T00:19:08.075750Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 51,
-      "rh": 40,
-      "dewPoint": 27,
-      "wind": 14,
-      "gust": 22,
-      "dangerClass": 3
+      "temp": 53,
+      "rh": 34,
+      "dewPoint": 26,
+      "wind": 8,
+      "gust": 18,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 53,
+      "temp": 54,
       "rh": 40,
-      "dewPoint": 29,
-      "wind": 0,
-      "gust": 30,
-      "dangerClass": 3
+      "dewPoint": 30,
+      "wind": 11,
+      "gust": 18,
+      "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 51,
-      "rh": 41,
-      "dewPoint": 28,
-      "wind": 0,
-      "gust": 23,
+      "temp": 54,
+      "rh": 47,
+      "dewPoint": 34,
+      "wind": 10,
+      "gust": 16,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 57,
-      "rh": 38,
-      "dewPoint": 31,
-      "wind": 0,
-      "gust": 30,
+      "temp": 56,
+      "rh": 40,
+      "dewPoint": null,
+      "wind": 13,
+      "gust": 20,
       "dangerClass": 3
     },
     {
       "name": "Prince George",
-      "temp": 51,
-      "rh": 40,
-      "dewPoint": 27,
-      "wind": 14,
-      "gust": 22,
-      "dangerClass": 3
+      "temp": 53,
+      "rh": 34,
+      "dewPoint": 26,
+      "wind": 8,
+      "gust": 18,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 57,
-      "rh": 38,
-      "dewPoint": 31,
-      "wind": 0,
-      "gust": 30,
+      "temp": 56,
+      "rh": 40,
+      "dewPoint": null,
+      "wind": 13,
+      "gust": 20,
       "dangerClass": 3
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (22 mph)",
-    "Brunswick: High gusts (30 mph)",
-    "Greensville: High gusts (23 mph)",
-    "Amelia: High gusts (30 mph)",
-    "Prince George: High gusts (22 mph)",
-    "Nottoway: High gusts (30 mph)"
+    "Amelia: High gusts (20 mph)",
+    "Nottoway: High gusts (20 mph)"
   ]
 }
