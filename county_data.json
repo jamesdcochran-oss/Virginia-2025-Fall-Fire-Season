@@ -1,60 +1,68 @@
 {
-  "lastUpdated": "2026-03-20T12:23:36.908708Z",
+  "lastUpdated": "2026-03-20T18:23:12.340873Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 36,
-      "rh": 81,
-      "dewPoint": 31,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 70,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 9,
+      "gust": 21,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 38,
-      "rh": 92,
-      "dewPoint": 36,
-      "wind": 3,
-      "gust": 4,
-      "dangerClass": 1
+      "temp": 72,
+      "rh": 30,
+      "dewPoint": 39,
+      "wind": 0,
+      "gust": 22,
+      "dangerClass": 4
     },
     {
       "name": "Greensville",
-      "temp": 34,
-      "rh": 92,
-      "dewPoint": 32,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 69,
+      "rh": 33,
+      "dewPoint": 38,
+      "wind": 11,
+      "gust": 17,
+      "dangerClass": 3
     },
     {
       "name": "Amelia",
-      "temp": 35,
-      "rh": 97,
-      "dewPoint": 34,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 76,
+      "rh": 28,
+      "dewPoint": 40,
+      "wind": 13,
+      "gust": 20,
+      "dangerClass": 4
     },
     {
       "name": "Prince George",
-      "temp": 36,
-      "rh": 81,
-      "dewPoint": 31,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 70,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 9,
+      "gust": 21,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 35,
-      "rh": 97,
-      "dewPoint": 34,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 76,
+      "rh": 28,
+      "dewPoint": 40,
+      "wind": 13,
+      "gust": 20,
+      "dangerClass": 4
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Dinwiddie: High gusts (21 mph)",
+    "Brunswick: High gusts (22 mph)",
+    "Amelia: High gusts (20 mph)",
+    "Amelia: Low humidity (28%)",
+    "Prince George: High gusts (21 mph)",
+    "Nottoway: High gusts (20 mph)",
+    "Nottoway: Low humidity (28%)"
+  ]
 }
