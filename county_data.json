@@ -1,67 +1,65 @@
 {
-  "lastUpdated": "2026-03-24T00:18:10.963643Z",
+  "lastUpdated": "2026-03-24T00:46:03.865530Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 55,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 21,
+      "temp": 53,
+      "rh": 38,
+      "dewPoint": 28,
+      "wind": 11,
+      "gust": 18,
       "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 64,
-      "rh": 34,
-      "dewPoint": 35,
-      "wind": 13,
-      "gust": 21,
+      "temp": 62,
+      "rh": 32,
+      "dewPoint": null,
+      "wind": 11,
+      "gust": 24,
       "dangerClass": 3
     },
     {
       "name": "Greensville",
-      "temp": 60,
-      "rh": 40,
-      "dewPoint": 36,
-      "wind": 15,
+      "temp": 57,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 14,
       "gust": 23,
-      "dangerClass": 3
+      "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 60,
-      "rh": 29,
-      "dewPoint": 28,
-      "wind": 8,
-      "gust": 10,
+      "temp": 58,
+      "rh": 27,
+      "dewPoint": 24,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 2
     },
     {
       "name": "Prince George",
-      "temp": 55,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 21,
+      "temp": 53,
+      "rh": 38,
+      "dewPoint": 28,
+      "wind": 11,
+      "gust": 18,
       "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 60,
-      "rh": 29,
-      "dewPoint": 28,
-      "wind": 8,
-      "gust": 10,
+      "temp": 58,
+      "rh": 27,
+      "dewPoint": 24,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (21 mph)",
-    "Brunswick: High gusts (21 mph)",
+    "Brunswick: High gusts (24 mph)",
     "Greensville: High gusts (23 mph)",
-    "Amelia: Low humidity (29%)",
-    "Prince George: High gusts (21 mph)",
-    "Nottoway: Low humidity (29%)"
+    "Amelia: Low humidity (27%)",
+    "Nottoway: Low humidity (27%)"
   ]
 }
