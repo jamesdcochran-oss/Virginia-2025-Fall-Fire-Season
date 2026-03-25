@@ -1,14 +1,14 @@
 {
-  "lastUpdated": "2026-03-25T18:19:37.361346Z",
+  "lastUpdated": "2026-03-25T18:29:39.341026Z",
   "counties": [
     {
       "name": "Dinwiddie",
       "temp": 58,
-      "rh": 27,
-      "dewPoint": 24,
-      "wind": 7,
-      "gust": 9,
-      "dangerClass": 2
+      "rh": 32,
+      "dewPoint": 28,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 1
     },
     {
       "name": "Brunswick",
@@ -40,11 +40,11 @@
     {
       "name": "Prince George",
       "temp": 58,
-      "rh": 27,
-      "dewPoint": 24,
-      "wind": 7,
-      "gust": 9,
-      "dangerClass": 2
+      "rh": 32,
+      "dewPoint": 28,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 1
     },
     {
       "name": "Nottoway",
@@ -56,8 +56,5 @@
       "dangerClass": 2
     }
   ],
-  "alerts": [
-    "Dinwiddie: Low humidity (27%)",
-    "Prince George: Low humidity (27%)"
-  ]
+  "alerts": []
 }
