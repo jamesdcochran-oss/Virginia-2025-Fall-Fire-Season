@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-27T06:26:07.570913Z",
+  "lastUpdated": "2026-03-27T06:27:22.421226Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -24,8 +24,8 @@
       "temp": 66,
       "rh": 70,
       "dewPoint": 56,
-      "wind": 9,
-      "gust": 12,
+      "wind": 11,
+      "gust": 16,
       "dangerClass": 2
     },
     {
