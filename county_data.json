@@ -1,63 +1,65 @@
 {
-  "lastUpdated": "2026-03-28T12:22:03.575085Z",
+  "lastUpdated": "2026-03-28T18:18:17.212470Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 41,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 25,
-      "dangerClass": 2
+      "temp": 49,
+      "rh": 31,
+      "dewPoint": 19,
+      "wind": 13,
+      "gust": 20,
+      "dangerClass": 3
     },
     {
       "name": "Brunswick",
-      "temp": 43,
-      "rh": 81,
-      "dewPoint": 38,
-      "wind": 13,
-      "gust": 17,
-      "dangerClass": 2
+      "temp": 52,
+      "rh": 34,
+      "dewPoint": 24,
+      "wind": 14,
+      "gust": 20,
+      "dangerClass": 3
     },
     {
       "name": "Greensville",
-      "temp": 40,
-      "rh": 84,
-      "dewPoint": 36,
-      "wind": 11,
-      "gust": 15,
-      "dangerClass": 2
+      "temp": 48,
+      "rh": 34,
+      "dewPoint": 21,
+      "wind": 10,
+      "gust": 20,
+      "dangerClass": 3
     },
     {
       "name": "Amelia",
-      "temp": 40,
-      "rh": 61,
-      "dewPoint": 28,
-      "wind": 5,
-      "gust": 6,
+      "temp": 51,
+      "rh": 35,
+      "dewPoint": 25,
+      "wind": 7,
+      "gust": 9,
       "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 41,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 25,
-      "dangerClass": 2
+      "temp": 49,
+      "rh": 31,
+      "dewPoint": 19,
+      "wind": 13,
+      "gust": 20,
+      "dangerClass": 3
     },
     {
       "name": "Nottoway",
-      "temp": 40,
-      "rh": 61,
-      "dewPoint": 28,
-      "wind": 5,
-      "gust": 6,
+      "temp": 51,
+      "rh": 35,
+      "dewPoint": 25,
+      "wind": 7,
+      "gust": 9,
       "dangerClass": 1
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (25 mph)",
-    "Prince George: High gusts (25 mph)"
+    "Dinwiddie: High gusts (20 mph)",
+    "Brunswick: High gusts (20 mph)",
+    "Greensville: High gusts (20 mph)",
+    "Prince George: High gusts (20 mph)"
   ]
 }
