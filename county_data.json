@@ -1,65 +1,60 @@
 {
-  "lastUpdated": "2026-04-10T18:28:35.267695Z",
+  "lastUpdated": "2026-04-11T00:22:40.325041Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 73,
-      "rh": 27,
-      "dewPoint": 37,
-      "wind": 3,
-      "gust": 4,
+      "temp": null,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 72,
+      "temp": null,
       "rh": null,
-      "dewPoint": null,
-      "wind": 9,
-      "gust": 12,
-      "dangerClass": 2
-    },
-    {
-      "name": "Greensville",
-      "temp": 72,
-      "rh": 30,
-      "dewPoint": 39,
-      "wind": 6,
-      "gust": 8,
-      "dangerClass": 2
-    },
-    {
-      "name": "Amelia",
-      "temp": 76,
-      "rh": 29,
-      "dewPoint": 42,
-      "wind": 8,
-      "gust": 10,
-      "dangerClass": 3
-    },
-    {
-      "name": "Prince George",
-      "temp": 73,
-      "rh": 27,
-      "dewPoint": 37,
+      "dewPoint": 43,
       "wind": 3,
       "gust": 4,
       "dangerClass": 2
     },
     {
-      "name": "Nottoway",
-      "temp": 76,
-      "rh": 29,
+      "name": "Greensville",
+      "temp": 68,
+      "rh": 39,
       "dewPoint": 42,
-      "wind": 8,
-      "gust": 10,
-      "dangerClass": 3
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
+    },
+    {
+      "name": "Amelia",
+      "temp": 70,
+      "rh": 39,
+      "dewPoint": 44,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
+    },
+    {
+      "name": "Prince George",
+      "temp": null,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 2
+    },
+    {
+      "name": "Nottoway",
+      "temp": 70,
+      "rh": 39,
+      "dewPoint": 44,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
     }
   ],
-  "alerts": [
-    "Dinwiddie: Low humidity (27%)",
-    "Amelia: Low humidity (29%)",
-    "Prince George: Low humidity (27%)",
-    "Nottoway: Low humidity (29%)"
-  ]
+  "alerts": []
 }
