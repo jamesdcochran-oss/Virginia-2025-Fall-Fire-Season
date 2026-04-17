@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-04-17T06:37:49.296220Z",
+  "lastUpdated": "2026-04-17T06:39:31.710135Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -30,12 +30,12 @@
     },
     {
       "name": "Amelia",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": null,
-      "gust": null,
-      "dangerClass": 1
+      "temp": 75,
+      "rh": 53,
+      "dewPoint": 56,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 2
     },
     {
       "name": "Prince George",
