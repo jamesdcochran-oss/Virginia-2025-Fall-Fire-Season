@@ -1,60 +1,65 @@
 {
-  "lastUpdated": "2026-04-18T12:24:30.497898Z",
+  "lastUpdated": "2026-04-18T18:23:10.354401Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 57,
-      "rh": 91,
-      "dewPoint": 54,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
-    },
-    {
-      "name": "Brunswick",
-      "temp": 60,
-      "rh": 93,
-      "dewPoint": 58,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
-    },
-    {
-      "name": "Greensville",
-      "temp": null,
+      "temp": 87,
       "rh": null,
       "dewPoint": null,
-      "wind": 0,
-      "gust": 0,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 2
     },
     {
+      "name": "Brunswick",
+      "temp": 88,
+      "rh": 28,
+      "dewPoint": 51,
+      "wind": 7,
+      "gust": 9,
+      "dangerClass": 3
+    },
+    {
+      "name": "Greensville",
+      "temp": 87,
+      "rh": 28,
+      "dewPoint": 50,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 4
+    },
+    {
       "name": "Amelia",
-      "temp": 57,
-      "rh": 95,
-      "dewPoint": 56,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 89,
+      "rh": 39,
+      "dewPoint": 61,
+      "wind": 14,
+      "gust": 21,
+      "dangerClass": 4
     },
     {
       "name": "Prince George",
-      "temp": 57,
-      "rh": 91,
-      "dewPoint": 54,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 87,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 3,
+      "gust": 4,
+      "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 57,
-      "rh": 95,
-      "dewPoint": 56,
-      "wind": 0,
-      "gust": 0,
-      "dangerClass": 1
+      "temp": 89,
+      "rh": 39,
+      "dewPoint": 61,
+      "wind": 14,
+      "gust": 21,
+      "dangerClass": 4
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Brunswick: Low humidity (28%)",
+    "Greensville: Low humidity (28%)",
+    "Amelia: High gusts (21 mph)",
+    "Nottoway: High gusts (21 mph)"
+  ]
 }
