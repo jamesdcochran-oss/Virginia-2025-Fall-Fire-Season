@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-04-21T18:22:54.718485Z",
+  "lastUpdated": "2026-04-21T18:35:24.179272Z",
   "counties": [
     {
       "name": "Dinwiddie",
       "temp": 59,
       "rh": null,
       "dewPoint": null,
-      "wind": 8,
-      "gust": 10,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
@@ -24,17 +24,17 @@
       "temp": 59,
       "rh": 29,
       "dewPoint": 27,
-      "wind": 7,
-      "gust": 9,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 62,
-      "rh": 28,
+      "temp": 63,
+      "rh": 27,
       "dewPoint": 29,
-      "wind": 6,
-      "gust": 8,
+      "wind": 9,
+      "gust": 12,
       "dangerClass": 2
     },
     {
@@ -42,24 +42,24 @@
       "temp": 59,
       "rh": null,
       "dewPoint": null,
-      "wind": 8,
-      "gust": 10,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 62,
-      "rh": 28,
+      "temp": 63,
+      "rh": 27,
       "dewPoint": 29,
-      "wind": 6,
-      "gust": 8,
+      "wind": 9,
+      "gust": 12,
       "dangerClass": 2
     }
   ],
   "alerts": [
     "Brunswick: Low humidity (25%)",
     "Greensville: Low humidity (29%)",
-    "Amelia: Low humidity (28%)",
-    "Nottoway: Low humidity (28%)"
+    "Amelia: Low humidity (27%)",
+    "Nottoway: Low humidity (27%)"
   ]
 }
