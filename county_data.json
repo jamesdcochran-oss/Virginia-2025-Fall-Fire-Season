@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-04-24T12:21:10.805838Z",
+  "lastUpdated": "2026-04-24T12:35:18.961867Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 59,
-      "rh": 76,
+      "temp": 64,
+      "rh": 67,
       "dewPoint": 52,
-      "wind": 0,
-      "gust": 0,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 1
     },
     {
@@ -21,11 +21,11 @@
     },
     {
       "name": "Greensville",
-      "temp": 60,
-      "rh": 65,
-      "dewPoint": 48,
-      "wind": 0,
-      "gust": 0,
+      "temp": 62,
+      "rh": 62,
+      "dewPoint": 49,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 1
     },
     {
@@ -39,11 +39,11 @@
     },
     {
       "name": "Prince George",
-      "temp": 59,
-      "rh": 76,
+      "temp": 64,
+      "rh": 67,
       "dewPoint": 52,
-      "wind": 0,
-      "gust": 0,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 1
     },
     {
