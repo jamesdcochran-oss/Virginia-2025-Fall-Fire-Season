@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-05-06T06:55:19.720168Z",
+  "lastUpdated": "2026-05-06T06:56:36.400264Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -48,15 +48,16 @@
     },
     {
       "name": "Nottoway",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": null,
-      "gust": null,
-      "dangerClass": 1
+      "temp": 69,
+      "rh": 68,
+      "dewPoint": 58,
+      "wind": 0,
+      "gust": 22,
+      "dangerClass": 3
     }
   ],
   "alerts": [
-    "Amelia: High gusts (22 mph)"
+    "Amelia: High gusts (22 mph)",
+    "Nottoway: High gusts (22 mph)"
   ]
 }
