@@ -1,14 +1,14 @@
 {
-  "lastUpdated": "2026-05-08T18:30:18.855555Z",
+  "lastUpdated": "2026-05-08T18:43:39.112001Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": null,
-      "gust": null,
-      "dangerClass": 1
+      "temp": 68,
+      "rh": 28,
+      "dewPoint": 33,
+      "wind": 7,
+      "gust": 9,
+      "dangerClass": 2
     },
     {
       "name": "Brunswick",
@@ -56,5 +56,7 @@
       "dangerClass": 1
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Dinwiddie: Low humidity (28%)"
+  ]
 }
