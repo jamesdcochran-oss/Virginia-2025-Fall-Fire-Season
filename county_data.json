@@ -1,22 +1,22 @@
 {
-  "lastUpdated": "2026-05-12T18:40:50.866441Z",
+  "lastUpdated": "2026-05-12T18:49:01.013722Z",
   "counties": [
     {
       "name": "Dinwiddie",
       "temp": 69,
-      "rh": 34,
-      "dewPoint": 40,
-      "wind": 3,
-      "gust": 4,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 72,
-      "rh": 30,
-      "dewPoint": 38,
-      "wind": 3,
-      "gust": 4,
+      "temp": 71,
+      "rh": 28,
+      "dewPoint": 37,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
@@ -40,10 +40,10 @@
     {
       "name": "Prince George",
       "temp": 69,
-      "rh": 34,
-      "dewPoint": 40,
-      "wind": 3,
-      "gust": 4,
+      "rh": null,
+      "dewPoint": null,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 2
     },
     {
@@ -56,5 +56,7 @@
       "dangerClass": 3
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Brunswick: Low humidity (28%)"
+  ]
 }
