@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-05-19T07:14:29.658201Z",
+  "lastUpdated": "2026-05-19T07:30:21.352510Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 74,
-      "rh": 71,
+      "temp": 73,
+      "rh": 74,
       "dewPoint": 64,
-      "wind": 3,
-      "gust": 4,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     },
     {
@@ -39,11 +39,11 @@
     },
     {
       "name": "Prince George",
-      "temp": 74,
-      "rh": 71,
+      "temp": 73,
+      "rh": 74,
       "dewPoint": 64,
-      "wind": 3,
-      "gust": 4,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     },
     {
