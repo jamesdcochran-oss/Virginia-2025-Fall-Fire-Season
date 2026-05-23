@@ -1,22 +1,22 @@
 {
-  "lastUpdated": "2026-05-23T00:37:36.661150Z",
+  "lastUpdated": "2026-05-23T01:10:38.150663Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 58,
-      "rh": 92,
-      "dewPoint": 56,
-      "wind": 7,
-      "gust": 9,
+      "temp": 57,
+      "rh": 93,
+      "dewPoint": 55,
+      "wind": 8,
+      "gust": 10,
       "dangerClass": 1
     },
     {
       "name": "Brunswick",
-      "temp": 60,
+      "temp": 59,
       "rh": 99,
-      "dewPoint": 60,
-      "wind": 0,
-      "gust": 0,
+      "dewPoint": 59,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 1
     },
     {
@@ -33,17 +33,17 @@
       "temp": 58,
       "rh": 100,
       "dewPoint": 58,
-      "wind": 10,
-      "gust": 13,
+      "wind": 9,
+      "gust": 12,
       "dangerClass": 1
     },
     {
       "name": "Prince George",
-      "temp": 58,
-      "rh": 92,
-      "dewPoint": 56,
-      "wind": 7,
-      "gust": 9,
+      "temp": 57,
+      "rh": 93,
+      "dewPoint": 55,
+      "wind": 8,
+      "gust": 10,
       "dangerClass": 1
     },
     {
@@ -51,8 +51,8 @@
       "temp": 58,
       "rh": 100,
       "dewPoint": 58,
-      "wind": 10,
-      "gust": 13,
+      "wind": 9,
+      "gust": 12,
       "dangerClass": 1
     }
   ],
