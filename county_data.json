@@ -1,38 +1,38 @@
 {
-  "lastUpdated": "2026-06-04T18:45:57.482479Z",
+  "lastUpdated": "2026-06-04T19:00:54.951590Z",
   "counties": [
     {
       "name": "Dinwiddie",
       "temp": 84,
       "rh": null,
       "dewPoint": null,
-      "wind": 0,
-      "gust": 0,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 2
     },
     {
       "name": "Brunswick",
-      "temp": 85,
-      "rh": 23,
-      "dewPoint": 44,
-      "wind": 6,
-      "gust": 8,
-      "dangerClass": 3
-    },
-    {
-      "name": "Greensville",
-      "temp": 84,
-      "rh": 26,
+      "temp": 87,
+      "rh": 24,
       "dewPoint": 45,
       "wind": 0,
       "gust": 0,
       "dangerClass": 3
     },
     {
+      "name": "Greensville",
+      "temp": 85,
+      "rh": 26,
+      "dewPoint": 46,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 3
+    },
+    {
       "name": "Amelia",
-      "temp": 87,
-      "rh": 31,
-      "dewPoint": 53,
+      "temp": 89,
+      "rh": 30,
+      "dewPoint": 54,
       "wind": 5,
       "gust": 6,
       "dangerClass": 3
@@ -42,22 +42,22 @@
       "temp": 84,
       "rh": null,
       "dewPoint": null,
-      "wind": 0,
-      "gust": 0,
+      "wind": 6,
+      "gust": 8,
       "dangerClass": 2
     },
     {
       "name": "Nottoway",
-      "temp": 87,
-      "rh": 31,
-      "dewPoint": 53,
+      "temp": 89,
+      "rh": 30,
+      "dewPoint": 54,
       "wind": 5,
       "gust": 6,
       "dangerClass": 3
     }
   ],
   "alerts": [
-    "Brunswick: Low humidity (23%)",
+    "Brunswick: Low humidity (24%)",
     "Greensville: Low humidity (26%)"
   ]
 }
