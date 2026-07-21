@@ -1,13 +1,13 @@
 {
-  "lastUpdated": "2026-07-21T18:27:47.530899Z",
+  "lastUpdated": "2026-07-21T18:37:06.079328Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 80,
-      "rh": 83,
-      "dewPoint": 74,
-      "wind": 5,
-      "gust": 6,
+      "temp": 83,
+      "rh": 79,
+      "dewPoint": 76,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 2
     },
     {
@@ -21,12 +21,12 @@
     },
     {
       "name": "Greensville",
-      "temp": 91,
+      "temp": 90,
       "rh": 56,
-      "dewPoint": 73,
-      "wind": 9,
-      "gust": 12,
-      "dangerClass": 3
+      "dewPoint": 72,
+      "wind": 11,
+      "gust": 20,
+      "dangerClass": 4
     },
     {
       "name": "Amelia",
@@ -39,11 +39,11 @@
     },
     {
       "name": "Prince George",
-      "temp": 80,
-      "rh": 83,
-      "dewPoint": 74,
-      "wind": 5,
-      "gust": 6,
+      "temp": 83,
+      "rh": 79,
+      "dewPoint": 76,
+      "wind": 3,
+      "gust": 4,
       "dangerClass": 2
     },
     {
@@ -56,5 +56,7 @@
       "dangerClass": 3
     }
   ],
-  "alerts": []
+  "alerts": [
+    "Greensville: High gusts (20 mph)"
+  ]
 }
