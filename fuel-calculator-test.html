@@ -112,6 +112,24 @@
         '<pre>' + consoleOutput.join('\n') + '</pre>';
     }
 
+    // Wrapper function to match test expectations
+    function runFuelMoistureModel(config) {
+      const results = runModel(config.initial1Hr, config.initial10Hr, config.forecast);
+      
+      // Add computed fields that tests expect
+      results.dailyResults.forEach(day => {
+        day.emc = computeEMC(day.temp, day.rh);
+        day.is1HrCritical = day.moisture1Hr <= 6;
+        day.is10HrCritical = day.moisture10Hr <= 8;
+      });
+      
+      // Add firstCritical10HrDay to summary
+      const crit10Index = results.dailyResults.findIndex(r => r.is10HrCritical);
+      results.summary.firstCritical10HrDay = crit10Index >= 0 ? results.dailyResults[crit10Index].day : null;
+      
+      return results;
+    }
+
     // Test 1: EMC Validation
     function testEMC() {
       const tests = [
@@ -177,11 +195,11 @@
         initial1Hr: 15,
         initial10Hr: 18,
         forecast: [
-          { label: "Day 1 (Today)", temp: 41, rh: 93, wind: 3 },
-          { label: "Day 2", temp: 55, rh: 65, wind: 5 },
-          { label: "Day 3", temp: 68, rh: 45, wind: 8 },
-          { label: "Day 4", temp: 75, rh: 30, wind: 12 },
-          { label: "Day 5", temp: 80, rh: 22, wind: 15 }
+          { label: "Day 1 (Today)", temp: 41, rh: 93, wind: 3, hours: 12 },
+          { label: "Day 2", temp: 55, rh: 65, wind: 5, hours: 12 },
+          { label: "Day 3", temp: 68, rh: 45, wind: 8, hours: 12 },
+          { label: "Day 4", temp: 75, rh: 30, wind: 12, hours: 12 },
+          { label: "Day 5", temp: 80, rh: 22, wind: 15, hours: 12 }
         ]
       };
       
@@ -195,7 +213,7 @@
         const rowClass = critical ? 'critical' : '';
         
         html += `<tr class="${rowClass}">
-          <td><strong>${day.label}</strong></td>
+          <td><strong>${day.day}</strong></td>
           <td>${day.temp}°F</td>
           <td>${day.rh}%</td>
           <td>${day.wind}mph</td>
@@ -224,9 +242,9 @@
         initial1Hr: 12,
         initial10Hr: 15,
         forecast: [
-          { label: "Day 1", temp: 85, rh: 20, wind: 18 },
-          { label: "Day 2", temp: 90, rh: 15, wind: 20 },
-          { label: "Day 3", temp: 88, rh: 18, wind: 22 }
+          { label: "Day 1", temp: 85, rh: 20, wind: 18, hours: 12 },
+          { label: "Day 2", temp: 90, rh: 15, wind: 20, hours: 12 },
+          { label: "Day 3", temp: 88, rh: 18, wind: 22, hours: 12 }
         ]
       };
       
