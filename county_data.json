@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-08-12T06:28:54.455591Z",
+  "lastUpdated": "2026-08-12T06:29:51.647395Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -13,10 +13,10 @@
     {
       "name": "Brunswick",
       "temp": 75,
-      "rh": 75,
-      "dewPoint": 67,
-      "wind": 7,
-      "gust": 9,
+      "rh": 74,
+      "dewPoint": 66,
+      "wind": 5,
+      "gust": 6,
       "dangerClass": 2
     },
     {
