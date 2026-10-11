@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-11T06:12:27.695096Z",
+  "lastUpdated": "2026-10-11T06:15:17.713824Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -30,11 +30,11 @@
     },
     {
       "name": "Amelia",
-      "temp": 63,
-      "rh": 100,
-      "dewPoint": 63,
-      "wind": 8,
-      "gust": 10,
+      "temp": null,
+      "rh": null,
+      "dewPoint": null,
+      "wind": null,
+      "gust": null,
       "dangerClass": 1
     },
     {
