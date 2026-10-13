@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-10-13T00:23:25.274300Z",
+  "lastUpdated": "2026-10-13T01:03:53.040533Z",
   "counties": [
     {
       "name": "Dinwiddie",
@@ -12,11 +12,11 @@
     },
     {
       "name": "Brunswick",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": null,
-      "gust": null,
+      "temp": 68,
+      "rh": 92,
+      "dewPoint": 65,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     },
     {
@@ -48,11 +48,11 @@
     },
     {
       "name": "Nottoway",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": null,
-      "gust": null,
+      "temp": 71,
+      "rh": 95,
+      "dewPoint": 69,
+      "wind": 0,
+      "gust": 0,
       "dangerClass": 1
     }
   ],
