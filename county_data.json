@@ -1,31 +1,31 @@
 {
-  "lastUpdated": "2026-11-24T12:07:02.988533Z",
+  "lastUpdated": "2026-11-24T12:20:38.679092Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 17,
-      "dangerClass": 2
-    },
-    {
-      "name": "Brunswick",
-      "temp": 48,
-      "rh": 58,
-      "dewPoint": 34,
+      "temp": 44,
+      "rh": 46,
+      "dewPoint": 25,
       "wind": 9,
       "gust": 12,
       "dangerClass": 1
     },
     {
+      "name": "Brunswick",
+      "temp": 46,
+      "rh": 61,
+      "dewPoint": 33,
+      "wind": 8,
+      "gust": 10,
+      "dangerClass": 1
+    },
+    {
       "name": "Greensville",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 26,
+      "temp": 44,
+      "rh": 57,
+      "dewPoint": 30,
+      "wind": 13,
+      "gust": 16,
       "dangerClass": 2
     },
     {
@@ -39,12 +39,12 @@
     },
     {
       "name": "Prince George",
-      "temp": null,
-      "rh": null,
-      "dewPoint": null,
-      "wind": 0,
-      "gust": 17,
-      "dangerClass": 2
+      "temp": 44,
+      "rh": 46,
+      "dewPoint": 25,
+      "wind": 9,
+      "gust": 12,
+      "dangerClass": 1
     },
     {
       "name": "Nottoway",
@@ -56,7 +56,5 @@
       "dangerClass": 1
     }
   ],
-  "alerts": [
-    "Greensville: High gusts (26 mph)"
-  ]
+  "alerts": []
 }
