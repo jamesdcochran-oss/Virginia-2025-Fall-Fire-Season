@@ -1,67 +1,65 @@
 {
-  "lastUpdated": "2026-11-26T06:23:40.920190Z",
+  "lastUpdated": "2026-11-26T12:07:03.251204Z",
   "counties": [
     {
       "name": "Dinwiddie",
-      "temp": 49,
-      "rh": 94,
-      "dewPoint": 47,
+      "temp": 55,
+      "rh": 93,
+      "dewPoint": 53,
       "wind": 0,
-      "gust": 25,
-      "dangerClass": 2
+      "gust": 0,
+      "dangerClass": 1
     },
     {
       "name": "Brunswick",
-      "temp": 50,
-      "rh": 97,
-      "dewPoint": 49,
-      "wind": 10,
-      "gust": 21,
+      "temp": 56,
+      "rh": 98,
+      "dewPoint": 55,
+      "wind": 14,
+      "gust": 25,
       "dangerClass": 2
     },
     {
       "name": "Greensville",
-      "temp": 54,
+      "temp": 56,
       "rh": 96,
-      "dewPoint": 53,
-      "wind": 17,
-      "gust": 22,
+      "dewPoint": 55,
+      "wind": 16,
+      "gust": 38,
       "dangerClass": 2
     },
     {
       "name": "Amelia",
-      "temp": 46,
-      "rh": 99,
-      "dewPoint": 46,
-      "wind": 17,
-      "gust": 21,
-      "dangerClass": 2
-    },
-    {
-      "name": "Prince George",
-      "temp": 49,
-      "rh": 94,
-      "dewPoint": 47,
-      "wind": 0,
+      "temp": 51,
+      "rh": 100,
+      "dewPoint": 51,
+      "wind": 18,
       "gust": 25,
       "dangerClass": 2
     },
     {
+      "name": "Prince George",
+      "temp": 55,
+      "rh": 93,
+      "dewPoint": 53,
+      "wind": 0,
+      "gust": 0,
+      "dangerClass": 1
+    },
+    {
       "name": "Nottoway",
-      "temp": 46,
-      "rh": 99,
-      "dewPoint": 46,
-      "wind": 17,
-      "gust": 21,
+      "temp": 51,
+      "rh": 100,
+      "dewPoint": 51,
+      "wind": 18,
+      "gust": 25,
       "dangerClass": 2
     }
   ],
   "alerts": [
-    "Dinwiddie: High gusts (25 mph)",
-    "Brunswick: High gusts (21 mph)",
-    "Greensville: High gusts (22 mph)",
-    "Amelia: High gusts (21 mph)",
-    "Prince George: High gusts (25 mph)",
-    "Nottoway: High gusts (21 mph)"
+    "Brunswick: High gusts (25 mph)",
+    "Greensville: High gusts (38 mph)",
+    "Amelia: High gusts (25 mph)",
+    "Nottoway: High gusts (25 mph)"
   ]
 }
